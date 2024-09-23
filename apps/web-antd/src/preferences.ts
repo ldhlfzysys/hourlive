@@ -9,6 +9,8 @@ export const overridesPreferences = defineOverridesPreferences({
   app: {
     authPageLayout: 'panel-center',
     enableCheckUpdates: false,
+    enableRefreshToken: false,
+    locale: 'zh-CN',
     name: import.meta.env.VITE_APP_TITLE,
   },
   breadcrumb: {

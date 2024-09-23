@@ -10,7 +10,7 @@ export const DEFAULT_HOME_PATH = '/analytics';
 
 export interface LanguageOption {
   label: string;
-  value: 'en-US' | 'zh-CN';
+  value: 'en-US' | 'id' | 'ms' | 'th' | 'tl' | 'vi' | 'zh-CN';
 }
 
 /**
@@ -24,5 +24,25 @@ export const SUPPORT_LANGUAGES: LanguageOption[] = [
   {
     label: 'English',
     value: 'en-US',
+  },
+  {
+    label: 'Indonesia',
+    value: 'id',
+  },
+  {
+    label: 'Malaysia',
+    value: 'ms',
+  },
+  {
+    label: 'ภาษาไทย',
+    value: 'th',
+  },
+  {
+    label: 'Filipino',
+    value: 'tl',
+  },
+  {
+    label: 'Tiếng Việt',
+    value: 'vi',
   },
 ];
