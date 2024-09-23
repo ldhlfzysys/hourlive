@@ -46,9 +46,9 @@ export interface RegisterParams {
   account: string;
   password: string;
   user_type: number; // 0普通 1机构 2客户 8管理员
-  name: string; // 机构名称
-  shipping_address: string; // 机构收货地址
-  code: string; // 客户号
+  name?: string; // 机构名称
+  shipping_address?: string; // 机构收货地址
+  code?: string; // 客户号
 }
 
 export interface SuperContentQuery {

@@ -1,4 +1,4 @@
-import type { LoginParams, StanderResult } from '#/types';
+import type { LoginParams, RegisterParams, StanderResult } from '#/types';
 
 import { baseRequestClient, requestClient } from '#/api/request';
 
@@ -22,6 +22,13 @@ export namespace AuthApi {
     data: string;
     status: number;
   }
+}
+
+/**
+ * 注册
+ */
+export async function registerApi(data: RegisterParams) {
+  return requestClient.post<StanderResult<any>>('/user/register', data);
 }
 
 /**

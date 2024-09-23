@@ -7,6 +7,7 @@ const routes: RouteRecordRaw[] = [
   {
     component: BasicLayout,
     meta: {
+      authority: ['agency'],
       icon: 'ic:baseline-view-in-ar',
       keepAlive: true,
       order: 1000,
