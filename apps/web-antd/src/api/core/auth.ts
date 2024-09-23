@@ -1,4 +1,4 @@
-import type { LoginParams, RegisterParams, StanderResult } from '#/types';
+import type { LoginParams, RegisterParams, StanderResult, User } from '#/types';
 
 import { baseRequestClient, requestClient } from '#/api/request';
 
@@ -54,6 +54,10 @@ export async function logoutApi() {
   return baseRequestClient.post('/auth/logout', {
     withCredentials: true,
   });
+}
+
+export async function getUserInfoApi() {
+  return requestClient.get<User>('/user/me');
 }
 
 /**
