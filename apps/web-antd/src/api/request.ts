@@ -71,12 +71,10 @@ function createRequestClient(baseURL: string) {
   client.addResponseInterceptor({
     fulfilled: (response) => {
       const { data: responseData, status } = response;
-
-      const { code, data, message: msg } = responseData;
-      if (status >= 200 && status < 400 && code === 0) {
-        return data;
+      if (status >= 200 && status < 400) {
+        return responseData;
       }
-      throw new Error(`Error ${status}: ${msg}`);
+      throw new Error(`Error ${status}`);
     },
   });
 
