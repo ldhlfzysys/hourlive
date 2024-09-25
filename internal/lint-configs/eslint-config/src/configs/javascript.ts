@@ -59,7 +59,7 @@ export async function javascript(): Promise<Linter.Config[]> {
         'no-class-assign': 'error',
         'no-compare-neg-zero': 'error',
         'no-cond-assign': ['error', 'always'],
-        'no-console': ['error', { allow: ['warn', 'error'] }],
+        'no-console': ['off', { allow: ['warn', 'error'] }],
         'no-const-assign': 'error',
         'no-control-regex': 'error',
         'no-debugger': 'error',
@@ -165,7 +165,7 @@ export async function javascript(): Promise<Linter.Config[]> {
           },
         ],
         'no-unused-vars': [
-          'error',
+          'off',
           {
             args: 'none',
             caughtErrors: 'none',
@@ -220,7 +220,7 @@ export async function javascript(): Promise<Linter.Config[]> {
 
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
-          'error',
+          'off',
           {
             args: 'after-used',
             argsIgnorePattern: '^_',

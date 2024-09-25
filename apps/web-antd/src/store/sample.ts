@@ -11,7 +11,7 @@ import { $t } from '#/locales';
 import type { Sample, SampleCreate, SampleQuery, StanderResult } from '#/types';
 
 function getAllSamples(params?: SampleQuery) {
-  return requestClient.post<StanderResult<Sample[]>>('', params);
+  return requestClient.post<StanderResult<Sample[]>>('sample/query', params);
 }
 
 function newSamples(params: SampleCreate) {
@@ -40,18 +40,17 @@ export const useSampleStore = defineStore('sample-store', () => {
     q_order: 'desc',
     q_size: 30,
   });
-  const minSampleId = ref<number>(-1);
 
   function $reset() {
     sampleLoading.value = false;
     sampleCreateLoading.value = false;
-    minSampleId.value = -1;
+    sampleQuery.value.q_id = -1;
 
     sampleQuery.value = {
       is_main: '-1',
       q_id: -1,
       q_order: 'desc',
-      q_size: 30,
+      q_size: 5,
     };
     samples.value = new Map();
   }
@@ -63,9 +62,9 @@ export const useSampleStore = defineStore('sample-store', () => {
       const res = await getAllSamples(sampleQuery.value);
       if (res.success) {
         if (res.data.length > 0) {
-          const lastSample = res.data[-1];
+          const lastSample = res.data.at(-1);
           if (lastSample) {
-            minSampleId.value = lastSample.id;
+            sampleQuery.value.q_id = lastSample.id;
           }
         }
         res.data.forEach((sample) => {

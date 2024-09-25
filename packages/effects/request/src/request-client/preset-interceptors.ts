@@ -3,6 +3,7 @@ import type { MakeErrorMessageFn, ResponseInterceptorConfig } from './types';
 
 import { $t } from '@vben/locales';
 
+import { message } from 'ant-design-vue';
 import axios from 'axios';
 
 export const authenticateResponseInterceptor = ({
@@ -20,6 +21,12 @@ export const authenticateResponseInterceptor = ({
 }): ResponseInterceptorConfig => {
   return {
     rejected: async (error) => {
+      // token过期
+      if (error.responseData.status_code === 401) {
+        message.error($t('fallback.http.unauthorized'));
+        await doReAuthenticate();
+        throw error;
+      }
       const { config, response } = error;
       // 如果不是 401 错误，直接抛出异常
       if (response?.status !== 401) {
@@ -29,7 +36,9 @@ export const authenticateResponseInterceptor = ({
       // 如果没有启用或者已经是重试请求了，直接跳转到重新登录
       if (!enableRefreshToken || config.__isRetryRequest) {
         await doReAuthenticate();
-        throw error;
+        // throw error;
+
+        // return Promise.reject(error);
       }
       // 如果正在刷新 token，则将请求加入队列，等待刷新完成
       if (client.isRefreshing) {
@@ -59,7 +68,6 @@ export const authenticateResponseInterceptor = ({
         // 如果刷新 token 失败，处理错误（如强制登出或跳转登录页面）
         client.refreshTokenQueue.forEach((callback) => callback(''));
         client.refreshTokenQueue = [];
-        console.error('Refresh token failed, please login again.');
         await doReAuthenticate();
 
         throw refreshError;

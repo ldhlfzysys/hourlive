@@ -139,11 +139,11 @@ export const useAuthStore = defineStore('auth', () => {
       avatar: '',
       desc: '',
       homePath: DEFAULT_HOME_PATH,
-      realName: user.account,
-      roles: user.role.auths.map((item) => item.code),
+      realName: user.data.account,
+      roles: user.data.role.auths.map((item) => item.code),
       token: '',
-      userId: user.id.toString(),
-      username: user.account,
+      userId: user.data.id.toString(),
+      username: user.data.account,
     };
     userStore.setUserInfo(userInfo);
     return userInfo;

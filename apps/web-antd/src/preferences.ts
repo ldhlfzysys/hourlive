@@ -20,6 +20,9 @@ export const overridesPreferences = defineOverridesPreferences({
     companyName: 'HourLive',
     companySiteLink: '',
   },
+  footer: {
+    enable: false,
+  },
   sidebar: {
     width: 170,
   },

@@ -3,20 +3,22 @@
  */
 import { useAppConfig } from '@vben/hooks';
 import { preferences } from '@vben/preferences';
-import {
-  authenticateResponseInterceptor,
-  errorMessageResponseInterceptor,
-  RequestClient,
-} from '@vben/request';
+import { authenticateResponseInterceptor, RequestClient } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
-
-import { message } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
 
 import { refreshTokenApi } from './core';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
+
+class HourLiveError extends Error {
+  responseData: any;
+  constructor(message: string, responseData: any) {
+    super(message);
+    this.responseData = responseData || {};
+  }
+}
 
 function createRequestClient(baseURL: string) {
   const client = new RequestClient({
@@ -70,11 +72,12 @@ function createRequestClient(baseURL: string) {
   // response数据解构
   client.addResponseInterceptor({
     fulfilled: (response) => {
-      const { data: responseData, status } = response;
-      if (status >= 200 && status < 400) {
+      const { data: responseData } = response;
+      // 小时播服务端status_code为200代表正常
+      if (responseData.success) {
         return responseData;
       }
-      throw new Error(`Error ${status}`);
+      throw new HourLiveError(responseData.message, responseData);
     },
   });
 
@@ -90,9 +93,9 @@ function createRequestClient(baseURL: string) {
   );
 
   // 通用的错误处理,如果没有进入上面的错误处理逻辑，就会进入这里
-  client.addResponseInterceptor(
-    errorMessageResponseInterceptor((msg: string) => message.error(msg)),
-  );
+  // client.addResponseInterceptor(
+  //   errorMessageResponseInterceptor((msg: string) => message.error(msg)),
+  // );
 
   return client;
 }

@@ -1,66 +1,130 @@
 <script lang="ts" setup>
-import { Page } from '@vben/common-ui';
+import { onMounted, ref, watch } from 'vue';
 
-import { Button, Card, message, notification, Space } from 'ant-design-vue';
+import { useSampleStore } from '#/store';
+// @ts-ignore
+import { RecycleScroller } from 'vue-virtual-scroller';
 
-type NotificationType = 'error' | 'info' | 'success' | 'warning';
+import LabelFilter from '#/components/labelfilter.vue';
+import SelectFilter from '#/components/selectfilter.vue';
+import HourLivePage from '#/views/template/common.vue';
 
-function info() {
-  message.info('How many roads must a man walk down');
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
+const sampleStore = useSampleStore();
+
+const updateParts = ref({
+  viewEndIdx: 0,
+  viewStartIdx: 0,
+  visibleEndIdx: 0,
+  visibleStartIdx: 0,
+});
+
+const selectedNames = ref([]);
+const selectedItems = ref([]);
+const nameOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8']);
+const itemOptions = ref([
+  { label: '1', value: '1' },
+  { label: '2', value: '2' },
+  { label: '3', value: '3' },
+  { label: '4', value: '4' },
+  { label: '5', value: '5' },
+  { label: '6', value: '6' },
+  { label: '7', value: '7' },
+  { label: '8', value: '8' },
+]);
+
+watch(
+  selectedNames,
+  (newValue, oldValue) => {
+    console.log(newValue, oldValue);
+  },
+  { deep: true },
+);
+
+watch(
+  selectedItems,
+  (newValue, oldValue) => {
+    console.log(newValue, oldValue);
+  },
+  { deep: true },
+);
+
+onMounted(() => {
+  sampleStore.querySample();
+});
+
+function onTop() {}
+function onBottom() {
+  sampleStore.querySample();
 }
 
-function error() {
-  message.error({
-    content: 'Once upon a time you dressed so fine',
-    duration: 2500,
-  });
-}
-
-function warning() {
-  message.warning('How many roads must a man walk down');
-}
-function success() {
-  message.success('Cause you walked hand in hand With another man in my place');
-}
-
-function notify(type: NotificationType) {
-  notification[type]({
-    duration: 2500,
-    message: '说点啥呢',
-    type,
-  });
+function onUpdate(
+  viewStartIndex: number,
+  viewEndIndex: number,
+  visibleStartIndex: number,
+  visibleEndIndex: number,
+) {
+  updateParts.value.viewStartIdx = viewStartIndex;
+  updateParts.value.viewEndIdx = viewEndIndex;
+  updateParts.value.visibleStartIdx = visibleStartIndex;
+  updateParts.value.visibleEndIdx = visibleEndIndex;
 }
 </script>
 
 <template>
-  <Page
-    description="支持多语言，主题功能集成切换等"
-    title="Ant Design Vue组件使用演示"
-  >
-    <Card class="mb-5" title="按钮">
-      <Space>
-        <Button>Default</Button>
-        <Button type="primary"> Primary </Button>
-        <Button> Info </Button>
-        <Button danger> Error </Button>
-      </Space>
-    </Card>
-    <Card class="mb-5" title="Message">
-      <Space>
-        <Button @click="info"> 信息 </Button>
-        <Button danger @click="error"> 错误 </Button>
-        <Button @click="warning"> 警告 </Button>
-        <Button @click="success"> 成功 </Button>
-      </Space>
-    </Card>
+  <HourLivePage :content-overflow="true">
+    <template #header>
+      <div>
+        <LabelFilter
+          v-model="selectedNames"
+          :options="nameOptions"
+          title="名称2222"
+        />
+        <SelectFilter
+          v-model="selectedItems"
+          :options="itemOptions"
+          placeholder="请选择选项"
+          title="名称222222222"
+        />
+      </div>
+    </template>
 
-    <Card class="mb-5" title="Notification">
-      <Space>
-        <Button @click="notify('info')"> 信息 </Button>
-        <Button danger @click="notify('error')"> 错误 </Button>
-        <Button @click="notify('warning')"> 警告 </Button>
-        <Button @click="notify('success')"> 成功 </Button>
-      </Space>
-    </Card>
-  </Page>
+    <template #content>
+      <div class="flex flex-1 flex-col">
+        <RecycleScroller
+          v-slot="{ item }"
+          :emit-update="true"
+          :item-size="32"
+          :items="sampleStore.sampleList"
+          :page-mode="true"
+          class="scroller"
+          key-field="id"
+          @scroll-end="onBottom"
+          @scroll-start="onTop"
+          @update="onUpdate"
+        >
+          <div class="user">
+            {{ item.id }}
+          </div>
+        </RecycleScroller>
+      </div>
+    </template>
+
+    <template #footer> 123 </template>
+  </HourLivePage>
 </template>
+
+<style scoped>
+.scroller {
+  height: 100%;
+}
+
+.user {
+  /* height: 32%; */
+
+  /* padding: 0 12px; */
+  display: flex;
+  align-items: center;
+}
+</style>
