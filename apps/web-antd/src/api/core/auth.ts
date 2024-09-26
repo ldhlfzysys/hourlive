@@ -57,7 +57,7 @@ export async function logoutApi() {
 }
 
 export async function getUserInfoApi() {
-  return requestClient.get<StanderResult<User>>('/user/me');
+  return requestClient.get<StanderResult<User>>('/user/userInfo');
 }
 
 /**

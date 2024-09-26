@@ -6,6 +6,7 @@ import { useSampleStore } from '#/store';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import LabelFilter from '#/components/labelfilter.vue';
+import SampleCard from '#/components/samplecard.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -95,7 +96,7 @@ function onUpdate(
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="32"
+          :item-size="160"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
@@ -104,9 +105,7 @@ function onUpdate(
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <div class="user">
-            {{ item.id }}
-          </div>
+          <SampleCard :sample="item" />
         </RecycleScroller>
       </div>
     </template>
