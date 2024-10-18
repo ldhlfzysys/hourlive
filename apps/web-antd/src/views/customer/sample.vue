@@ -96,7 +96,7 @@ function onUpdate(
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="160"
+          :item-size="300"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
