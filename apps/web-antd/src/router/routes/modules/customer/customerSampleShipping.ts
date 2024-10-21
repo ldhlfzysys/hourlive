@@ -9,22 +9,22 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['customer'],
       hideChildrenInMenu: true,
-      icon: 'lucide:package',
-      order: 1,
-      title: $t('sample'),
+      icon: 'lucide:truck',
+      order: 3,
+      title: $t('sampleshipping'),
     },
-    name: 'CustomerSample',
-    path: '/customer',
+    name: 'CustomerSampleshipping',
+    path: '/sampleshipping',
 
     children: [
       {
-        name: 'Sample',
-        path: '/sample',
-        component: () => import('#/views/customer/sample.vue'),
+        name: 'Sampleshipping',
+        path: '/sampleshipping',
+        component: () => import('#/views/customer/sampleshipping.vue'),
         meta: {
           affixTab: true,
-          icon: 'lucide:package',
-          title: $t('sample'),
+          icon: 'lucide:truck',
+          title: $t('sampleshipping'),
         },
       },
     ],

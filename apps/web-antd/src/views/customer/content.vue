@@ -37,16 +37,16 @@ const itemOptions = ref([
 
 watch(
   selectedNames,
-  (newValue) => {
-    console.log('xxxxx', newValue);
+  (newValue, oldValue) => {
+    console.log(newValue, oldValue);
   },
   { deep: true },
 );
 
 watch(
   selectedItems,
-  (newValue) => {
-    console.log('222', newValue);
+  (newValue, oldValue) => {
+    console.log(newValue, oldValue);
   },
   { deep: true },
 );
