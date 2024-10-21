@@ -5,9 +5,7 @@ import { useSampleStore } from '#/store';
 // @ts-ignore
 import { RecycleScroller } from 'vue-virtual-scroller';
 
-import LabelFilter from '#/components/labelfilter.vue';
 import SampleCard from '#/components/samplecard.vue';
-import SelectFilter from '#/components/selectfilter.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -75,21 +73,7 @@ function onUpdate(
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header>
-      <div>
-        <LabelFilter
-          v-model="selectedNames"
-          :options="nameOptions"
-          title="名称2222"
-        />
-        <SelectFilter
-          v-model="selectedItems"
-          :options="itemOptions"
-          placeholder="请选择选项"
-          title="名称222222222"
-        />
-      </div>
-    </template>
+    <template #header> </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">

@@ -4,6 +4,7 @@ export * from './content';
 export * from './customer';
 export * from './feishu';
 export * from './room';
+export * from './liveaccount';
 export * from './sample';
 export * from './sampleshipping';
 export * from './streamer';

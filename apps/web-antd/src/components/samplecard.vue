@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { Sample } from '#/types';
 
-import { ref } from 'vue';
-
 import { $t } from '@vben/locales';
 
 defineOptions({
@@ -12,10 +10,6 @@ defineOptions({
 const props = defineProps<{
   sample: Sample;
 }>();
-
-const sellingPoints = ref(
-  '<p>这是一个非常大的卖点展示区域，支持HTML内容。</p>',
-);
 </script>
 
 <template>
@@ -70,7 +64,7 @@ const sellingPoints = ref(
         </span>
 
         <div
-          class="line-clamp-3 flex-1 text-xs text-gray-500"
+          class="w-5/6 flex-1 overflow-y-scroll text-xs text-gray-500"
           v-html="props.sample.product_ksp"
         ></div>
         <p class="text-sm font-black text-gray-800">
@@ -119,5 +113,25 @@ const sellingPoints = ref(
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 7px;
+  background-color: #f5f5f5;
+}
+
+/* 定义滚动条轨道 内阴影+圆角 */
+::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+}
+
+/* 定义滑块 内阴影+圆角 */
+::-webkit-scrollbar-thumb {
+  background-color: #c8c8c8;
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgb(0 0 0 / 10%);
 }
 </style>
