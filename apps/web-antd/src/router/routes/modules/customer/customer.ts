@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
+import config from '#/router/routes/config';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -16,18 +17,7 @@ const routes: RouteRecordRaw[] = [
     name: 'CustomerSample',
     path: '/customer',
 
-    children: [
-      {
-        name: 'Sample',
-        path: '/sample',
-        component: () => import('#/views/customer/sample.vue'),
-        meta: {
-          affixTab: true,
-          icon: 'lucide:package',
-          title: $t('sample'),
-        },
-      },
-    ],
+    children: [config.sample],
   },
 ];
 
