@@ -16,7 +16,7 @@ export interface LiveAccount {
   customer?: Customer;
 }
 
-export interface LiveACcountCreate {
+export interface LiveAccountCreate {
   name: string;
   mobile: string;
   platform: string;
@@ -31,4 +31,8 @@ export interface LiveAccountUpdate {
   platform: string;
   live_account: string;
   password: string;
+}
+
+export interface LiveAccountDelete {
+  id: number;
 }

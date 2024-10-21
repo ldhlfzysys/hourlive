@@ -1,3 +1,4 @@
+export type * from './IBase';
 export type * from './IContent';
 export type * from './IHourliveMoneyRecord';
 export type * from './ILiveAccount';

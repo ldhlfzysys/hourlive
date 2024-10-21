@@ -18,6 +18,11 @@ export interface RoomUpdate {
   id: number;
   name: string;
 }
+
+export interface RoomDelete {
+  id: number;
+}
+
 export interface RoomList {
   start_time: string; // Format: HH:MM
   end_time: string; // Format: HH:MM

@@ -1,3 +1,4 @@
+import type { BaseQuery } from './IBase';
 import type { Content } from './IContent';
 import type { HourliveMoneyRecord } from './IHourliveMoneyRecord';
 import type { Room } from './IRoom';
@@ -74,4 +75,21 @@ export interface AddSubsidy {
 export interface CancelTimeSlot {
   timeslotorder_id: number;
   timeslot_ids: number[];
+}
+
+// Query
+export interface OrderQuery extends BaseQuery {
+  agency_id?: number;
+  room_id?: number;
+  content_id?: number;
+  customer_id?: number;
+  begin_date?: string;
+  finish_date?: string;
+}
+
+export interface TimeslotCreate {
+  date: string; // Format: YYYY-MM-DD
+  start_time: string; // Format: HH:MM
+  end_time: string; // Format: HH:MM
+  hourlive_money_cost: number; // 消耗，这个时段如果要定，需要多少平台币
 }
