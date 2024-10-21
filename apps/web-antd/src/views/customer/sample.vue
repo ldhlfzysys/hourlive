@@ -96,7 +96,7 @@ function onUpdate(
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="300"
+          :item-size="200"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
@@ -110,7 +110,7 @@ function onUpdate(
       </div>
     </template>
 
-    <template #footer> 123 </template>
+    <!-- <template #footer> 123 </template> -->
   </HourLivePage>
 </template>
 
