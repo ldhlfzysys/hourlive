@@ -13,28 +13,28 @@ enum ContentApi {
   UpdateContent = 'updatecontent',
 }
 
-export function getAllContent(params: BaseQuery) {
+function getAllContent(params: BaseQuery) {
   return requestClient.post<StanderResult<Content[]>>(
     ContentApi.AllContent,
     params,
   );
 }
 
-export function createContent(params: Content) {
+function createContent(params: Content) {
   return requestClient.post<StanderResult<Content>>(
     ContentApi.CreateContent,
     params,
   );
 }
 
-export function updateContent(params: Content) {
+function updateContent(params: Content) {
   return requestClient.post<StanderResult<Content>>(
     ContentApi.UpdateContent,
     params,
   );
 }
 
-export function deleteContent(params: IdQuery) {
+function deleteContent(params: IdQuery) {
   return requestClient.post<StanderResult<Content>>(
     ContentApi.DeleteContent,
     params,

@@ -19,76 +19,76 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.sample],
   },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:user-round',
-      order: 2,
-      title: $t('liveaccount'),
-    },
-    name: 'CustomerLiveAccount',
-    path: '/liveaccount',
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:user-round',
+  //     order: 2,
+  //     title: $t('liveaccount'),
+  //   },
+  //   name: 'CustomerLiveAccount',
+  //   path: '/liveaccount',
 
-    children: [config.liveaccount],
-  },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:truck',
-      order: 3,
-      title: $t('sampleshipping'),
-    },
-    name: 'CustomerSampleshipping',
-    path: '/sampleshipping',
+  //   children: [config.liveaccount],
+  // },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:truck',
+  //     order: 3,
+  //     title: $t('sampleshipping'),
+  //   },
+  //   name: 'CustomerSampleshipping',
+  //   path: '/sampleshipping',
 
-    children: [config.sampleshipping],
-  },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:tv-minimal-play',
-      order: 4,
-      title: $t('content'),
-    },
-    name: 'CustomerContent',
-    path: '/content',
+  //   children: [config.sampleshipping],
+  // },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:tv-minimal-play',
+  //     order: 4,
+  //     title: $t('content'),
+  //   },
+  //   name: 'CustomerContent',
+  //   path: '/content',
 
-    children: [config.content],
-  },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:orders',
-      order: 5,
-      title: $t('mysampleshipping'),
-    },
-    name: 'CustomerShippings',
-    path: '/shippings',
+  //   children: [config.content],
+  // },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:orders',
+  //     order: 5,
+  //     title: $t('mysampleshipping'),
+  //   },
+  //   name: 'CustomerShippings',
+  //   path: '/shippings',
 
-    children: [config.shippings],
-  },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:calendar-days',
-      order: 6,
-      title: $t('sample'),
-    },
-    name: 'CustomerOrders',
-    path: '/orders',
+  //   children: [config.shippings],
+  // },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:calendar-days',
+  //     order: 6,
+  //     title: $t('sample'),
+  //   },
+  //   name: 'CustomerOrders',
+  //   path: '/orders',
 
-    children: [config.orders],
-  },
+  //   children: [config.orders],
+  // },
 ];
 
 export default routes;

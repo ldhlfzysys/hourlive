@@ -27,27 +27,27 @@ enum CustomerApi {
   UploadFile = 'uploadfile',
 }
 
-export function getLiveAccount() {
+function getLiveAccount() {
   return requestClient.post<StanderResult<LiveAccount[]>>(
     CustomerApi.GetLiveAccount,
   );
 }
 
-export function createLiveAccount(params: LiveAccountCreate) {
+function createLiveAccount(params: LiveAccountCreate) {
   return requestClient.post<StanderResult<LiveAccount>>(
     CustomerApi.CreateLiveAccount,
     params,
   );
 }
 
-export function updateLiveAccount(params: LiveAccountUpdate) {
+function updateLiveAccount(params: LiveAccountUpdate) {
   return requestClient.post<StanderResult<LiveAccount>>(
     CustomerApi.UpdateLiveAccount,
     params,
   );
 }
 
-export function deleteLiveAccount(params: LiveAccountDelete) {
+function deleteLiveAccount(params: LiveAccountDelete) {
   return requestClient.post<StanderResult<any>>(
     CustomerApi.DeleteLiveAccount,
     params,

@@ -29,21 +29,21 @@ enum SampleShippingApi {
   UpdateShippingAddress = 'updateshippingaddress',
 }
 
-export function getAllSampleShippings(params?: SampleShippingQuery) {
+function getAllSampleShippings(params?: SampleShippingQuery) {
   return requestClient.post<StanderResult<SampleShipping[]>>(
     SampleShippingApi.AllSampleShipping,
     params,
   );
 }
 
-export function createSampleShipping(params: SampleShippingCreate) {
+function createSampleShipping(params: SampleShippingCreate) {
   return requestClient.post<StanderResult<SampleShipping>>(
     SampleShippingApi.CreateSampleShipping,
     params,
   );
 }
 
-export function updateSampleShipping(params: SampleShippingUpdateByAgency) {
+function updateSampleShipping(params: SampleShippingUpdateByAgency) {
   return requestClient.post<StanderResult<SampleShipping>>(
     SampleShippingApi.UpdateSampleShipping,
     params,

@@ -13,11 +13,11 @@ enum FeishuApi {
   GET_APPID = '/feishu/getappid',
 }
 
-export async function getFeishuAppid() {
+async function getFeishuAppid() {
   return requestClient.post<StanderResult<string>>(FeishuApi.GET_APPID);
 }
 
-export async function feishuAuthLogin(code: string) {
+async function feishuAuthLogin(code: string) {
   return requestClient.post<StanderResult<string>>(FeishuApi.AUTH_LOGIN, {
     code,
   });

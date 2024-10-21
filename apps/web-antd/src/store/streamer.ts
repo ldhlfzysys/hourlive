@@ -15,25 +15,25 @@ enum StreamerApi {
   UpdateStreamer = 'updatesreamer',
 }
 
-export function getAllStreamers() {
+function getAllStreamers() {
   return requestClient.post<StanderResult<Streamer[]>>(StreamerApi.AllStreamer);
 }
 
-export function createStreamer(params: StreamerCreate) {
+function createStreamer(params: StreamerCreate) {
   return requestClient.post<StanderResult<Streamer>>(
     StreamerApi.CreateStreamer,
     params,
   );
 }
 
-export function updateStreamer(params: StreamerCreate) {
+function updateStreamer(params: StreamerCreate) {
   return requestClient.post<StanderResult<Streamer>>(
     StreamerApi.UpdateStreamer,
     params,
   );
 }
 
-export function deleteStreamer(params: IdQuery) {
+function deleteStreamer(params: IdQuery) {
   return requestClient.post<StanderResult<any>>(
     StreamerApi.DeleteStreamer,
     params,
