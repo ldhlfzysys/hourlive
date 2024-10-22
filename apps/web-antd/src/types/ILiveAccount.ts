@@ -21,10 +21,12 @@ export interface LiveAccount {
 
 export interface LiveAccountCreate {
   name: string;
+  code: string;
   mobile: string;
+  email: string;
   platform: string;
   live_account: string;
-  password: string;
+  live_uid: string;
 }
 
 export interface LiveAccountUpdate {

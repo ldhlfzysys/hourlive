@@ -32,7 +32,15 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
 
   const liveaccountLoading = ref(false);
   const liveaccountCreateLoading = ref(false);
-
+  const liveaccountCreate = ref<LiveAccountCreate>({
+    code: '',
+    email: '',
+    live_account: '',
+    live_uid: '',
+    mobile: '',
+    name: '',
+    platform: '',
+  });
   // liveaccounts
   const liveaccounts = ref<Map<number, LiveAccount>>(new Map());
 
@@ -83,10 +91,10 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     }
   }
 
-  async function createLiveAccount(params: LiveAccountCreate) {
+  async function createLiveAccount() {
     try {
       liveaccountCreateLoading.value = true;
-      const res = await newLiveAccount(params);
+      const res = await newLiveAccount(liveaccountCreate.value);
       if (res.success) {
         liveaccounts.value.set(res.data.id, res.data);
       } else {
@@ -103,6 +111,8 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   return {
     $reset,
     createLiveAccount,
+    liveaccountCreate,
+    liveaccountCreateLoading,
     liveaccountList,
     liveaccountLoading,
     liveaccountQuery,
