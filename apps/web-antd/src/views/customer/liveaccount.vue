@@ -5,7 +5,7 @@ import { useLiveAccountStore } from '#/store';
 // @ts-ignore
 import { RecycleScroller } from 'vue-virtual-scroller';
 
-import { Button, Modal } from 'ant-design-vue';
+import { Button } from 'ant-design-vue';
 
 import LiveAccountCard from '#/components/liveaccountcard.vue';
 import LiveAccountForm from '#/components/liveaccountform.vue';
@@ -22,15 +22,9 @@ const updateParts = ref({
   visibleStartIdx: 0,
 });
 
-const showModal = ref(false);
-
 onMounted(() => {
   liveaccountStore.queryLiveAccount();
 });
-
-function handleOk() {
-  liveaccountStore.createLiveAccount();
-}
 
 function onTop() {}
 function onBottom() {
@@ -53,7 +47,9 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="showModal = true">新增直播账号</Button>
+      <Button type="primary" @click="liveaccountStore.showModal = true">
+        新增直播账号
+      </Button>
     </template>
 
     <template #content>
@@ -73,16 +69,7 @@ function onUpdate(
           <LiveAccountCard :liveaccount="item" />
         </RecycleScroller>
       </div>
-      <Modal
-        v-model:visible="showModal"
-        :confirm-loading="liveaccountStore.liveaccountCreateLoading"
-        :title="$t('create')"
-        centered
-        width="800px"
-        @ok="handleOk"
-      >
-        <LiveAccountForm />
-      </Modal>
+      <LiveAccountForm />
     </template>
     <!-- <template #footer> 123 </template> -->
   </HourLivePage>

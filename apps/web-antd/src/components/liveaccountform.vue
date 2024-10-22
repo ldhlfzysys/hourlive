@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { $t } from '@vben/locales';
 
-import { Input, Select } from 'ant-design-vue';
+import { Input, Modal, Select } from 'ant-design-vue';
 
 import { useLiveAccountStore } from '#/store';
 
@@ -10,73 +10,86 @@ defineOptions({
 });
 
 const liveaccountStore = useLiveAccountStore();
+
+function handleOk() {
+  liveaccountStore.createLiveAccount();
+}
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-lg border bg-white shadow">
-    <div class="flex flex-row px-4 py-5 sm:px-6">
-      <Input
-        v-model:value="liveaccountStore.liveaccountCreate.name"
-        :placeholder="$t('shop_name')"
-        class="mr-3 text-lg font-medium leading-6 text-gray-900"
-      />
-      <Input
-        v-model:value="liveaccountStore.liveaccountCreate.code"
-        :placeholder="$t('shop_code')"
-        class="mt-1 max-w-2xl text-sm text-gray-500"
-      />
-    </div>
-    <div class="flex flex-row justify-between">
-      <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-        <div class="mb-4 flex flex-row items-center">
-          <span class="mr-2 flex text-sm font-medium text-gray-500">
-            {{ $t('mobile') }}
-          </span>
-          <Input class="flex-1 text-sm text-gray-900">
-            {{ liveaccountStore.liveaccountCreate.mobile }}
-          </Input>
-        </div>
-        <div class="flex flex-row items-center">
-          <span class="mr-2 flex text-sm font-medium text-gray-500">
-            {{ $t('email') }}
-          </span>
-          <Input class="flex-1 text-sm text-gray-900">
-            {{ liveaccountStore.liveaccountCreate.mobile }}
-          </Input>
-        </div>
+  <Modal
+    v-model:visible="liveaccountStore.showModal"
+    :confirm-loading="liveaccountStore.liveaccountCreateLoading"
+    :title="$t('create')"
+    centered
+    width="800px"
+    @ok="handleOk"
+  >
+    <div class="overflow-hidden rounded-lg border bg-white shadow">
+      <div class="flex flex-row px-4 py-5 sm:px-6">
+        <Input
+          v-model:value="liveaccountStore.liveaccountCreate.name"
+          :placeholder="$t('shop_name')"
+          class="mr-3 text-lg font-medium leading-6 text-gray-900"
+        />
+        <Input
+          v-model:value="liveaccountStore.liveaccountCreate.code"
+          :placeholder="$t('shop_code')"
+          class="mt-1 max-w-2xl text-sm text-gray-500"
+        />
       </div>
+      <div class="flex flex-row justify-between">
+        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
+          <div class="mb-4 flex flex-row items-center">
+            <span class="mr-2 flex text-sm font-medium text-gray-500">
+              {{ $t('mobile') }}
+            </span>
+            <Input class="flex-1 text-sm text-gray-900">
+              {{ liveaccountStore.liveaccountCreate.mobile }}
+            </Input>
+          </div>
+          <div class="flex flex-row items-center">
+            <span class="mr-2 flex text-sm font-medium text-gray-500">
+              {{ $t('email') }}
+            </span>
+            <Input class="flex-1 text-sm text-gray-900">
+              {{ liveaccountStore.liveaccountCreate.mobile }}
+            </Input>
+          </div>
+        </div>
 
-      <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-        <div class="mb-4 flex flex-row items-center">
-          <span class="mr-2 flex text-sm font-medium text-gray-500">
-            {{ $t('live_account') }}
-          </span>
-          <Input class="flex-1 text-sm text-gray-900">
-            {{ liveaccountStore.liveaccountCreate.mobile }}
-          </Input>
+        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
+          <div class="mb-4 flex flex-row items-center">
+            <span class="mr-2 flex text-sm font-medium text-gray-500">
+              {{ $t('live_account') }}
+            </span>
+            <Input class="flex-1 text-sm text-gray-900">
+              {{ liveaccountStore.liveaccountCreate.mobile }}
+            </Input>
+          </div>
+          <div class="flex flex-row items-center">
+            <span class="mr-2 flex text-sm font-medium text-gray-500">
+              {{ $t('live_uid') }}
+            </span>
+            <Input class="flex-1 text-sm text-gray-900">
+              {{ liveaccountStore.liveaccountCreate.mobile }}
+            </Input>
+          </div>
         </div>
-        <div class="flex flex-row items-center">
-          <span class="mr-2 flex text-sm font-medium text-gray-500">
-            {{ $t('live_uid') }}
-          </span>
-          <Input class="flex-1 text-sm text-gray-900">
-            {{ liveaccountStore.liveaccountCreate.mobile }}
-          </Input>
-        </div>
-      </div>
 
-      <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
-        <div class="mb-4 flex flex-row items-center">
-          <span class="mr-2 flex text-sm font-medium text-gray-500">
-            {{ $t('platform') }}
-          </span>
-          <Select class="flex-1 text-sm text-gray-900">
-            {{ liveaccountStore.liveaccountCreate.mobile }}
-          </Select>
+        <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
+          <div class="mb-4 flex flex-row items-center">
+            <span class="mr-2 flex text-sm font-medium text-gray-500">
+              {{ $t('platform') }}
+            </span>
+            <Select class="flex-1 text-sm text-gray-900">
+              {{ liveaccountStore.liveaccountCreate.mobile }}
+            </Select>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Modal>
 </template>
 
 <style scoped>

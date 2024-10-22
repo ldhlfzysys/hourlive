@@ -50,6 +50,8 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
       .map(([_, liveaccount]) => liveaccount); // 转换为LiveAccount的list
   });
 
+  const showModal = ref(false);
+
   // query
   const liveaccountQuery = ref<LiveAccountQuery>({
     q_id: -1,
@@ -118,5 +120,6 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     liveaccountQuery,
     liveaccounts,
     queryLiveAccount,
+    showModal,
   };
 });
