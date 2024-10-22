@@ -23,7 +23,10 @@ function getAllLiveAccount(params?: LiveAccountQuery) {
 }
 
 function newLiveAccount(params: LiveAccountCreate) {
-  return requestClient.post<StanderResult<LiveAccount>>('', params);
+  return requestClient.post<StanderResult<LiveAccount>>(
+    'live_account/create',
+    params,
+  );
 }
 
 // store

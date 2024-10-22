@@ -13,11 +13,9 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="flex h-[200px] w-full flex-col">
-    <div
-      class="border-grey flex h-[195px] w-full flex-row rounded-xl border bg-white"
-    >
-      <div class="h-[195px] w-[195px] place-items-center bg-white">
+  <div class="flex h-[200px] w-full">
+    <div class="m-2 flex flex-row">
+      <div class="w-[170px] place-items-center bg-white">
         <img
           :src="props.sample.product_image"
           alt="tailwind logo"
@@ -78,7 +76,6 @@ const props = defineProps<{
         </p>
       </div>
     </div>
-    <div class="flex h-[5px] bg-gray-200"></div>
   </div>
 </template>
 

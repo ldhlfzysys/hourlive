@@ -5,6 +5,8 @@ import { useSampleStore } from '#/store';
 // @ts-ignore
 import { RecycleScroller } from 'vue-virtual-scroller';
 
+import { useElementBounding } from '@vueuse/core';
+
 import SampleCard from '#/components/samplecard.vue';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -18,6 +20,13 @@ const updateParts = ref({
   visibleEndIdx: 0,
   visibleStartIdx: 0,
 });
+
+const itemWidth = ref(300);
+const scroller = ref();
+function onResize() {
+  const width = useElementBounding(scroller).width.value;
+  itemWidth.value = width / 2;
+}
 
 const selectedNames = ref([]);
 const selectedItems = ref([]);
@@ -76,15 +85,19 @@ function onUpdate(
     <template #header> </template>
 
     <template #content>
-      <div class="flex flex-1 flex-col">
+      <div class="flex flex-1 flex-col bg-red-800">
         <RecycleScroller
+          ref="scroller"
           v-slot="{ item }"
           :emit-update="true"
+          :item-secondary-size="itemWidth"
           :item-size="200"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
+          grid-items="2"
           key-field="id"
+          @resize="onResize"
           @scroll-end="onBottom"
           @scroll-start="onTop"
           @update="onUpdate"

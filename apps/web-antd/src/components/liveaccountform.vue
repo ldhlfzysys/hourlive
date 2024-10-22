@@ -44,17 +44,19 @@ function handleOk() {
             <span class="mr-2 flex text-sm font-medium text-gray-500">
               {{ $t('mobile') }}
             </span>
-            <Input class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Input>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.mobile"
+              class="flex-1 text-sm text-gray-900"
+            />
           </div>
           <div class="flex flex-row items-center">
             <span class="mr-2 flex text-sm font-medium text-gray-500">
               {{ $t('email') }}
             </span>
-            <Input class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Input>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.email"
+              class="flex-1 text-sm text-gray-900"
+            />
           </div>
         </div>
 
@@ -63,17 +65,19 @@ function handleOk() {
             <span class="mr-2 flex text-sm font-medium text-gray-500">
               {{ $t('live_account') }}
             </span>
-            <Input class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Input>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.live_account"
+              class="flex-1 text-sm text-gray-900"
+            />
           </div>
           <div class="flex flex-row items-center">
             <span class="mr-2 flex text-sm font-medium text-gray-500">
               {{ $t('live_uid') }}
             </span>
-            <Input class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Input>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.live_uid"
+              class="flex-1 text-sm text-gray-900"
+            />
           </div>
         </div>
 
