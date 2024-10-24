@@ -35,6 +35,7 @@ export interface User {
   role_id?: number;
   customer?: Customer;
   agency?: Agency;
+  home?: string;
 }
 
 export interface LoginParams {

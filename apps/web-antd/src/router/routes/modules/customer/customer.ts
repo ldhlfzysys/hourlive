@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
       title: $t('sample'),
     },
     name: 'CustomerSample',
-    path: '/customer',
+    path: '/sample',
 
     children: [config.sample],
   },
