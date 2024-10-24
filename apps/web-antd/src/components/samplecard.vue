@@ -14,15 +14,15 @@ const props = defineProps<{
 
 <template>
   <div class="flex h-[200px] w-full">
-    <div class="m-2 flex flex-row">
-      <div class="w-[170px] place-items-center bg-white">
+    <div class="m-2 flex flex-row rounded-lg border border-gray-200">
+      <div class="w-[170px] place-items-center">
         <img
           :src="props.sample.product_image"
           alt="tailwind logo"
           class="rounded-xl"
         />
       </div>
-      <div class="flex flex-1 flex-col bg-white p-3">
+      <div class="flex flex-1 flex-col p-3">
         <div class="flex justify-between">
           <div class="flex">
             <a

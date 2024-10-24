@@ -85,7 +85,7 @@ function onUpdate(
     <template #header> </template>
 
     <template #content>
-      <div class="flex flex-1 flex-col bg-red-800">
+      <div class="flex flex-1 flex-col">
         <RecycleScroller
           ref="scroller"
           v-slot="{ item }"
