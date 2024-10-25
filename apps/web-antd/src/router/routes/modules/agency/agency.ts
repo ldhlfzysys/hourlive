@@ -10,6 +10,20 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['agency'],
       hideChildrenInMenu: true,
+      icon: 'lucide:house',
+      order: 1,
+      title: $t('home'),
+    },
+    name: 'CustomerHome',
+    path: '/home',
+
+    children: [config.home],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
       icon: 'lucide:package',
       order: -1,
       title: $t('sample'),

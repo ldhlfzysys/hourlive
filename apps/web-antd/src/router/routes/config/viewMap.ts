@@ -11,6 +11,16 @@ const viewMap = {
     name: 'Content',
     path: '/content',
   },
+  home: {
+    component: () => import('#/views/common/home.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:calendar',
+      title: $t('home'),
+    },
+    name: 'Home',
+    path: '/home',
+  },
   liveaccount: {
     component: () => import('#/views/customer/liveaccount.vue'),
     meta: {

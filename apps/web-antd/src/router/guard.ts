@@ -65,6 +65,7 @@ function setupAccessGuard(router: Router) {
     // 基本路由，这些路由不需要进入权限拦截
     if (coreRouteNames.includes(to.name as string)) {
       if (to.path === LOGIN_PATH && accessStore.accessToken) {
+        console.log('11111');
         return decodeURIComponent(
           (to.query?.redirect as string) || DEFAULT_HOME_PATH,
         );
