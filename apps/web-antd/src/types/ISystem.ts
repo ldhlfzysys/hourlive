@@ -30,3 +30,7 @@ export interface PageQuery {
 export interface Delete {
   id: number;
 }
+
+export interface Url {
+  url: string;
+}

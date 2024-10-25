@@ -8,29 +8,52 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { Sample, SampleCreate, SampleQuery, StanderResult } from '#/types';
+import type {
+  Sample,
+  SampleCreate,
+  SampleQuery,
+  StanderResult,
+  Url,
+} from '#/types';
 
-function getAllSamples(params?: SampleQuery) {
+// API
+function _getAllSamples(params?: SampleQuery) {
   return requestClient.post<StanderResult<Sample[]>>('sample/query', params);
 }
 
-function newSamples(params: SampleCreate) {
-  return requestClient.post<StanderResult<Sample>>('', params);
+function _newSamples(params: SampleCreate) {
+  return requestClient.post<StanderResult<Sample>>('sample/create', params);
 }
 
+function _updateSample(params: Sample) {
+  return requestClient.post<StanderResult<Sample>>('sample/update', params);
+}
+
+function _fetchSampleInfo(url: Url) {
+  return requestClient.post<StanderResult<Sample>>(
+    'sample/getProductInfo',
+    url,
+  );
+}
 // store
 export const useSampleStore = defineStore('sample-store', () => {
   // loading
+  const sampleQueryLoading = ref(false); // 查询loading
+  const sampleFetchLoading = ref(false); // 获取详情loading
+  const sampleCreateLoading = ref(false); // 创建loading
 
-  const sampleLoading = ref(false);
-  const sampleCreateLoading = ref(false);
-  // samples
+  // sample store
   const samples = ref<Map<number, Sample>>(new Map());
 
   const sampleList = computed(() => {
     return [...samples.value.entries()]
       .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
       .map(([_, sample]) => sample); // 转换为Sample的list
+  });
+
+  // others
+  const sampleCreate = ref<SampleCreate>({
+    is_main: '0',
   });
 
   // query
@@ -42,7 +65,7 @@ export const useSampleStore = defineStore('sample-store', () => {
   });
 
   function $reset() {
-    sampleLoading.value = false;
+    sampleQueryLoading.value = false;
     sampleCreateLoading.value = false;
     sampleQuery.value.q_id = -1;
 
@@ -58,8 +81,8 @@ export const useSampleStore = defineStore('sample-store', () => {
   // methods
   async function querySample() {
     try {
-      sampleLoading.value = true;
-      const res = await getAllSamples(sampleQuery.value);
+      sampleQueryLoading.value = true;
+      const res = await _getAllSamples(sampleQuery.value);
       if (res.success) {
         if (res.data.length > 0) {
           const lastSample = res.data.at(-1);
@@ -72,14 +95,14 @@ export const useSampleStore = defineStore('sample-store', () => {
         });
       }
     } finally {
-      sampleLoading.value = false;
+      sampleQueryLoading.value = false;
     }
   }
 
   async function createSample(params: SampleCreate) {
     try {
       sampleCreateLoading.value = true;
-      const res = await newSamples(params);
+      const res = await _newSamples(params);
       if (res.success) {
         samples.value.set(res.data.id, res.data);
       } else {
@@ -93,13 +116,29 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
+  /*
+  商品脚本相关
+  */
+
+  async function fetechProductInfo(product_url: string) {
+    sampleFetchLoading.value = true;
+    const res = await _fetchSampleInfo({ url: product_url });
+    sampleFetchLoading.value = false;
+    if (res.success) {
+      sampleCreate.value = res.data;
+    }
+  }
+
   return {
     $reset,
     createSample,
+    fetechProductInfo,
     querySample,
+    sampleCreate,
+    sampleFetchLoading,
     sampleList,
-    sampleLoading,
     sampleQuery,
+    sampleQueryLoading,
     samples,
   };
 });

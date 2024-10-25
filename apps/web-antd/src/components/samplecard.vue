@@ -3,6 +3,8 @@ import type { Sample } from '#/types';
 
 import { $t } from '@vben/locales';
 
+import { FileCode, Paperclip } from 'lucide-vue-next';
+
 defineOptions({
   name: 'SampleCard',
 });
@@ -14,16 +16,17 @@ const props = defineProps<{
 
 <template>
   <div class="flex h-[200px] w-full">
-    <div class="m-2 flex flex-row rounded-lg border border-gray-200">
-      <div class="w-[170px] place-items-center">
-        <img
-          :src="props.sample.product_image"
-          alt="tailwind logo"
-          class="rounded-xl"
-        />
-      </div>
-      <div class="flex flex-1 flex-col p-3">
-        <div class="flex justify-between">
+    <div
+      class="center m-2 flex flex-row justify-center rounded-lg border border-gray-200"
+    >
+      <img
+        :src="props.sample.product_image"
+        alt="tailwind logo"
+        class="rounded-xl"
+      />
+
+      <div class="flex flex-1 flex-col p-2">
+        <div class="flex items-center justify-between">
           <div class="flex">
             <a
               class="flex text-xs text-blue-500"
@@ -44,12 +47,6 @@ const props = defineProps<{
             </div>
           </div>
           <div class="flex">
-            <a
-              class="px-3 py-1 text-xs text-blue-500"
-              href="props.sample.product_link"
-              target="_blank"
-              >{{ $t('scriptmanager') }}</a
-            >
             <div
               class="bg-primary block rounded-full px-3 py-1 text-xs font-medium text-white"
             >
@@ -57,14 +54,30 @@ const props = defineProps<{
             </div>
           </div>
         </div>
-        <span class="line-clamp-1 text-sm font-black text-gray-800">
+        <span class="line-clamp-2 text-base font-black text-gray-800">
           {{ props.sample.product_name }}
         </span>
 
-        <div
-          class="w-5/6 flex-1 overflow-y-scroll text-xs text-gray-500"
-          v-html="props.sample.product_ksp"
-        ></div>
+        <div class="flex flex-1 flex-row items-center gap-2 pt-2">
+          <div class="flex items-center">
+            <Paperclip />
+            <a
+              class="text-xs text-blue-500"
+              href="props.sample.product_link"
+              target="_blank"
+              >{{ $t('scriptmanager') }}</a
+            >
+          </div>
+          <div class="flex items-center">
+            <FileCode />
+            <a
+              class="text-xs text-blue-500"
+              href="props.sample.product_link"
+              target="_blank"
+              >{{ $t('product_ksp') }}</a
+            >
+          </div>
+        </div>
         <p class="text-sm font-black text-gray-800">
           {{ props.sample.product_srp }}
           <span class="text-sm font-normal text-gray-600 line-through">{{
