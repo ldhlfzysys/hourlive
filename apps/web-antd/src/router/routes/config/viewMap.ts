@@ -81,6 +81,16 @@ const viewMap = {
     name: 'Schedule',
     path: '/schedule',
   },
+  shippingaddress: {
+    component: () => import('#/views/agency/shipppingaddress.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:map-pin',
+      title: $t('shippingaddress'),
+    },
+    name: 'ShippingAddress',
+    path: '/shippingaddress',
+  },
   shippings: {
     component: () => import('#/views/customer/shippings.vue'),
     meta: {
