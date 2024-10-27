@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import type { Sample } from '#/types';
 
+import { computed } from 'vue';
+
 import { $t } from '@vben/locales';
 
-import { FileCode, Paperclip } from 'lucide-vue-next';
+import { Image } from 'ant-design-vue';
 
 defineOptions({
   name: 'SampleCard',
@@ -12,81 +14,75 @@ defineOptions({
 const props = defineProps<{
   sample: Sample;
 }>();
+
+const type = computed(() => {
+  switch (props.sample.is_main) {
+    case '1': {
+      return 'sample_main';
+    }
+    case '0': {
+      return 'sample_welfare';
+    }
+    case '2': {
+      return 'sample_deal';
+    }
+    default: {
+      return '';
+    }
+  }
+});
 </script>
 
 <template>
   <div class="flex h-[200px] w-full">
-    <div
-      class="center m-2 flex flex-row justify-center rounded-lg border border-gray-200"
-    >
-      <img
-        :src="props.sample.product_image"
-        alt="tailwind logo"
-        class="rounded-xl"
-      />
-
-      <div class="flex flex-1 flex-col p-2">
-        <div class="flex items-center justify-between">
-          <div class="flex">
-            <a
-              class="flex text-xs text-blue-500"
-              href="props.sample.product_link"
-              target="_blank"
-              >{{ props.sample.product_id }}</a
-            >
-            <div class="ml-2 flex text-xs">
-              <div v-if="props.sample.is_main === '1'">
-                【{{ $t('sample_main') }}】
-              </div>
-              <div v-if="props.sample.is_main === '0'">
-                【{{ $t('sample_welfare') }}】
-              </div>
-              <div v-if="props.sample.is_main === '2'">
-                【{{ $t('sample_deal') }}】
-              </div>
-            </div>
-          </div>
-          <div class="flex">
-            <div
-              class="bg-primary block rounded-full px-3 py-1 text-xs font-medium text-white"
-            >
-              {{ $t('edit') }}
-            </div>
-          </div>
+    <div class="m-2 flex rounded-lg bg-white shadow-md">
+      <!-- 图片区域 -->
+      <div class="relative w-[184px]">
+        <Image
+          :src="props.sample.product_image"
+          alt="商品图片"
+          class="rounded-lg"
+        />
+        <div
+          class="absolute right-2 top-2 rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700"
+        >
+          {{ $t(type) }}
         </div>
-        <span class="line-clamp-2 text-base font-black text-gray-800">
+      </div>
+
+      <!-- 商品信息区域 -->
+      <div class="w-2/3 pl-4">
+        <!-- 商品标题 -->
+        <h2 class="line-clamp-2 text-lg font-semibold text-gray-800">
           {{ props.sample.product_name }}
-        </span>
+        </h2>
 
-        <div class="flex flex-1 flex-row items-center gap-2 pt-2">
-          <div class="flex items-center">
-            <Paperclip />
-            <a
-              class="text-xs text-blue-500"
-              href="props.sample.product_link"
-              target="_blank"
-              >{{ $t('scriptmanager') }}</a
-            >
-          </div>
-          <div class="flex items-center">
-            <FileCode />
-            <a
-              class="text-xs text-blue-500"
-              href="props.sample.product_link"
-              target="_blank"
-              >{{ $t('product_ksp') }}</a
-            >
-          </div>
+        <!-- 商品 ID 和操作链接 -->
+        <div class="mt-2 flex items-center space-x-3 text-sm text-gray-500">
+          <span>ID: 1730933517007210531</span>
+          <a class="text-blue-500" href="#">{{ $t('scriptmanager') }}</a>
+          <a class="text-blue-500" href="#">{{ $t('product_ksp') }}</a>
         </div>
-        <p class="text-sm font-black text-gray-800">
-          {{ props.sample.product_srp }}
-          <span class="text-sm font-normal text-gray-600 line-through">{{
+
+        <!-- 价格和折扣 -->
+        <div class="mt-4 line-clamp-1">
+          <span class="text-base font-bold text-blue-600">{{
+            props.sample.product_srp
+          }}</span>
+          <span class="ml-2 text-sm text-gray-400 line-through">{{
             props.sample.product_final_price
           }}</span>
-          <span class="ml-3 text-sm font-normal text-red-500">{{
+          <span class="ml-2 text-sm text-red-500">{{
             props.sample.product_discount
           }}</span>
-        </p>
+        </div>
+
+        <!-- 编辑按钮 -->
+        <div class="mt-4">
+          <button class="bg-primary rounded-full px-4 py-1 text-sm text-white">
+            {{ $t('edit') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -41,6 +41,9 @@ export const useSampleStore = defineStore('sample-store', () => {
   const sampleQueryLoading = ref(false); // 查询loading
   const sampleFetchLoading = ref(false); // 获取详情loading
   const sampleCreateLoading = ref(false); // 创建loading
+  const sampleUpdateLoading = ref(false); // 创建loading
+
+  const showModal = ref(false); // 控制创建或更新模态框显示
 
   // sample store
   const samples = ref<Map<number, Sample>>(new Map());
@@ -53,6 +56,10 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   // others
   const sampleCreate = ref<SampleCreate>({
+    is_main: '0',
+  });
+
+  const sampleUpdate = ref<SampleCreate>({
     is_main: '0',
   });
 
@@ -116,6 +123,23 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
+  async function updateSample(params: Sample) {
+    try {
+      sampleUpdateLoading.value = true;
+      const res = await _updateSample(params);
+      if (res.success) {
+        samples.value.set(res.data.id, res.data);
+      } else {
+        notification.error({
+          description: res.message,
+          message: $t('updatefail'),
+        });
+      }
+    } finally {
+      sampleUpdateLoading.value = false;
+    }
+  }
+
   /*
   商品脚本相关
   */
@@ -140,5 +164,9 @@ export const useSampleStore = defineStore('sample-store', () => {
     sampleQuery,
     sampleQueryLoading,
     samples,
+    sampleUpdate,
+    sampleUpdateLoading,
+    showModal,
+    updateSample,
   };
 });

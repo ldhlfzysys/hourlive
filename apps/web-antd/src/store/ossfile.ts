@@ -15,7 +15,12 @@ import { $t } from '#/locales';
 */
 
 // types
-import { OSSFile, OSSFileDelete, OSSFileUpload, StanderResult } from '#/types';
+import type {
+  OSSFile,
+  OSSFileDelete,
+  OSSFileUpload,
+  StanderResult,
+} from '#/types';
 
 // API
 function _uploadFile(params: OSSFileUpload) {

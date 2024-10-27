@@ -23,6 +23,7 @@ const updateParts = ref({
 });
 
 onMounted(() => {
+  console.log('onmounted !!! liveaccount');
   liveaccountStore.queryLiveAccount();
 });
 

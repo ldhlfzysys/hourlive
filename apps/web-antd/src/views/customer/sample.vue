@@ -6,8 +6,10 @@ import { useSampleStore } from '#/store';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { useElementBounding } from '@vueuse/core';
+import { Button } from 'ant-design-vue';
 
 import SampleCard from '#/components/samplecard.vue';
+import SampleForm from '#/components/sampleform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -82,7 +84,11 @@ function onUpdate(
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header> </template>
+    <template #header>
+      <Button type="primary" @click="sampleStore.showModal = true">
+        {{ $t('createsample') }}
+      </Button>
+    </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">
@@ -90,12 +96,12 @@ function onUpdate(
           ref="scroller"
           v-slot="{ item }"
           :emit-update="true"
+          :grid-items="2"
           :item-secondary-size="itemWidth"
           :item-size="200"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
-          grid-items="2"
           key-field="id"
           @resize="onResize"
           @scroll-end="onBottom"
@@ -105,6 +111,7 @@ function onUpdate(
           <SampleCard :sample="item" />
         </RecycleScroller>
       </div>
+      <SampleForm />
     </template>
 
     <!-- <template #footer> 123 </template> -->

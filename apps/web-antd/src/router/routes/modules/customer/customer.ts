@@ -80,7 +80,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['customer'],
       hideChildrenInMenu: true,
-      icon: 'lucide:orders',
+      icon: 'lucide:arrows-up-from-line',
       order: 5,
       title: $t('mysampleshipping'),
     },
@@ -96,7 +96,7 @@ const routes: RouteRecordRaw[] = [
       hideChildrenInMenu: true,
       icon: 'lucide:calendar-days',
       order: 6,
-      title: $t('sample'),
+      title: $t('myorder'),
     },
     name: 'CustomerOrders',
     path: '/orders',

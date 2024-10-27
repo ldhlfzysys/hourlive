@@ -265,5 +265,14 @@
   "accountexist": "用户名已存在",
   "accountnoexist": "用户名不存在",
   "passworderror": "密码错误",
-  "registerfail": "注册失败"
+  "registerfail": "注册失败",
+  "addsample": "添加样品",
+  "addsampledesc": "创建需要参与直播的样品",
+  "createliveaccount": "创建直播账号",
+  "createliveaccountdesc": "直播账号用于主播登录直播平台",
+  "createcontent": "创建场次",
+  "createcontentdesc": "直播场次代表一场直播",
+  "shippingsample": "寄送样品",
+  "shippingsampledesc": "在直播前，需要将样品寄送到机构仓库",
+  "guide": "引导"
 }
