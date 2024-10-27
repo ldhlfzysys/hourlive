@@ -8,6 +8,11 @@ import ShippingAddressForm from '#/components/shippingaddressform.vue';
 import { useShippingAddressStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
+// @ts-ignore
+import { RecycleScroller } from 'vue-virtual-scroller';
+
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
 const shippingAddressStore = useShippingAddressStore();
 
 onMounted(() => {
@@ -25,8 +30,9 @@ function onBottom() {
   <HourLivePage :content-overflow="true">
     <template #header>
       <Button type="primary" @click="shippingAddressStore.showModal = true">
-        新增收货地址
+        新增
       </Button>
+      <br />
     </template>
 
     <template #content>
