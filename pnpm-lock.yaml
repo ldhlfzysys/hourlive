@@ -20,6 +20,15 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.8
         version: 2.27.8
+      '@schedule-x/calendar':
+        specifier: ^2.3.1
+        version: 2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1)
+      '@schedule-x/theme-default':
+        specifier: ^2.3.1
+        version: 2.4.1
+      '@schedule-x/vue':
+        specifier: ^2.3.1
+        version: 2.3.1(@schedule-x/calendar@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1))(@schedule-x/date-picker@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1))(vue@3.5.6(typescript@5.6.2))
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
@@ -107,6 +116,9 @@ importers:
       vue:
         specifier: 3.5.6
         version: 3.5.6(typescript@5.6.2)
+      vue-cal:
+        specifier: ^4.10.0
+        version: 4.10.0(vue@3.5.6(typescript@5.6.2))
       vue-tsc:
         specifier: ^2.1.6
         version: 2.1.6(typescript@5.6.2)
@@ -3332,6 +3344,14 @@ packages:
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
 
+  '@preact/signals-core@1.8.0':
+    resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
+
+  '@preact/signals@1.3.0':
+    resolution: {integrity: sha512-EOMeg42SlLS72dhoq6Vjq08havnLseWmPQ8A0YsgIAqMgWgx7V1a39+Pxo6i7SY5NwJtH4849JogFq3M67AzWg==}
+    peerDependencies:
+      preact: 10.x
+
   '@radix-icons/vue@1.0.0':
     resolution: {integrity: sha512-gKWWk9tTK/laDRRNe5KLLR8A0qUwx4q4+DN8Fq48hJ904u78R82ayAO3TrxbNLgyn2D0h6rRiGdLzQWj7rPcvA==}
     peerDependencies:
@@ -3634,6 +3654,28 @@ packages:
 
   '@rushstack/ts-command-line@4.22.6':
     resolution: {integrity: sha512-QSRqHT/IfoC5nk9zn6+fgyqOPXHME0BfchII9EUPR19pocsNp/xSbeBCbD3PIR2Lg+Q5qk7OFqk1VhWPMdKHJg==}
+
+  '@schedule-x/calendar@2.4.1':
+    resolution: {integrity: sha512-3r/UEFAqITTUA0uqWuV6CC1BJQt51cYLj/aXMUWoy4SAedBj7+qV7ne/D7SX0qefGMlu3gZaC5USHzBVdm6ZTA==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
+      preact: ^10.19.2
+
+  '@schedule-x/date-picker@2.4.1':
+    resolution: {integrity: sha512-N5yPTLg+zZGjj6AQzM8EBb/bS2me0NmcneizZ+YwD1g4294SIyGUsUch0LVmY93fGqDyL6BtFkbEOV9cwaaAJg==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
+      preact: ^10.19.2
+
+  '@schedule-x/theme-default@2.4.1':
+    resolution: {integrity: sha512-DrDuxgLXzAWcZMYQmW4SyMcESbKDW+YXVrAOcc4NlUhhsLkbJkngS1JDBiGBJiKzFI47FntJyGFTz5qPeZDpXw==}
+
+  '@schedule-x/vue@2.3.1':
+    resolution: {integrity: sha512-Aqm9EBU6/7G8gIVs4hg9KJK99C0YGzuQtIX9fZzPsjihB0WeLj4gE5Bfp9vSDHMvljJADWeJy3HIpfJMbmjgJw==}
+    peerDependencies:
+      '@schedule-x/calendar': 2.4.1
+      '@schedule-x/date-picker': 2.4.1
+      vue: 3.5.6
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -7693,6 +7735,9 @@ packages:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
+  preact@10.12.1:
+    resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -9111,6 +9156,11 @@ packages:
 
   vscode-uri@3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
+
+  vue-cal@4.10.0:
+    resolution: {integrity: sha512-gKOW+UAsUhzJHog/c3dfWN/CwxohpvO4ipBHzDWVngm+R0XZxly8NsGvczYmkfb3pFpuTP29ilAb0ix0sSsULg==}
+    peerDependencies:
+      vue: 3.5.6
 
   vue-component-type-helpers@2.1.6:
     resolution: {integrity: sha512-ng11B8B/ZADUMMOsRbqv0arc442q7lifSubD0v8oDXIFoMg/mXwAPUunrroIDkY+mcD0dHKccdaznSVp8EoX3w==}
@@ -11813,6 +11863,13 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
+  '@preact/signals-core@1.8.0': {}
+
+  '@preact/signals@1.3.0(preact@10.12.1)':
+    dependencies:
+      '@preact/signals-core': 1.8.0
+      preact: 10.12.1
+
   '@radix-icons/vue@1.0.0(vue@3.5.6(typescript@5.6.2))':
     dependencies:
       vue: 3.5.6(typescript@5.6.2)
@@ -12122,6 +12179,24 @@ snapshots:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
+
+  '@schedule-x/calendar@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1)':
+    dependencies:
+      '@preact/signals': 1.3.0(preact@10.12.1)
+      preact: 10.12.1
+
+  '@schedule-x/date-picker@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1)':
+    dependencies:
+      '@preact/signals': 1.3.0(preact@10.12.1)
+      preact: 10.12.1
+
+  '@schedule-x/theme-default@2.4.1': {}
+
+  '@schedule-x/vue@2.3.1(@schedule-x/calendar@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1))(@schedule-x/date-picker@2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1))(vue@3.5.6(typescript@5.6.2))':
+    dependencies:
+      '@schedule-x/calendar': 2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1)
+      '@schedule-x/date-picker': 2.4.1(@preact/signals@1.3.0(preact@10.12.1))(preact@10.12.1)
+      vue: 3.5.6(typescript@5.6.2)
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -16748,6 +16823,8 @@ snapshots:
       picocolors: 1.1.0
       source-map-js: 1.2.1
 
+  preact@10.12.1: {}
+
   prelude-ls@1.2.1: {}
 
   prettier-linter-helpers@1.0.0:
@@ -18316,6 +18393,10 @@ snapshots:
   vscode-languageserver-textdocument@1.0.12: {}
 
   vscode-uri@3.0.8: {}
+
+  vue-cal@4.10.0(vue@3.5.6(typescript@5.6.2)):
+    dependencies:
+      vue: 3.5.6(typescript@5.6.2)
 
   vue-component-type-helpers@2.1.6: {}
 
