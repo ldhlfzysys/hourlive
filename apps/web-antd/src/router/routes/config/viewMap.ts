@@ -41,6 +41,16 @@ const viewMap = {
     name: 'Orders',
     path: '/orders',
   },
+  room: {
+    component: () => import('#/views/agency/room.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:video',
+      title: $t('room'),
+    },
+    name: 'Room',
+    path: '/room',
+  },
   sales: {
     component: () => import('#/views/agency/sales.vue'),
     meta: {
@@ -93,6 +103,7 @@ const viewMap = {
     name: 'Schedule1',
     path: '/schedule1',
   },
+
   shippingaddress: {
     component: () => import('#/views/agency/shipppingaddress.vue'),
     meta: {

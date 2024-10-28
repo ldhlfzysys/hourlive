@@ -12,6 +12,7 @@ export interface Room {
 export interface RoomCreate {
   name: string;
   timeslots?: TimeslotCreate[];
+  agency_id: number;
 }
 
 export interface RoomUpdate {

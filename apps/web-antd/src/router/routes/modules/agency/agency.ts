@@ -47,6 +47,20 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.shippingaddress],
   },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:video',
+      order: 3,
+      title: $t('room'),
+    },
+    name: 'AgencyRoom',
+    path: '/room',
+
+    children: [config.room],
+  },
 ];
 
 export default routes;
