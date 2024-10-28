@@ -76,10 +76,22 @@ const viewMap = {
     meta: {
       affixTab: true,
       icon: 'lucide:calendar',
-      title: $t('schedule'),
+      // title: $t('schedule'),
+      title: 'schedule-x',
     },
     name: 'Schedule',
     path: '/schedule',
+  },
+  schedule1: {
+    component: () => import('#/views/common/schedule1.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:calendar',
+      // title: $t('schedule'),
+      title: 'vue-cal',
+    },
+    name: 'Schedule1',
+    path: '/schedule1',
   },
   shippingaddress: {
     component: () => import('#/views/agency/shipppingaddress.vue'),
@@ -91,6 +103,7 @@ const viewMap = {
     name: 'ShippingAddress',
     path: '/shippingaddress',
   },
+
   shippings: {
     component: () => import('#/views/customer/shippings.vue'),
     meta: {

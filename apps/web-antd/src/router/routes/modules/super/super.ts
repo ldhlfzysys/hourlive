@@ -33,6 +33,20 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.schedule],
   },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:calendar',
+      order: -1,
+      title: $t('schedule'),
+    },
+    name: 'SuperSchedule1',
+    path: '/super',
+
+    children: [config.schedule1],
+  },
 ];
 
 export default routes;

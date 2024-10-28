@@ -28,7 +28,6 @@ const formSchema = computed((): VbenFormSchema[] => {
 });
 
 function handleSubmit(value: string) {
-  // eslint-disable-next-line no-console
   console.log('reset email:', value);
 }
 </script>

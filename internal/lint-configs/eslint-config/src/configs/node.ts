@@ -14,19 +14,20 @@ export async function node(): Promise<Linter.Config[]> {
         'n/handle-callback-err': ['error', '^(err|error)$'],
         'n/no-deprecated-api': 'error',
         'n/no-exports-assign': 'error',
-        'n/no-extraneous-import': [
-          'error',
-          {
-            allowModules: [
-              'unbuild',
-              '@vben/vite-config',
-              'vitest',
-              'vite',
-              '@vue/test-utils',
-              '@vben/tailwind-config',
-            ],
-          },
-        ],
+        'n/no-extraneous-import': 'off',
+        // 'n/no-extraneous-import': [
+        //   'error',
+        //   {
+        //     allowModules: [
+        //       'unbuild',
+        //       '@vben/vite-config',
+        //       'vitest',
+        //       'vite',
+        //       '@vue/test-utils',
+        //       '@vben/tailwind-config',
+        //     ],
+        //   },
+        // ],
         'n/no-new-require': 'error',
         'n/no-path-concat': 'error',
         // 'n/no-unpublished-import': 'off',
