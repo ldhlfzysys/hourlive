@@ -62,6 +62,7 @@ export const useRoomStore = defineStore('room-store', () => {
 
   const roomQuery = ref<RoomQuery>({
     agency_id: -1,
+    ids: [],
     q_id: -1,
     q_order: 'desc',
     q_size: 30,
@@ -75,6 +76,7 @@ export const useRoomStore = defineStore('room-store', () => {
 
     roomQuery.value = {
       agency_id: -1,
+      ids: [],
       q_id: -1,
       q_order: 'desc',
       q_size: 5,

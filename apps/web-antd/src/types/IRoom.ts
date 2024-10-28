@@ -1,3 +1,4 @@
+import type { BaseQuery } from './ISystem';
 import type { Timeslot, TimeslotCreate } from './ITimeslot';
 
 export interface Room {
@@ -27,4 +28,9 @@ export interface RoomDelete {
 export interface RoomList {
   start_time: string; // Format: HH:MM
   end_time: string; // Format: HH:MM
+}
+
+export interface RoomQuery extends BaseQuery {
+  agency_id: number;
+  ids: number[];
 }
