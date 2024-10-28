@@ -1,31 +1,45 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
 
 import { i18n } from '@vben/locales';
 
 import dayjs from 'dayjs';
 
+import SelectFilter from '#/components/selectfilter.vue';
+import { useAgencyStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-cal/dist/vuecal.css';
 
+// Data
 const events = ref([]);
 const selectedDate = ref('');
 const editing = ref(false);
+const activeView = ref('month');
+const selectedAgencies = ref([]);
 
+const agencyOptions = computed(() => {
+  return useAgencyStore().allAgency.map((item) => ({
+    label: item.name,
+    value: item.id,
+  }));
+});
+
+// Function
 const localeStr = computed(() => {
   return i18n.global.locale.value.toLowerCase();
 });
 
-const activeView = ref('month');
+// Life Time
+onMounted(() => {
+  useAgencyStore().fetchAgency();
+});
 
 // CalendarEvent
 function handleCellClick(event: any) {
   selectedDate.value = event.format('YYYY-MM-DD');
-  console.log(event);
-  console.log(selectedDate.value);
   if (activeView.value === 'month') {
     activeView.value = 'day';
   } else {
@@ -37,14 +51,13 @@ function handleCellClick(event: any) {
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <div>
-        <!-- <LabelFilter
-          title="名称2222"
-        />
+      <div class="w-[40px]">
         <SelectFilter
-          placeholder="请选择选项"
-          title="名称222222222"
-        /> -->
+          v-model="selectedAgencies"
+          :options="agencyOptions"
+          placeholder="请选择机构"
+          title="机构"
+        />
       </div>
     </template>
 

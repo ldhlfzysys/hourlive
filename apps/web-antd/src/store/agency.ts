@@ -1,18 +1,38 @@
+import { ref } from 'vue';
+
 import { defineStore } from 'pinia';
+
+import { requestClient } from '#/api/request';
+
+// Model & Query
+import type { Agency, StanderResult } from '#/types';
 
 // Model
 
-// Query
-
 // API
+const API_PREFIX = '/agency';
 enum AgencyApi {
-  AllAgency = 'getallagencies',
+  AllAgency = 'query',
+}
+
+async function getAllAgency() {
+  return requestClient.get<StanderResult<Agency[]>>(
+    `${API_PREFIX}/${AgencyApi.AllAgency}`,
+  );
 }
 
 export const useAgencyStore = defineStore('agency-store', () => {
-  function $reset() {}
+  const allAgency = ref<Agency[]>([]);
 
+  async function fetchAgency() {
+    const res = await getAllAgency();
+    allAgency.value = res.data;
+  }
+
+  function $reset() {}
   return {
     $reset,
+    allAgency,
+    fetchAgency,
   };
 });
