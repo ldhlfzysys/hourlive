@@ -203,7 +203,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
       </div>
     </template>
 
-    <template #footer> </template>
+    <template #footer> 123 </template>
   </HourLivePage>
 </template>
 

@@ -23,10 +23,8 @@ export const authenticateResponseInterceptor = ({
     rejected: async (error) => {
       // token过期
       console.log(error.responseData);
-      if (
-        error.responseData === undefined ||
-        error.responseData.status_code === 401
-      ) {
+      if (error.responseData && error.responseData.status_code === 401) {
+        console.log(error);
         message.error($t('fallback.http.unauthorized'));
         await doReAuthenticate();
         throw error;

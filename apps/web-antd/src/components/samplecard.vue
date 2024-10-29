@@ -44,7 +44,7 @@ const type = computed(() => {
           class="rounded-lg"
         />
         <div
-          class="absolute right-2 top-2 rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700"
+          class="absolute right-2 top-2 rounded-full bg-gray-500 px-2 py-1 text-sm text-white"
         >
           {{ $t(type) }}
         </div>
@@ -67,10 +67,10 @@ const type = computed(() => {
         <!-- 价格和折扣 -->
         <div class="mt-4 line-clamp-1">
           <span class="text-base font-bold text-blue-600">{{
-            props.sample.product_srp
+            props.sample.product_final_price
           }}</span>
           <span class="ml-2 text-sm text-gray-400 line-through">{{
-            props.sample.product_final_price
+            props.sample.product_srp
           }}</span>
           <span class="ml-2 text-sm text-red-500">{{
             props.sample.product_discount

@@ -106,10 +106,10 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
-  async function createSample(params: SampleCreate) {
+  async function createSample() {
     try {
       sampleCreateLoading.value = true;
-      const res = await _newSamples(params);
+      const res = await _newSamples(sampleCreate.value);
       if (res.success) {
         samples.value.set(res.data.id, res.data);
       } else {
@@ -159,6 +159,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     fetechProductInfo,
     querySample,
     sampleCreate,
+    sampleCreateLoading,
     sampleFetchLoading,
     sampleList,
     sampleQuery,

@@ -1,6 +1,16 @@
 import { $t } from '#/locales';
 
 const viewMap = {
+  agencyhome: {
+    component: () => import('#/views/agency/home.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:calendar',
+      title: $t('home'),
+    },
+    name: 'Home',
+    path: '/home',
+  },
   content: {
     component: () => import('#/views/customer/content.vue'),
     meta: {
@@ -11,8 +21,8 @@ const viewMap = {
     name: 'Content',
     path: '/content',
   },
-  home: {
-    component: () => import('#/views/common/home.vue'),
+  customerhome: {
+    component: () => import('#/views/customer/home.vue'),
     meta: {
       affixTab: true,
       icon: 'lucide:calendar',
@@ -103,7 +113,6 @@ const viewMap = {
     name: 'Schedule1',
     path: '/schedule1',
   },
-
   shippingaddress: {
     component: () => import('#/views/agency/shipppingaddress.vue'),
     meta: {
@@ -124,6 +133,17 @@ const viewMap = {
     },
     name: 'Shippings',
     path: '/shippings',
+  },
+
+  superhome: {
+    component: () => import('#/views/super/home.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:calendar',
+      title: $t('home'),
+    },
+    name: 'Home',
+    path: '/home',
   },
 };
 

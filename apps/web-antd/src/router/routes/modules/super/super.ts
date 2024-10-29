@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
     name: 'CustomerHome',
     path: '/home',
 
-    children: [config.home],
+    children: [config.superhome],
   },
   {
     component: BasicLayout,
