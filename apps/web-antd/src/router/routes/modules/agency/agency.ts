@@ -30,7 +30,6 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencySales',
     path: '/sales',
-
     children: [config.sales],
   },
   {
@@ -44,7 +43,6 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencyShippingAddress',
     path: '/shippingaddress',
-
     children: [config.shippingaddress],
   },
   {
@@ -58,8 +56,20 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencyRoom',
     path: '/room',
-
     children: [config.room],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:users',
+      order: 4,
+      title: $t('teammanagement'),
+    },
+    name: 'AgencyStreamer',
+    path: '/streamer',
+    children: [config.streamer],
   },
 ];
 

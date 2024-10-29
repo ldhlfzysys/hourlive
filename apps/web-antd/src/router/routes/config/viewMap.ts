@@ -145,6 +145,16 @@ const viewMap = {
     name: 'Home',
     path: '/home',
   },
+  streamer: {
+    component: () => import('#/views/agency/streamer.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:users',
+      title: $t('teammanagement'),
+    },
+    name: 'Streamer',
+    path: '/streamer',
+  },
 };
 
 export default viewMap;

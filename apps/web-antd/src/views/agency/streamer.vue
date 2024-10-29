@@ -4,30 +4,30 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { Button } from 'ant-design-vue';
 
-import ShippingAddressCard from '#/components/shippingaddresscard.vue';
-import ShippingAddressForm from '#/components/shippingaddressform.vue';
-import { useShippingAddressStore } from '#/store';
+import StreamerCard from '#/components/streamercard.vue';
+import StreamerForm from '#/components/streamerform.vue';
+import { useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
-const shippingAddressStore = useShippingAddressStore();
+const streamerStore = useStreamerStore();
 
 onMounted(() => {
   console.log('=====mounted=====');
-  shippingAddressStore.queryShippingAddress();
+  streamerStore.queryStreamer();
 });
 
 function onTop() {}
 function onBottom() {
-  shippingAddressStore.queryShippingAddress();
+  streamerStore.queryStreamer();
 }
 </script>
 
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="shippingAddressStore.showModal = true">
+      <Button type="primary" @click="streamerStore.showModal = true">
         新增
       </Button>
       <br />
@@ -39,17 +39,17 @@ function onBottom() {
           v-slot="{ item }"
           :emit-update="true"
           :item-size="210"
-          :items="shippingAddressStore.shippingAddressList"
+          :items="streamerStore.streamerList"
           :page-mode="true"
           class="scroller"
           key-field="id"
           @scroll-end="onBottom"
           @scroll-start="onTop"
         >
-          <ShippingAddressCard :shippingaddress="item" />
+          <StreamerCard :streamer="item" />
         </RecycleScroller>
       </div>
-      <ShippingAddressForm />
+      <StreamerForm />
     </template>
   </HourLivePage>
 </template>
