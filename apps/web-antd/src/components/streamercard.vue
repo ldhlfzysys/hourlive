@@ -29,33 +29,23 @@ function deleteStreamer(id: number) {
 </script>
 
 <template>
-  <div
-    class="overflow-hidden rounded-lg border bg-white shadow-lg transition-colors duration-300 hover:bg-gray-100"
-  >
-    <div class="flex flex-col px-6 py-5 sm:px-8">
-      <div class="mb-2 flex flex-row items-center justify-between">
-        <h3 class="text-xl font-semibold leading-7 text-gray-800">
-          <div class="flex gap-8">
+  <div class="streamer-card">
+    <div class="content">
+      <div class="header">
+        <h3>
+          <div class="info">
             <span>{{ $t('username') }}： {{ streamer.name }}</span>
-            <span>{{ $t('account') }}： {{ streamer.account }}</span>
+            <span>{{ $t('account') }}： {{ streamer.user.account }}</span>
           </div>
         </h3>
-        <div class="text-sm font-medium text-gray-500">
-          {{ $t('id') }}: {{ streamer.id }}
+        <div class="details">
+          <p class="right-align">
+            {{ $t('id') }}: {{ streamer.id }} | {{ $t('create_time') }}:
+            {{ streamer.create_time }}
+          </p>
         </div>
       </div>
-      <div class="mb-4 flex flex-row justify-between text-sm text-gray-600">
-        <p>{{ $t('create_time') }}: {{ streamer.create_time }}</p>
-        <!-- <p>{{ $t('create_time') }}: {{ streamer.update_time }}</p> -->
-      </div>
-    </div>
-    <div
-      class="flex flex-row items-center justify-between border-t border-gray-200 px-6 py-4"
-    >
-      <div class="flex flex-row gap-4">
-        <!-- <Button type="primary" @click="editRoom(room.id)">
-          {{ $t('edit') }}
-        </Button> -->
+      <div class="actions">
         <Button type="danger" @click="deleteStreamer(streamer.id)">
           {{ $t('delete') }}
         </Button>
@@ -65,6 +55,54 @@ function deleteStreamer(id: number) {
 </template>
 
 <style scoped>
+.streamer-card {
+  width: 100%;
+  max-height: 200px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
+  transition: background-color 0.3s ease;
+}
+
+.streamer-card:hover {
+  background-color: #f0f0f0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.info {
+  display: flex;
+  gap: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.details {
+  font-size: 14px;
+  color: #666;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
 .actions .ant-btn {
   padding: 8px 16px;
   font-size: 14px;

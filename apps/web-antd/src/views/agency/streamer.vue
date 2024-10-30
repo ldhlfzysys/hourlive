@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
+import { useElementBounding } from '@vueuse/core';
 import { Button } from 'ant-design-vue';
 
 import StreamerCard from '#/components/streamercard.vue';
@@ -18,6 +19,13 @@ onMounted(() => {
   streamerStore.queryStreamer();
 });
 
+const itemWidth = ref(300);
+const scroller = ref();
+function onResize() {
+  const width = useElementBounding(scroller).width.value;
+  itemWidth.value = width / 2;
+}
+
 function onTop() {}
 function onBottom() {
   streamerStore.queryStreamer();
@@ -27,7 +35,11 @@ function onBottom() {
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="streamerStore.showModal = true">
+      <Button
+        style="top: 20px"
+        type="primary"
+        @click="streamerStore.showModal = true"
+      >
         新增
       </Button>
       <br />
@@ -38,15 +50,20 @@ function onBottom() {
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="210"
+          :grid-items="2"
+          :item-secondary-size="650"
+          :item-size="180"
           :items="streamerStore.streamerList"
           :page-mode="true"
           class="scroller"
           key-field="id"
+          @resize="onResize"
           @scroll-end="onBottom"
           @scroll-start="onTop"
         >
-          <StreamerCard :streamer="item" />
+          <div class="streamer-card-container">
+            <StreamerCard :streamer="item" />
+          </div>
         </RecycleScroller>
       </div>
       <StreamerForm />
@@ -56,6 +73,14 @@ function onBottom() {
 
 <style scoped>
 .scroller {
+  top: 50px;
+  display: flex;
+  flex-wrap: wrap;
   height: 100%;
+}
+
+.streamer-card-container {
+  margin-right: 15px;
+  margin-left: 15px;
 }
 </style>

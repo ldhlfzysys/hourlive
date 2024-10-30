@@ -19,6 +19,7 @@ onMounted(() => {
 });
 
 function onTop() {}
+
 function onBottom() {
   shippingAddressStore.queryShippingAddress();
 }
@@ -38,7 +39,8 @@ function onBottom() {
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="210"
+          :grid-items="3"
+          :item-size="200"
           :items="shippingAddressStore.shippingAddressList"
           :page-mode="true"
           class="scroller"

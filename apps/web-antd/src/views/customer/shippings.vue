@@ -96,7 +96,7 @@ function onUpdate(
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="300"
+          :item-size="100"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"
@@ -105,7 +105,9 @@ function onUpdate(
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <SampleCard :sample="item" />
+          <div class="sample-card-container">
+            <SampleCard :sample="item" />
+          </div>
         </RecycleScroller>
       </div>
     </template>
@@ -116,13 +118,18 @@ function onUpdate(
 
 <style scoped>
 .scroller {
+  display: flex;
+  flex-wrap: wrap;
   height: 100%;
 }
 
-.user {
-  /* height: 32%; */
+.sample-card-container {
+  box-sizing: border-box;
+  width: 33.33%;
+  padding: 10px;
+}
 
-  /* padding: 0 12px; */
+.user {
   display: flex;
   align-items: center;
 }
