@@ -3,6 +3,10 @@ import type { LiveAccount } from '#/types';
 
 import { $t } from '@vben/locales';
 
+import { Button } from 'ant-design-vue';
+
+import { useLiveAccountStore } from '#/store';
+
 defineOptions({
   name: 'LiveAccountCard',
 });
@@ -10,17 +14,26 @@ defineOptions({
 const props = defineProps<{
   liveaccount: LiveAccount;
 }>();
+
+const liveaccountStore = useLiveAccountStore();
 </script>
 
 <template>
   <div class="overflow-hidden rounded-lg border bg-white shadow">
-    <div class="flex flex-row px-4 py-5 sm:px-6">
-      <h3 class="mr-3 text-lg font-medium leading-6 text-gray-900">
+    <div class="flex flex-row items-center px-4 py-5 sm:px-6">
+      <h3 class="mr-3 flex text-lg font-medium leading-6 text-gray-900">
         {{ props.liveaccount.name }}
       </h3>
-      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+      <p class="mt-1 flex max-w-2xl text-sm text-gray-500">
         {{ props.liveaccount.code }}
       </p>
+      <Button
+        class="ml-auto flex"
+        type="primary"
+        @click="liveaccountStore.makeUpdate(props.liveaccount.id!)"
+      >
+        {{ $t('edit') }}
+      </Button>
     </div>
     <div class="flex flex-row justify-between">
       <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">

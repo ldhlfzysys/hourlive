@@ -67,7 +67,12 @@ const type = computed(() => {
         <div class="mt-2 flex items-center space-x-3 text-sm text-gray-500">
           <span>ID: 1730933517007210531</span>
           <a class="text-blue-500" href="#">{{ $t('scriptmanager') }}</a>
-          <a class="text-blue-500" href="#">{{ $t('product_ksp') }}</a>
+          <a
+            class="text-blue-500"
+            href="#"
+            @click="sampleStore.makeKSPUpdate(props.sample.id!)"
+            >{{ $t('product_ksp') }}</a
+          >
         </div>
 
         <!-- 价格和折扣 -->

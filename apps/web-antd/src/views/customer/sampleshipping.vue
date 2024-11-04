@@ -1,116 +1,149 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import type { Sample } from '#/types/ISample';
 
 import { useSampleStore } from '#/store';
-// @ts-ignore
-import { RecycleScroller } from 'vue-virtual-scroller';
 
-import LabelFilter from '#/components/labelfilter.vue';
-import SampleCard from '#/components/samplecard.vue';
-import SelectFilter from '#/components/selectfilter.vue';
+// @ts-ignore
+import { computed, onMounted, ref } from 'vue';
+
+import { Button, Image, InputNumber, Transfer } from 'ant-design-vue';
+
+import SampleShippingForm from '#/components/sampleshippingform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const sampleStore = useSampleStore();
 
-const updateParts = ref({
-  viewEndIdx: 0,
-  viewStartIdx: 0,
-  visibleEndIdx: 0,
-  visibleStartIdx: 0,
-});
+function getData() {
+  sampleStore.querySample();
+}
 
-const selectedNames = ref([]);
-const selectedItems = ref([]);
-const nameOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8']);
-const itemOptions = ref([
-  { label: '1', value: '1' },
-  { label: '2', value: '2' },
-  { label: '3', value: '3' },
-  { label: '4', value: '4' },
-  { label: '5', value: '5' },
-  { label: '6', value: '6' },
-  { label: '7', value: '7' },
-  { label: '8', value: '8' },
-]);
+const modalVisible = ref(false);
+const targetKeys = ref<string[]>([]);
+function createShipping() {
+  console.log('createShipping');
+  modalVisible.value = true;
+}
 
-watch(
-  selectedNames,
-  (newValue, oldValue) => {
-    console.log(newValue, oldValue);
-  },
-  { deep: true },
-);
+const searchValue = ref('');
 
-watch(
-  selectedItems,
-  (newValue, oldValue) => {
-    console.log(newValue, oldValue);
-  },
-  { deep: true },
-);
+// 保留过滤函数
+function filterOption(inputValue: string, option: Sample) {
+  return option.product_name?.toLowerCase().includes(inputValue.toLowerCase());
+}
 
 onMounted(() => {
   sampleStore.querySample();
 });
 
-function onTop() {}
-function onBottom() {
-  sampleStore.querySample();
+// 简化 handleSearch 函数
+function handleSearch(dir: string, value: string) {
+  console.log('搜索值:', value, '方向:', dir);
+  searchValue.value = value;
 }
 
-function onUpdate(
-  viewStartIndex: number,
-  viewEndIndex: number,
-  visibleStartIndex: number,
-  visibleEndIndex: number,
-) {
-  updateParts.value.viewStartIdx = viewStartIndex;
-  updateParts.value.viewEndIdx = viewEndIndex;
-  updateParts.value.visibleStartIdx = visibleStartIndex;
-  updateParts.value.visibleEndIdx = visibleEndIndex;
+// 处理数量变化
+function handleQuantityChange(item: Sample, value: number) {
+  item.sample_count = value;
 }
+
+// 确保新添加的项目默认数量为1
+function handleChange(keys: string[]) {
+  sampleStore.sampleList.forEach((item) => {
+    if (keys.includes(item.id) && !item.sample_count) {
+      item.sample_count = 1;
+    }
+  });
+  targetKeys.value = keys;
+}
+
+// 添加一个计算属性来获取选中的样品列表
+const selectedSamples = computed(() => {
+  return sampleStore.sampleList.filter((sample) =>
+    targetKeys.value.includes(sample.id),
+  );
+});
 </script>
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header>
-      <div>
-        <LabelFilter
-          v-model="selectedNames"
-          :options="nameOptions"
-          title="名称2222"
-        />
-        <SelectFilter
-          v-model="selectedItems"
-          :options="itemOptions"
-          placeholder="请选择选项"
-          title="名称222222222"
-        />
-      </div>
-    </template>
+    <template #header> </template>
 
     <template #content>
-      <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :item-size="300"
-          :items="sampleStore.sampleList"
-          :page-mode="true"
-          class="scroller"
-          key-field="id"
-          @scroll-end="onBottom"
-          @scroll-start="onTop"
-          @update="onUpdate"
+      <div class="flex h-full">
+        <Transfer
+          v-model:target-keys="targetKeys"
+          :data-source="sampleStore.sampleList"
+          :filter-option="filterOption"
+          :list-style="{
+            width: '50%',
+            height: '100%',
+            overflow: 'hidden',
+          }"
+          :operations="[$t('addpackage'), $t('removepackage')]"
+          :row-key="(record) => record.id"
+          :show-search="true"
+          class="w-full flex-1"
+          @change="handleChange"
+          @search="handleSearch"
         >
-          <SampleCard :sample="item" />
-        </RecycleScroller>
+          <template #render="item">
+            <div
+              class="flex h-[100px] w-full flex-row items-center rounded-lg border"
+            >
+              <div
+                class="m-[1px] flex h-[98px] w-[98px] rounded-l-lg bg-gray-200"
+              >
+                <Image :src="item?.product_image" />
+              </div>
+              <h3
+                class="flex-1 whitespace-normal break-words pl-2 text-base font-semibold text-gray-800"
+              >
+                {{ item?.product_name }}
+              </h3>
+              <div v-if="targetKeys.includes(item.id)" class="mr-2" @click.stop>
+                <InputNumber
+                  v-model:value="item.sample_count"
+                  :min="1"
+                  :placeholder="$t('sample_count')"
+                  size="small"
+                  style="width: 80px; margin-left: 3px"
+                  @change="(value) => handleQuantityChange(item, value)"
+                />
+              </div>
+            </div>
+          </template>
+          <template #footer="{ direction }">
+            <Button
+              v-if="direction === 'left'"
+              :loading="sampleStore.sampleQueryLoading"
+              size="small"
+              style="float: left; margin: 5px"
+              @click="getData"
+            >
+              {{ $t('fetchMoreSample') }}
+            </Button>
+            <Button
+              v-else-if="direction === 'right'"
+              size="small"
+              style="float: right; margin: 5px"
+              type="primary"
+              @click="createShipping"
+            >
+              {{ $t('createshipping') }}
+            </Button>
+          </template>
+        </Transfer>
       </div>
+      <SampleShippingForm
+        v-model:visible="modalVisible"
+        :sample-list="selectedSamples"
+        receiver-address="123123"
+      />
     </template>
 
-    <template #footer> 123 </template>
+    <template #footer> </template>
   </HourLivePage>
 </template>
 

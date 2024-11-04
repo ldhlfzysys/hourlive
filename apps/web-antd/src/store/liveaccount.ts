@@ -8,23 +8,25 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type {
-  LiveAccount,
-  LiveAccountCreate,
-  LiveAccountQuery,
-  StanderResult,
-} from '#/types';
+import type { LiveAccount, LiveAccountQuery, StanderResult } from '#/types';
 
-function getAllLiveAccount(params?: LiveAccountQuery) {
+function _getAllLiveAccount(params?: LiveAccountQuery) {
   return requestClient.post<StanderResult<LiveAccount[]>>(
     'live_account/query',
     params,
   );
 }
 
-function newLiveAccount(params: LiveAccountCreate) {
+function _newLiveAccount(params: LiveAccount) {
   return requestClient.post<StanderResult<LiveAccount>>(
     'live_account/create',
+    params,
+  );
+}
+
+function _updateLiveAccount(params: LiveAccount) {
+  return requestClient.post<StanderResult<LiveAccount>>(
+    'live_account/update',
     params,
   );
 }
@@ -35,14 +37,14 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
 
   const liveaccountLoading = ref(false);
   const liveaccountCreateLoading = ref(false);
-  const liveaccountCreate = ref<LiveAccountCreate>({
+  const liveaccountCreate = ref<LiveAccount>({
     code: '',
     email: '',
     live_account: '',
     live_uid: '',
     mobile: '',
     name: '',
-    platform: '',
+    platform: 'TikTok',
   });
   // liveaccounts
   const liveaccounts = ref<Map<number, LiveAccount>>(new Map());
@@ -54,6 +56,20 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   });
 
   const showModal = ref(false);
+
+  function makeCreate() {
+    showModal.value = true;
+    liveaccountCreate.value = {
+      platform: 'TikTok',
+    };
+  }
+  function makeUpdate(id: number) {
+    showModal.value = true;
+    const sample = liveaccounts.value.get(id);
+    if (sample) {
+      liveaccountCreate.value = sample;
+    }
+  }
 
   // query
   const liveaccountQuery = ref<LiveAccountQuery>({
@@ -79,16 +95,18 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   async function queryLiveAccount() {
     try {
       liveaccountLoading.value = true;
-      const res = await getAllLiveAccount(liveaccountQuery.value);
+      const res = await _getAllLiveAccount(liveaccountQuery.value);
       if (res.success) {
         if (res.data.length > 0) {
           const lastLiveAccount = res.data.at(-1);
-          if (lastLiveAccount) {
+          if (lastLiveAccount && lastLiveAccount.id) {
             liveaccountQuery.value.q_id = lastLiveAccount.id;
           }
         }
         res.data.forEach((liveaccount) => {
-          liveaccounts.value.set(liveaccount.id, liveaccount);
+          if (liveaccount.id) {
+            liveaccounts.value.set(liveaccount.id, liveaccount);
+          }
         });
       }
     } finally {
@@ -99,13 +117,32 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   async function createLiveAccount() {
     try {
       liveaccountCreateLoading.value = true;
-      const res = await newLiveAccount(liveaccountCreate.value);
-      if (res.success) {
+      const res = await _newLiveAccount(liveaccountCreate.value);
+      if (res.success && res.data.id) {
+        showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
       } else {
         notification.error({
           description: res.message,
           message: $t('addfail'),
+        });
+      }
+    } finally {
+      liveaccountCreateLoading.value = false;
+    }
+  }
+
+  async function updateLiveAccount() {
+    try {
+      liveaccountCreateLoading.value = true;
+      const res = await _updateLiveAccount(liveaccountCreate.value);
+      if (res.success && res.data.id) {
+        showModal.value = false;
+        liveaccounts.value.set(res.data.id, res.data);
+      } else {
+        notification.error({
+          description: res.message,
+          message: $t('updatefail'),
         });
       }
     } finally {
@@ -122,7 +159,10 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     liveaccountLoading,
     liveaccountQuery,
     liveaccounts,
+    makeCreate,
+    makeUpdate,
     queryLiveAccount,
     showModal,
+    updateLiveAccount,
   };
 });

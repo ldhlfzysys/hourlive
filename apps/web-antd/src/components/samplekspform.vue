@@ -1,96 +1,65 @@
 <script lang="ts" setup>
+import { onBeforeUnmount, ref } from 'vue';
+
 import { $t } from '@vben/locales';
 
-import { Input, Modal, Select } from 'ant-design-vue';
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
+import { Modal } from 'ant-design-vue'; // 引入 css
 
-import { useLiveAccountStore } from '#/store';
+import { useSampleStore } from '#/store';
+
+import '@wangeditor/editor/dist/css/style.css';
 
 defineOptions({
   name: 'SampleKspForm',
 });
 
-const liveaccountStore = useLiveAccountStore();
+const editorRef = ref();
+const mode = ref('simple');
 
-function handleOk() {
-  liveaccountStore.createLiveAccount();
-}
+const toolbarConfig = {
+  toolbarKeys: ['bold', 'headerSelect', 'color'],
+};
+const editorConfig = { placeholder: '请输入内容...' };
+
+// 组件销毁时，也及时销毁编辑器
+onBeforeUnmount(() => {});
+
+const handleCreated = (editor: any) => {
+  editorRef.value = editor; // 记录 editor 实例，重要！
+};
+
+const sampleStore = useSampleStore();
+
+const handleOk = () => {
+  sampleStore.updateSample();
+};
 </script>
 
 <template>
   <Modal
-    v-model:visible="liveaccountStore.showModal"
-    :confirm-loading="liveaccountStore.liveaccountCreateLoading"
-    :title="$t('create')"
+    v-model:visible="sampleStore.showKSPModal"
+    :confirm-loading="sampleStore.sampleUpdateLoading"
+    :title="$t('save')"
     centered
     width="800px"
     @ok="handleOk"
   >
     <div class="overflow-hidden rounded-lg border bg-white shadow">
-      <div class="flex flex-row px-4 py-5 sm:px-6">
-        <Input
-          v-model:value="liveaccountStore.liveaccountCreate.name"
-          :placeholder="$t('shop_name')"
-          class="mr-3 text-lg font-medium leading-6 text-gray-900"
+      <div style="border: 1px solid #ccc">
+        <Toolbar
+          :default-config="toolbarConfig"
+          :editor="editorRef"
+          :mode="mode"
+          style="border-bottom: 1px solid #ccc"
         />
-        <Input
-          v-model:value="liveaccountStore.liveaccountCreate.code"
-          :placeholder="$t('shop_code')"
-          class="mt-1 max-w-2xl text-sm text-gray-500"
+        <Editor
+          v-model="sampleStore.sampleUpdate.product_ksp"
+          :default-config="editorConfig"
+          :mode="mode"
+          style="height: 500px; overflow-y: hidden"
+          @on-created="handleCreated"
         />
-      </div>
-      <div class="flex flex-row justify-between">
-        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('mobile') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.mobile"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('email') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.email"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-        </div>
-
-        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('live_account') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_account"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('live_uid') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_uid"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-        </div>
-
-        <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('platform') }}
-            </span>
-            <Select class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Select>
-          </div>
-        </div>
       </div>
     </div>
   </Modal>

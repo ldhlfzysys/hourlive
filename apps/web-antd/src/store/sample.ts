@@ -38,6 +38,8 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   const showModal = ref(false); // 控制创建或更新模态框显示
 
+  const showKSPModal = ref(false);
+
   // sample store
   const samples = ref<Map<number, Sample>>(new Map());
 
@@ -60,6 +62,8 @@ export const useSampleStore = defineStore('sample-store', () => {
   function $reset() {
     sampleQueryLoading.value = false;
     sampleUpdateLoading.value = false;
+    showKSPModal.value = false;
+    showModal.value = false;
     sampleQuery.value.q_id = -1;
 
     sampleQuery.value = {
@@ -80,12 +84,17 @@ export const useSampleStore = defineStore('sample-store', () => {
   function makeUpdate(id: number) {
     showModal.value = true;
     const sample = samples.value.get(id);
-    console.log(sample);
     if (sample) {
       sampleUpdate.value = sample;
     }
   }
-
+  function makeKSPUpdate(id: number) {
+    showKSPModal.value = true;
+    const sample = samples.value.get(id);
+    if (sample) {
+      sampleUpdate.value = sample;
+    }
+  }
   // methods
   async function querySample() {
     try {
@@ -134,6 +143,7 @@ export const useSampleStore = defineStore('sample-store', () => {
       if (res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
         showModal.value = false;
+        showKSPModal.value = false;
       } else {
         notification.error({
           description: res.message,
@@ -177,6 +187,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     createSample,
     fetechProductInfo,
     makeCreate,
+    makeKSPUpdate,
     makeUpdate,
     querySample,
     sampleFetchLoading,
@@ -186,6 +197,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     samples,
     sampleUpdate,
     sampleUpdateLoading,
+    showKSPModal,
     showModal,
     updateSample,
   };

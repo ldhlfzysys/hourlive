@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { $t } from '@vben/locales';
 
-import { Input, Modal, Select } from 'ant-design-vue';
+import { Input, Modal, Select, SelectOption } from 'ant-design-vue';
 
 import { useLiveAccountStore } from '#/store';
 
@@ -12,13 +12,17 @@ defineOptions({
 const liveaccountStore = useLiveAccountStore();
 
 function handleOk() {
-  liveaccountStore.createLiveAccount();
+  if (liveaccountStore.liveaccountCreate.id) {
+    liveaccountStore.updateLiveAccount();
+  } else {
+    liveaccountStore.createLiveAccount();
+  }
 }
 </script>
 
 <template>
   <Modal
-    v-model:visible="liveaccountStore.showModal"
+    v-model:open="liveaccountStore.showModal"
     :confirm-loading="liveaccountStore.liveaccountCreateLoading"
     :title="$t('create')"
     centered
@@ -84,11 +88,14 @@ function handleOk() {
         <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
           <div class="mb-4 flex flex-row items-center">
             <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('platform') }}
+              <Select
+                v-model:value="liveaccountStore.liveaccountCreate.platform"
+                class="w-[100px]"
+              >
+                <SelectOption value="TikTok"> TikTok</SelectOption>
+                <SelectOption value="Shopee"> Shopee </SelectOption>
+              </Select>
             </span>
-            <Select class="flex-1 text-sm text-gray-900">
-              {{ liveaccountStore.liveaccountCreate.mobile }}
-            </Select>
           </div>
         </div>
       </div>

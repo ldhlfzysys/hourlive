@@ -10,6 +10,7 @@ import { Button } from 'ant-design-vue';
 
 import SampleCard from '#/components/samplecard.vue';
 import SampleForm from '#/components/sampleform.vue';
+import SampleKspForm from '#/components/samplekspform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -32,17 +33,6 @@ function onResize() {
 
 const selectedNames = ref([]);
 const selectedItems = ref([]);
-const nameOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8']);
-const itemOptions = ref([
-  { label: '1', value: '1' },
-  { label: '2', value: '2' },
-  { label: '3', value: '3' },
-  { label: '4', value: '4' },
-  { label: '5', value: '5' },
-  { label: '6', value: '6' },
-  { label: '7', value: '7' },
-  { label: '8', value: '8' },
-]);
 
 watch(
   selectedNames,
@@ -112,6 +102,7 @@ function onUpdate(
         </RecycleScroller>
       </div>
       <SampleForm />
+      <SampleKspForm />
     </template>
 
     <!-- <template #footer> 123 </template> -->
