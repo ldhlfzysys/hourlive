@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import { $t } from '@vben/locales';
 
 import {
@@ -19,9 +17,12 @@ defineOptions({
 });
 
 const sampleStore = useSampleStore();
-const product_link = ref('');
 function handleOk() {
-  sampleStore.createSample();
+  if (sampleStore.sampleUpdate.id) {
+    sampleStore.updateSample();
+  } else {
+    sampleStore.createSample();
+  }
 }
 </script>
 
@@ -38,16 +39,16 @@ function handleOk() {
     <div class="flex flex-col">
       <div class="flex w-full">
         <Input
-          v-model:value="product_link"
+          v-model:value="sampleStore.sampleUpdate.product_link"
           :placeholder="$t('enterproductlink')"
           class="mr-3 text-lg font-medium leading-6 text-gray-900"
         />
         <Button
           :loading="sampleStore.sampleFetchLoading"
           type="primary"
-          @click="sampleStore.fetechProductInfo(product_link)"
+          @click="sampleStore.fetechProductInfo()"
         >
-          {{ $t('fetch') }}
+          {{ sampleStore.sampleUpdate.id ? $t('update') : $t('fetch') }}
         </Button>
       </div>
       <div class="flex h-[200px] w-full">
@@ -102,7 +103,10 @@ function handleOk() {
               />
             </div>
             <div class="mt-2 flex">
-              <Select class="w-[100px]">
+              <Select
+                v-model:value="sampleStore.sampleUpdate.is_main"
+                class="w-[100px]"
+              >
                 <SelectOption value="0">
                   {{ $t('sample_welfare') }}
                 </SelectOption>

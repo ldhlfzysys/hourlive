@@ -43,7 +43,7 @@ const type = computed(() => {
       class="m-2 flex w-full rounded-lg border bg-white shadow-md hover:shadow-lg"
     >
       <!-- 图片区域 -->
-      <div class="relative w-[184px]">
+      <div class="relative w-[180px]">
         <Image
           :src="props.sample.product_image"
           alt="商品图片"

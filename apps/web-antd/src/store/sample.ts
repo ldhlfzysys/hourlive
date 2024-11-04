@@ -80,6 +80,7 @@ export const useSampleStore = defineStore('sample-store', () => {
   function makeUpdate(id: number) {
     showModal.value = true;
     const sample = samples.value.get(id);
+    console.log(sample);
     if (sample) {
       sampleUpdate.value = sample;
     }
@@ -126,12 +127,13 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
-  async function updateSample(params: Sample) {
+  async function updateSample() {
     try {
       sampleUpdateLoading.value = true;
-      const res = await _updateSample(params);
+      const res = await _updateSample(sampleUpdate.value);
       if (res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
+        showModal.value = false;
       } else {
         notification.error({
           description: res.message,
@@ -147,13 +149,21 @@ export const useSampleStore = defineStore('sample-store', () => {
   商品脚本相关
   */
 
-  async function fetechProductInfo(product_url: string) {
+  async function fetechProductInfo() {
     sampleFetchLoading.value = true;
     try {
-      const res = await _fetchSampleInfo({ url: product_url });
+      const tempLink = sampleUpdate.value.product_link;
+      if (!sampleUpdate.value.product_link) {
+        sampleFetchLoading.value = false;
+        return;
+      }
+      const res = await _fetchSampleInfo({
+        url: sampleUpdate.value.product_link,
+      });
       sampleFetchLoading.value = false;
       if (res.success) {
         sampleUpdate.value = res.data;
+        sampleUpdate.value.product_link = tempLink;
       }
     } catch {
       sampleFetchLoading.value = false;

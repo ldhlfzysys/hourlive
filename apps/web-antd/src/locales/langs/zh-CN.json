@@ -153,6 +153,7 @@
   "createroom": "新增直播间",
   "createmember": "新增成员",
   "fetch": "自动抓取",
+  "update": "自动更新",
   "fetchproductinfo": "获取商品信息",
   "createshipping": "创建物流",
   "addpackage": "添加到包裹",
