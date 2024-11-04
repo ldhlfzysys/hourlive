@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
     <!-- 导航头高度88px -->
     <div class="flex h-[calc(100vh-88px-32px)] flex-col">
       <!-- Header -->
-      <header class="flex">
+      <header class="flex p-2">
         <slot name="header"></slot>
       </header>
 

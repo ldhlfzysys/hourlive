@@ -8,20 +8,14 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type {
-  Sample,
-  SampleCreate,
-  SampleQuery,
-  StanderResult,
-  Url,
-} from '#/types';
+import type { Sample, SampleQuery, StanderResult, Url } from '#/types';
 
 // API
 function _getAllSamples(params?: SampleQuery) {
   return requestClient.post<StanderResult<Sample[]>>('sample/query', params);
 }
 
-function _newSamples(params: SampleCreate) {
+function _newSamples(params: Sample) {
   return requestClient.post<StanderResult<Sample>>('sample/create', params);
 }
 
@@ -40,7 +34,6 @@ export const useSampleStore = defineStore('sample-store', () => {
   // loading
   const sampleQueryLoading = ref(false); // 查询loading
   const sampleFetchLoading = ref(false); // 获取详情loading
-  const sampleCreateLoading = ref(false); // 创建loading
   const sampleUpdateLoading = ref(false); // 创建loading
 
   const showModal = ref(false); // 控制创建或更新模态框显示
@@ -54,14 +47,7 @@ export const useSampleStore = defineStore('sample-store', () => {
       .map(([_, sample]) => sample); // 转换为Sample的list
   });
 
-  // others
-  const sampleCreate = ref<SampleCreate>({
-    is_main: '0',
-  });
-
-  const sampleUpdate = ref<SampleCreate>({
-    is_main: '0',
-  });
+  const sampleUpdate = ref<Sample>({});
 
   // query
   const sampleQuery = ref<SampleQuery>({
@@ -73,7 +59,7 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   function $reset() {
     sampleQueryLoading.value = false;
-    sampleCreateLoading.value = false;
+    sampleUpdateLoading.value = false;
     sampleQuery.value.q_id = -1;
 
     sampleQuery.value = {
@@ -85,6 +71,20 @@ export const useSampleStore = defineStore('sample-store', () => {
     samples.value = new Map();
   }
 
+  function makeCreate() {
+    showModal.value = true;
+    sampleUpdate.value = {
+      is_main: '0',
+    };
+  }
+  function makeUpdate(id: number) {
+    showModal.value = true;
+    const sample = samples.value.get(id);
+    if (sample) {
+      sampleUpdate.value = sample;
+    }
+  }
+
   // methods
   async function querySample() {
     try {
@@ -93,12 +93,14 @@ export const useSampleStore = defineStore('sample-store', () => {
       if (res.success) {
         if (res.data.length > 0) {
           const lastSample = res.data.at(-1);
-          if (lastSample) {
+          if (lastSample && lastSample.id) {
             sampleQuery.value.q_id = lastSample.id;
           }
         }
         res.data.forEach((sample) => {
-          samples.value.set(sample.id, sample);
+          if (sample.id) {
+            samples.value.set(sample.id, sample);
+          }
         });
       }
     } finally {
@@ -108,10 +110,11 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   async function createSample() {
     try {
-      sampleCreateLoading.value = true;
-      const res = await _newSamples(sampleCreate.value);
-      if (res.success) {
+      sampleUpdateLoading.value = true;
+      const res = await _newSamples(sampleUpdate.value);
+      if (res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
+        showModal.value = false;
       } else {
         notification.error({
           description: res.message,
@@ -119,7 +122,7 @@ export const useSampleStore = defineStore('sample-store', () => {
         });
       }
     } finally {
-      sampleCreateLoading.value = false;
+      sampleUpdateLoading.value = false;
     }
   }
 
@@ -127,7 +130,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     try {
       sampleUpdateLoading.value = true;
       const res = await _updateSample(params);
-      if (res.success) {
+      if (res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
       } else {
         notification.error({
@@ -146,10 +149,16 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   async function fetechProductInfo(product_url: string) {
     sampleFetchLoading.value = true;
-    const res = await _fetchSampleInfo({ url: product_url });
-    sampleFetchLoading.value = false;
-    if (res.success) {
-      sampleCreate.value = res.data;
+    try {
+      const res = await _fetchSampleInfo({ url: product_url });
+      sampleFetchLoading.value = false;
+      if (res.success) {
+        sampleUpdate.value = res.data;
+      }
+    } catch {
+      sampleFetchLoading.value = false;
+    } finally {
+      sampleFetchLoading.value = false;
     }
   }
 
@@ -157,9 +166,9 @@ export const useSampleStore = defineStore('sample-store', () => {
     $reset,
     createSample,
     fetechProductInfo,
+    makeCreate,
+    makeUpdate,
     querySample,
-    sampleCreate,
-    sampleCreateLoading,
     sampleFetchLoading,
     sampleList,
     sampleQuery,

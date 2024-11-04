@@ -7,6 +7,8 @@ import { $t } from '@vben/locales';
 
 import { Image } from 'ant-design-vue';
 
+import { useSampleStore } from '#/store';
+
 defineOptions({
   name: 'SampleCard',
 });
@@ -14,6 +16,8 @@ defineOptions({
 const props = defineProps<{
   sample: Sample;
 }>();
+
+const sampleStore = useSampleStore();
 
 const type = computed(() => {
   switch (props.sample.is_main) {
@@ -35,7 +39,9 @@ const type = computed(() => {
 
 <template>
   <div class="flex h-[200px] w-full">
-    <div class="m-2 flex rounded-lg bg-white shadow-md">
+    <div
+      class="m-2 flex w-full rounded-lg border bg-white shadow-md hover:shadow-lg"
+    >
       <!-- 图片区域 -->
       <div class="relative w-[184px]">
         <Image
@@ -79,7 +85,10 @@ const type = computed(() => {
 
         <!-- 编辑按钮 -->
         <div class="mt-4">
-          <button class="bg-primary rounded-full px-4 py-1 text-sm text-white">
+          <button
+            class="bg-primary rounded-full px-4 py-1 text-sm text-white"
+            @click="sampleStore.makeUpdate(props.sample.id!)"
+          >
             {{ $t('edit') }}
           </button>
         </div>

@@ -85,7 +85,7 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="sampleStore.showModal = true">
+      <Button type="primary" @click="sampleStore.makeCreate()">
         {{ $t('createsample') }}
       </Button>
     </template>

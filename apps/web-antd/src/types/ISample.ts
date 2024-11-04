@@ -8,28 +8,12 @@ export interface SampleQuery extends BaseQuery {
   customer_id?: number;
 }
 
-export interface SampleCreate {
-  product_image?: string;
-  product_name?: string;
-  hashtag?: string;
-  product_id?: string;
-  product_link?: string;
-  product_srp?: string;
-  product_final_price?: string;
-  product_discount?: string;
-  product_ksp?: string;
-  product_script?: string;
-  product_commission?: string;
-  is_main: string;
-  sample_count?: number; // 样品数量
-}
-
 export interface Sample {
-  id: number;
-  create_time: string; // DateTime in ISO format
-  update_time: string; // DateTime in ISO format
-  customer_id: number;
-  product_count: number;
+  id?: number;
+  create_time?: string; // DateTime in ISO format
+  update_time?: string; // DateTime in ISO format
+  customer_id?: number;
+  product_count?: number;
   product_image?: string;
   product_name?: string;
   hashtag?: string;
@@ -41,10 +25,10 @@ export interface Sample {
   product_ksp?: string;
   product_script?: string;
   product_commission?: string;
-  is_main: string;
-  contents: Content[];
-  sampleshippings: SampleShipping[];
-  agencys: Agency[];
+  is_main?: string;
+  contents?: Content[];
+  sampleshippings?: SampleShipping[];
+  agencys?: Agency[];
   customer?: Customer;
   sample_count?: number; // 样品数量
   isInAgency?: number; // 0没有， 1在途， 2有
