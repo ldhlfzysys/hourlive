@@ -2,6 +2,8 @@
 import { onMounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
+import { $t } from '@vben/locales';
+
 import { Button } from 'ant-design-vue';
 
 import ShippingAddressCard from '#/components/shippingaddresscard.vue';
@@ -28,8 +30,12 @@ function onBottom() {
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="shippingAddressStore.showModal = true">
-        新增
+      <Button
+        style="margin-top: 10px; margin-bottom: 10px"
+        type="primary"
+        @click="shippingAddressStore.showModal = true"
+      >
+        {{ $t('create') }}
       </Button>
       <br />
     </template>
@@ -39,8 +45,9 @@ function onBottom() {
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :grid-items="3"
-          :item-size="200"
+          :grid-items="2"
+          :item-secondary-size="650"
+          :item-size="220"
           :items="shippingAddressStore.shippingAddressList"
           :page-mode="true"
           class="scroller"

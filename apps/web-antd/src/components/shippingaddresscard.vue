@@ -31,26 +31,20 @@ function deleteAddress(id: number) {
 </script>
 
 <template>
-  <div
-    class="overflow-hidden rounded-lg border bg-white shadow-lg transition-colors duration-300 hover:bg-gray-100"
-  >
-    <div class="flex flex-col px-6 py-5 sm:px-8">
-      <div class="mb-2 flex flex-row items-center justify-between">
-        <h3 class="text-xl font-semibold leading-7 text-gray-800">
-          {{ $t('address') }}: {{ props.shippingaddress.address }}
+  <div class="card">
+    <div class="card-content">
+      <div class="header">
+        <h3 class="title">
+          {{ $t('shipping_address') }}: {{ props.shippingaddress.address }}
         </h3>
-        <div class="text-sm font-medium text-gray-500">
-          {{ $t('id') }}: {{ props.shippingaddress.id }}
-        </div>
+        <div class="id">{{ $t('id') }}: {{ props.shippingaddress.id }}</div>
       </div>
-      <p class="mb-4 max-w-2xl text-sm text-gray-600">
+      <p class="remark">
         {{ $t('remark') }}: {{ props.shippingaddress.remark }}
       </p>
     </div>
-    <div
-      class="flex flex-row items-center justify-between border-t border-gray-200 px-6 py-4"
-    >
-      <div class="flex flex-row gap-4">
+    <div class="actions">
+      <div class="buttons">
         <Button type="primary" @click="editAddress(props.shippingaddress.id)">
           {{ $t('edit') }}
         </Button>
@@ -63,6 +57,68 @@ function deleteAddress(id: number) {
 </template>
 
 <style scoped>
+.card {
+  margin-left: 10px;
+  overflow: hidden;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  transition: background-color 0.3s;
+}
+
+.card:hover {
+  background-color: #f3f4f6;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.id {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.remark {
+  max-width: 32rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
 .actions .ant-btn {
   padding: 8px 16px;
   font-size: 14px;

@@ -36,7 +36,7 @@ function onBottom() {
   <HourLivePage :content-overflow="true">
     <template #header>
       <Button
-        style="top: 20px"
+        style="margin-top: 10px; margin-bottom: 10px"
         type="primary"
         @click="streamerStore.showModal = true"
       >
@@ -52,7 +52,7 @@ function onBottom() {
           :emit-update="true"
           :grid-items="2"
           :item-secondary-size="650"
-          :item-size="180"
+          :item-size="200"
           :items="streamerStore.streamerList"
           :page-mode="true"
           class="scroller"
@@ -73,7 +73,6 @@ function onBottom() {
 
 <style scoped>
 .scroller {
-  top: 50px;
   display: flex;
   flex-wrap: wrap;
   height: 100%;

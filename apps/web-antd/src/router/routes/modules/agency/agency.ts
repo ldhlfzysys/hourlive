@@ -37,6 +37,20 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['agency'],
       hideChildrenInMenu: true,
+      icon: 'lucide:eye',
+      order: 6,
+      title: $t('sample'),
+    },
+    name: 'AgencySample',
+    path: '/agency/sample',
+    children: [config.agencySample],
+  },
+
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
       icon: 'lucide:truck',
       order: 2,
       title: $t('shipping_address'),

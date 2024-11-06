@@ -32,27 +32,23 @@ function handleCancel() {
   <Modal
     v-model:visible="shippingAddressStore.showModal"
     :confirm-loading="shippingAddressStore.shippingAddressCreateLoading"
-    :title="
-      shippingAddressStore.isEditing
-        ? $t('edit_shipping_address')
-        : $t('create_shipping_address')
-    "
+    :title="shippingAddressStore.isEditing ? $t('edit') : $t('create')"
     centered
     width="800px"
     @cancel="handleCancel"
     @ok="handleOk"
   >
-    <div class="overflow-hidden rounded-lg border bg-white shadow">
-      <div class="flex flex-col px-4 py-5 sm:px-6">
+    <div class="modal-content">
+      <div class="input-container">
         <Input
           v-model:value="shippingAddressStore.shippingAddressCreate.address"
           :placeholder="$t('address')"
-          class="mb-3 text-lg font-medium leading-6 text-gray-900"
+          class="address-input"
         />
         <Input
           v-model:value="shippingAddressStore.shippingAddressCreate.remark"
           :placeholder="$t('remark')"
-          class="text-sm text-gray-500"
+          class="remark-input"
         />
       </div>
     </div>
@@ -60,5 +56,29 @@ function handleCancel() {
 </template>
 
 <style scoped>
-/* 删除不需要的样式 */
+.modal-content {
+  overflow: hidden;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem;
+}
+
+.address-input {
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.remark-input {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
 </style>

@@ -29,7 +29,13 @@ function onBottom() {
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="roomStore.showModal = true"> 新增 </Button>
+      <Button
+        style="margin-top: 10px; margin-bottom: 10px"
+        type="primary"
+        @click="roomStore.showModal = true"
+      >
+        新增
+      </Button>
       <br />
     </template>
 
@@ -38,6 +44,8 @@ function onBottom() {
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
+          :grid-items="2"
+          :item-secondary-size="650"
           :item-size="210"
           :items="roomStore.roomList"
           :page-mode="true"

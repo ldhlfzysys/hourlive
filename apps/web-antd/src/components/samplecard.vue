@@ -4,6 +4,7 @@ import type { Sample } from '#/types';
 import { computed } from 'vue';
 
 import { $t } from '@vben/locales';
+import { useUserStore } from '@vben/stores';
 
 import { Image } from 'ant-design-vue';
 
@@ -18,6 +19,7 @@ const props = defineProps<{
 }>();
 
 const sampleStore = useSampleStore();
+const userStore = useUserStore();
 
 const type = computed(() => {
   switch (props.sample.is_main) {
@@ -34,6 +36,10 @@ const type = computed(() => {
       return '';
     }
   }
+});
+
+const canEdit = computed(() => {
+  return userStore.userRoles.includes('customer');
 });
 </script>
 
@@ -89,7 +95,7 @@ const type = computed(() => {
         </div>
 
         <!-- 编辑按钮 -->
-        <div class="mt-4">
+        <div v-if="canEdit" class="mt-4">
           <button
             class="bg-primary rounded-full px-4 py-1 text-sm text-white"
             @click="sampleStore.makeUpdate(props.sample.id!)"

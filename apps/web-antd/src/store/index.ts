@@ -9,4 +9,5 @@ export * from './sample';
 export * from './sampleshipping';
 export * from './shippingaddress';
 export * from './streamer';
-export * from './timeslotOrder';
+// export * from './timeslotOrder';
+export * from './timeslotsorder';

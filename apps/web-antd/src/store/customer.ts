@@ -12,16 +12,21 @@ import type {
   OSSFileDelete,
   StanderResult,
 } from '#/types';
+import type { Customer } from '#/types/ICustomer';
+
+import { ref } from 'vue';
 
 // Query
 
 // API
 enum CustomerApi {
+  // 查询机构往来的小时播账户
+  AgencyGetCustomer = '/agency/getallcustomers',
   CreateLiveAccount = 'createliveaccount',
   DeleteFile = 'deletefile',
   DeleteLiveAccount = 'deleteliveaccount',
-  GetFileList = 'getfilelist',
 
+  GetFileList = 'getfilelist',
   GetLiveAccount = 'getliveaccount',
   UpdateLiveAccount = 'updateliveaccount',
   UploadFile = 'uploadfile',
@@ -82,7 +87,19 @@ export async function deleteFile(params: OSSFileDelete) {
 export const useCustomerStore = defineStore('customer-store', () => {
   function $reset() {}
 
+  // 存储机构往来的小时播账户
+  const agencyCustomers = ref<StanderResult<Customer[]>>();
+
+  async function getAgencyCustomers() {
+    const response = await requestClient.get<StanderResult<Customer[]>>(
+      CustomerApi.AgencyGetCustomer,
+    );
+    agencyCustomers.value = response;
+  }
+
   return {
     $reset,
+    agencyCustomers,
+    getAgencyCustomers,
   };
 });

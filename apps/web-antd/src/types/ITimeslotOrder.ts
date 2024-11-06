@@ -29,7 +29,7 @@ export interface TimeslotOrder {
   subsidy_type: string;
 }
 
-export interface TimslotOrderCreate {
+export interface TimeslotOrderCreate {
   id?: number;
   room_id: number;
   content_id: number;

@@ -11,6 +11,16 @@ const viewMap = {
     name: 'Home',
     path: '/home',
   },
+  agencySample: {
+    component: () => import('#/views/agency/sample.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:package',
+      title: $t('sample'),
+    },
+    name: 'AgencySample',
+    path: '/agency/sample',
+  },
   content: {
     component: () => import('#/views/customer/content.vue'),
     meta: {
@@ -135,16 +145,6 @@ const viewMap = {
     path: '/shippings',
   },
 
-  superhome: {
-    component: () => import('#/views/super/home.vue'),
-    meta: {
-      affixTab: true,
-      icon: 'lucide:calendar',
-      title: $t('home'),
-    },
-    name: 'Home',
-    path: '/home',
-  },
   streamer: {
     component: () => import('#/views/agency/streamer.vue'),
     meta: {
@@ -154,6 +154,16 @@ const viewMap = {
     },
     name: 'Streamer',
     path: '/streamer',
+  },
+  superhome: {
+    component: () => import('#/views/super/home.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:calendar',
+      title: $t('home'),
+    },
+    name: 'Home',
+    path: '/home',
   },
 };
 

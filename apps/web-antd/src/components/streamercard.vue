@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { Streamer } from '#/types';
 
+import { $t } from '@vben/locales';
+
 import { useStreamerStore } from '#/store';
 
 defineOptions({
