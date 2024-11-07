@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 
 import { useLiveAccountStore } from '#/store';
 // @ts-ignore
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import { Button } from 'ant-design-vue';
 
@@ -55,24 +55,29 @@ function onUpdate(
 
     <template #content>
       <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :item-size="210"
+        <DynamicScroller
           :items="liveaccountStore.liveaccountList"
-          :page-mode="true"
+          :min-item-size="100"
           class="scroller"
           key-field="id"
           @scroll-end="onBottom"
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <LiveAccountCard :liveaccount="item" />
-        </RecycleScroller>
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :active="active"
+              :data-index="index"
+              :item="item"
+              class="p-4 first:pt-4"
+            >
+              <LiveAccountCard :liveaccount="item" />
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
       </div>
       <LiveAccountForm />
     </template>
-    <!-- <template #footer> 123 </template> -->
   </HourLivePage>
 </template>
 
@@ -81,11 +86,12 @@ function onUpdate(
   height: 100%;
 }
 
-.user {
-  /* height: 32%; */
+:deep(.vue-recycle-scroller__item-wrapper) {
+  padding: 16px;
+  padding-bottom: 0;
+}
 
-  /* padding: 0 12px; */
-  display: flex;
-  align-items: center;
+:deep(.vue-recycle-scroller__item-wrapper:last-child) {
+  padding-bottom: 16px;
 }
 </style>

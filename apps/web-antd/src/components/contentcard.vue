@@ -26,133 +26,85 @@ const liveaccount = computed(() => {
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-lg border bg-white shadow">
-    <div class="flex flex-row items-center px-4 py-5 sm:px-6">
-      <h3 class="mr-3 flex text-lg font-medium leading-6 text-gray-900">
-        {{ props.content.id }}
-      </h3>
-      <p class="mt-1 flex max-w-2xl text-sm text-gray-500">
-        {{ props.content.content_text }}
-      </p>
+  <div
+    class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
+  >
+    <!-- Header部分 -->
+    <div
+      class="flex items-center justify-between border-b border-gray-100 px-6 py-5"
+    >
+      <div class="flex items-center gap-3">
+        <h3 class="m-0 text-lg font-semibold text-gray-800">
+          {{ props.content.id }}
+        </h3>
+        <p class="text-sm text-gray-600">
+          {{ props.content.content_text }}
+        </p>
+      </div>
       <Button
-        class="ml-auto flex"
+        class="min-w-[80px]"
         type="primary"
         @click="contentStore.makeUpdate(props.content.id!)"
       >
         {{ $t('edit') }}
       </Button>
     </div>
-    <div class="flex flex-row justify-between">
-      <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('shop_name') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ liveaccount?.name }}
-            </dd>
+
+    <!-- 内容部分 -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- 第一列 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('shop_name')
+              }}</span>
+              <span class="text-sm text-gray-900">{{ liveaccount?.name }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('shop_code')
+              }}</span>
+              <span class="text-sm text-gray-900">{{ liveaccount?.code }}</span>
+            </div>
           </div>
         </div>
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('shop_code') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ liveaccount?.code }}
-            </dd>
+
+        <!-- 第二列 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('liveaccount')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                liveaccount?.live_account
+              }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('live_uid')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                liveaccount?.live_uid
+              }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('liveaccount') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ liveaccount?.live_account }}
-            </dd>
+
+        <!-- 第三列 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-gray-500">{{
+              $t('platform')
+            }}</span>
+            <span class="text-sm text-gray-900">{{
+              liveaccount?.platform
+            }}</span>
           </div>
         </div>
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('live_uid') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ liveaccount?.live_uid }}
-            </dd>
-          </div>
-        </div>
-      </div>
-      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-        <dl class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('platform') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ liveaccount?.platform }}
-            </dd>
-          </div>
-        </dl>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.product-image {
-  width: 100%;
-  height: auto;
-}
-
-.product-info {
-  margin-top: 10px;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #f5222d;
-}
-
-.original-price {
-  font-size: 14px;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.middle-content {
-  font-size: 16px;
-  word-break: break-word;
-}
-
-.right-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-::-webkit-scrollbar {
-  width: 0;
-  height: 7px;
-  background-color: #f5f5f5;
-}
-
-/* 定义滚动条轨道 内阴影+圆角 */
-::-webkit-scrollbar-track {
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
-}
-
-/* 定义滑块 内阴影+圆角 */
-::-webkit-scrollbar-thumb {
-  background-color: #c8c8c8;
-  border-radius: 10px;
-  box-shadow: inset 0 0 6px rgb(0 0 0 / 10%);
-}
-</style>

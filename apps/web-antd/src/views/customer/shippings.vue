@@ -1,17 +1,14 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-
-import { useAgencyStore, useSampleShippingStore } from '#/store';
-// @ts-ignore
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import ShippingCard from '#/components/shippingcard.vue';
+import { useSampleShippingStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const sampleShippingStore = useSampleShippingStore();
-const agencyStore = useAgencyStore();
 
 const updateParts = ref({
   viewEndIdx: 0,
@@ -21,9 +18,7 @@ const updateParts = ref({
 });
 
 onMounted(() => {
-  console.log('onmounted !!! sampleShipping');
   sampleShippingStore.querySampleShipping();
-  agencyStore.fetchAgency();
 });
 
 function onTop() {}
@@ -49,37 +44,52 @@ function onUpdate(
     <template #header> </template>
 
     <template #content>
-      <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :item-size="210"
+      <div class="flex flex-1 flex-col overflow-hidden">
+        <DynamicScroller
           :items="sampleShippingStore.sampleShippingList"
-          :page-mode="true"
-          class="scroller"
+          :min-item-size="250"
+          class="scroller h-full"
           key-field="id"
           @scroll-end="onBottom"
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <ShippingCard :sampleshipping="item" />
-        </RecycleScroller>
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :active="active"
+              :data-index="index"
+              :item="item"
+              :size-dependencies="[
+                item.express_company,
+                item.tracking_number,
+                item.sender_name,
+                item.sender_time,
+                item.receiver_name,
+                item.receiver_time,
+              ]"
+              class="px-4 pt-4 last:pb-4"
+            >
+              <ShippingCard :sampleshipping="item" />
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
       </div>
+      <ShippingForm />
     </template>
-    <!-- <template #footer> 123 </template> -->
   </HourLivePage>
 </template>
 
 <style scoped>
 .scroller {
   height: 100%;
+  overflow-y: auto;
 }
 
-.user {
-  /* height: 32%; */
+:deep(.vue-recycle-scroller__slot) {
+  overflow: visible !important;
+}
 
-  /* padding: 0 12px; */
-  display: flex;
-  align-items: center;
+:deep(.vue-recycle-scroller__item-wrapper) {
+  overflow: visible !important;
 }
 </style>

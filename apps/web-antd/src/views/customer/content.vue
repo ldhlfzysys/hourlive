@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-
-import { useContentStore, useLiveAccountStore } from '#/store';
-// @ts-ignore
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import { Button } from 'ant-design-vue';
 
 import ContentCard from '#/components/contentcard.vue';
 import ContentForm from '#/components/contentform.vue';
+import { useContentStore, useLiveAccountStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -30,7 +28,7 @@ onMounted(() => {
 
 function onTop() {}
 function onBottom() {
-  liveaccountStore.queryLiveAccount();
+  contentStore.queryContent();
 }
 
 function onUpdate(
@@ -49,44 +47,41 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="liveaccountStore.showModal = true">
+      <Button type="primary" @click="contentStore.showModal = true">
         {{ $t('createcontent') }}
       </Button>
     </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :item-size="210"
+        <DynamicScroller
           :items="contentStore.contentList"
-          :page-mode="true"
+          :min-item-size="100"
           class="scroller"
           key-field="id"
           @scroll-end="onBottom"
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <ContentCard :content="item" />
-        </RecycleScroller>
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :active="active"
+              :data-index="index"
+              :item="item"
+              class="p-4 first:pt-4"
+            >
+              <ContentCard :content="item" />
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
       </div>
       <ContentForm />
     </template>
-    <!-- <template #footer> 123 </template> -->
   </HourLivePage>
 </template>
 
 <style scoped>
 .scroller {
   height: 100%;
-}
-
-.user {
-  /* height: 32%; */
-
-  /* padding: 0 12px; */
-  display: flex;
-  align-items: center;
 }
 </style>

@@ -23,147 +23,110 @@ const agency = computed(() => {
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-lg border bg-white shadow">
-    <div class="flex flex-row items-center px-4 py-5 sm:px-6">
-      <h3 class="mr-3 flex text-lg font-medium leading-6 text-gray-900">
-        {{ agency?.name }}
-      </h3>
-      <p class="mt-1 flex max-w-2xl text-sm text-gray-500">
-        {{
-          props.sampleshipping.delivery_approval === '1'
-            ? $t('agencyrecived')
-            : $t('norecived')
-        }}
-      </p>
-      <!-- <Button
-        class="ml-auto flex"
-        type="primary"
+  <div
+    class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
+  >
+    <!-- Header部分 -->
+    <div
+      class="flex items-center justify-between border-b border-gray-100 px-6 py-5"
+    >
+      <div class="flex items-center gap-3">
+        <h3 class="m-0 text-lg font-semibold text-gray-800">
+          {{ agency?.name }}
+        </h3>
+        <span
+          :class="
+            props.sampleshipping.delivery_approval === '1'
+              ? 'bg-green-50 text-green-600'
+              : 'bg-orange-50 text-orange-600'
+          "
+          class="rounded-md bg-gray-50 px-3 py-1 text-sm"
+        >
+          {{
+            props.sampleshipping.delivery_approval === '1'
+              ? $t('agencyrecived')
+              : $t('norecived')
+          }}
+        </span>
+      </div>
+      <!-- <Button 
+        type="primary" 
+        class="min-w-[80px]" 
         @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
       >
         {{ $t('edit') }}
       </Button> -->
     </div>
-    <div class="flex flex-row justify-between">
-      <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('express_company') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.express_company }}
-            </dd>
+
+    <!-- 内容部分 -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- 快递信息 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('express_company')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.express_company
+              }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('tracking_number')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.tracking_number
+              }}</span>
+            </div>
           </div>
         </div>
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('tracking_number') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.tracking_number }}
-            </dd>
+
+        <!-- 发件人信息 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('sender_name')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.sender_name
+              }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('sender_time')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.sender_time
+              }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('sender_name') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.sender_name }}
-            </dd>
-          </div>
-        </div>
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('sender_time') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.sender_time }}
-            </dd>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('receiver_name') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.receiver_name }}
-            </dd>
-          </div>
-        </div>
-        <div class="sm:divide-y sm:divide-gray-200">
-          <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-            <dt class="text-sm font-medium text-gray-500">
-              {{ $t('receiver_time') }}
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-              {{ props.sampleshipping.receiver_time }}
-            </dd>
+
+        <!-- 收件人信息 -->
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('receiver_name')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.receiver_name
+              }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('receiver_time')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.sampleshipping.receiver_time
+              }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.product-image {
-  width: 100%;
-  height: auto;
-}
-
-.product-info {
-  margin-top: 10px;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #f5222d;
-}
-
-.original-price {
-  font-size: 14px;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.middle-content {
-  font-size: 16px;
-  word-break: break-word;
-}
-
-.right-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-::-webkit-scrollbar {
-  width: 0;
-  height: 7px;
-  background-color: #f5f5f5;
-}
-
-/* 定义滚动条轨道 内阴影+圆角 */
-::-webkit-scrollbar-track {
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
-}
-
-/* 定义滑块 内阴影+圆角 */
-::-webkit-scrollbar-thumb {
-  background-color: #c8c8c8;
-  border-radius: 10px;
-  box-shadow: inset 0 0 6px rgb(0 0 0 / 10%);
-}
-</style>
