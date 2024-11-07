@@ -1,18 +1,17 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
-import { useSampleStore } from '#/store';
+import { useAgencyStore, useSampleShippingStore } from '#/store';
 // @ts-ignore
 import { RecycleScroller } from 'vue-virtual-scroller';
 
-import LabelFilter from '#/components/labelfilter.vue';
-import SampleCard from '#/components/samplecard.vue';
-import SelectFilter from '#/components/selectfilter.vue';
+import ShippingCard from '#/components/shippingcard.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
-const sampleStore = useSampleStore();
+const sampleShippingStore = useSampleShippingStore();
+const agencyStore = useAgencyStore();
 
 const updateParts = ref({
   viewEndIdx: 0,
@@ -21,43 +20,15 @@ const updateParts = ref({
   visibleStartIdx: 0,
 });
 
-const selectedNames = ref([]);
-const selectedItems = ref([]);
-const nameOptions = ref(['1', '2', '3', '4', '5', '6', '7', '8']);
-const itemOptions = ref([
-  { label: '1', value: '1' },
-  { label: '2', value: '2' },
-  { label: '3', value: '3' },
-  { label: '4', value: '4' },
-  { label: '5', value: '5' },
-  { label: '6', value: '6' },
-  { label: '7', value: '7' },
-  { label: '8', value: '8' },
-]);
-
-watch(
-  selectedNames,
-  (newValue, oldValue) => {
-    console.log(newValue, oldValue);
-  },
-  { deep: true },
-);
-
-watch(
-  selectedItems,
-  (newValue, oldValue) => {
-    console.log(newValue, oldValue);
-  },
-  { deep: true },
-);
-
 onMounted(() => {
-  sampleStore.querySample();
+  console.log('onmounted !!! sampleShipping');
+  sampleShippingStore.querySampleShipping();
+  agencyStore.fetchAgency();
 });
 
 function onTop() {}
 function onBottom() {
-  sampleStore.querySample();
+  sampleShippingStore.querySampleShipping();
 }
 
 function onUpdate(
@@ -75,29 +46,15 @@ function onUpdate(
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header>
-      <div>
-        <LabelFilter
-          v-model="selectedNames"
-          :options="nameOptions"
-          title="名称2222"
-        />
-        <SelectFilter
-          v-model="selectedItems"
-          :options="itemOptions"
-          placeholder="请选择选项"
-          title="名称222222222"
-        />
-      </div>
-    </template>
+    <template #header> </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">
         <RecycleScroller
           v-slot="{ item }"
           :emit-update="true"
-          :item-size="100"
-          :items="sampleStore.sampleList"
+          :item-size="210"
+          :items="sampleShippingStore.sampleShippingList"
           :page-mode="true"
           class="scroller"
           key-field="id"
@@ -105,31 +62,23 @@ function onUpdate(
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <div class="sample-card-container">
-            <SampleCard :sample="item" />
-          </div>
+          <ShippingCard :sampleshipping="item" />
         </RecycleScroller>
       </div>
     </template>
-
-    <template #footer> 123 </template>
+    <!-- <template #footer> 123 </template> -->
   </HourLivePage>
 </template>
 
 <style scoped>
 .scroller {
-  display: flex;
-  flex-wrap: wrap;
   height: 100%;
 }
 
-.sample-card-container {
-  box-sizing: border-box;
-  width: 33.33%;
-  padding: 10px;
-}
-
 .user {
+  /* height: 32%; */
+
+  /* padding: 0 12px; */
   display: flex;
   align-items: center;
 }

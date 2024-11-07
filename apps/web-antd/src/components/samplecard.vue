@@ -49,11 +49,15 @@ const canEdit = computed(() => {
       class="m-2 flex w-full rounded-lg border bg-white shadow-md hover:shadow-lg"
     >
       <!-- 图片区域 -->
-      <div class="relative w-[180px]">
+      <div
+        class="relative flex h-[180px] w-[180px] items-center justify-center overflow-hidden"
+      >
         <Image
+          :height="180"
           :src="props.sample.product_image"
+          :width="180"
           alt="商品图片"
-          class="rounded-lg"
+          class="max-h-[180px] max-w-[180px] rounded-lg object-contain"
         />
         <div
           class="absolute right-2 top-2 rounded-full bg-gray-500 px-2 py-1 text-sm text-white"

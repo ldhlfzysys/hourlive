@@ -65,7 +65,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
   商品脚本相关
   */
 
-  async function removeFile(file: OSSFile) {
+  async function removeFile(file: OSSFileDelete) {
     removing.value = true;
     const result = await _deleteFile(file);
     if (result.success) {

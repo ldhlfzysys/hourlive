@@ -29,9 +29,14 @@ export const useAgencyStore = defineStore('agency-store', () => {
     allAgency.value = res.data;
   }
 
+  function agencyById(id: number) {
+    return allAgency.value.find((agency) => agency.id === id);
+  }
+
   function $reset() {}
   return {
     $reset,
+    agencyById,
     allAgency,
     fetchAgency,
   };
