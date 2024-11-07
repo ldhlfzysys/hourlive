@@ -71,6 +71,10 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     }
   }
 
+  function contentById(id: number) {
+    return liveaccounts.value.get(id);
+  }
+
   // query
   const liveaccountQuery = ref<LiveAccountQuery>({
     q_id: -1,
@@ -89,6 +93,10 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
       q_size: 5,
     };
     liveaccounts.value = new Map();
+  }
+
+  function liveaccountById(id: number) {
+    return liveaccounts.value.get(id);
   }
 
   // methods
@@ -152,7 +160,9 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
 
   return {
     $reset,
+    contentById,
     createLiveAccount,
+    liveaccountById,
     liveaccountCreate,
     liveaccountCreateLoading,
     liveaccountList,

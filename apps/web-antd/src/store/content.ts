@@ -68,6 +68,10 @@ export const useContentStore = defineStore('content-store', () => {
     }
   }
 
+  function contentById(id: number) {
+    return contents.value.get(id);
+  }
+
   // query
   const contentQuery = ref<ContentQuery>({
     q_id: -1,
@@ -161,6 +165,7 @@ export const useContentStore = defineStore('content-store', () => {
   return {
     $reset,
     addSamples,
+    contentById,
     contentCreate,
     contentCreateLoading,
     contentList,

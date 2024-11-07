@@ -49,7 +49,7 @@ function onUpdate(
   <HourLivePage :content-overflow="true">
     <template #header>
       <Button type="primary" @click="liveaccountStore.showModal = true">
-        新增直播账号
+        {{ $t('createliveaccount') }}
       </Button>
     </template>
 
