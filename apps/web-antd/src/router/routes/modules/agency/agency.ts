@@ -25,7 +25,7 @@ const routes: RouteRecordRaw[] = [
       authority: ['agency'],
       hideChildrenInMenu: true,
       icon: 'lucide:package',
-      order: -1,
+      order: 2,
       title: $t('sample'),
     },
     name: 'AgencySales',
