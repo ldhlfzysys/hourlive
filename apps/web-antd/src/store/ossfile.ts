@@ -52,6 +52,10 @@ export const useOSSFileStore = defineStore('file-store', () => {
   const fetching = ref(false);
   const removing = ref(false);
 
+  const currentProductId = ref(0);
+
+  const showModal = ref(false);
+
   // product_id: <name, path>
   const ossfiles = ref<Map<number, Map<string, string>>>(new Map());
 
@@ -64,6 +68,12 @@ export const useOSSFileStore = defineStore('file-store', () => {
   /*
   商品脚本相关
   */
+
+  async function showOSSFileModal(product_id: number) {
+    showModal.value = true;
+    currentProductId.value = product_id;
+    await fetchFile();
+  }
 
   async function removeFile(file: OSSFileDelete) {
     removing.value = true;
@@ -89,12 +99,12 @@ export const useOSSFileStore = defineStore('file-store', () => {
     uploading.value = false;
   }
 
-  async function fetchFile(product_id: number) {
+  async function fetchFile() {
     fetching.value = true;
-    const result = await _fetchFile(product_id);
+    const result = await _fetchFile(currentProductId.value);
     if (result.success) {
       ossfiles.value.set(
-        product_id,
+        currentProductId.value,
         new Map(result.data.map((item) => [item.name, item.path])),
       );
     }
@@ -104,7 +114,13 @@ export const useOSSFileStore = defineStore('file-store', () => {
   return {
     $reset,
     fetchFile,
+    fetching,
+    ossfiles,
     removeFile,
+    removing,
+    showModal,
+    showOSSFileModal,
     uploadFile,
+    uploading,
   };
 });

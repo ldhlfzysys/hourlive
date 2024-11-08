@@ -8,6 +8,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 import { useElementBounding } from '@vueuse/core';
 import { Button } from 'ant-design-vue';
 
+import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SampleForm from '#/components/sampleform.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
@@ -103,6 +104,7 @@ function onUpdate(
       </div>
       <SampleForm />
       <SampleKspForm />
+      <OSSFileForm />
     </template>
 
     <!-- <template #footer> 123 </template> -->

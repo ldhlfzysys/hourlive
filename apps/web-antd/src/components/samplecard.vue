@@ -8,7 +8,7 @@ import { useUserStore } from '@vben/stores';
 
 import { Image } from 'ant-design-vue';
 
-import { useSampleStore } from '#/store';
+import { useOSSFileStore, useSampleStore } from '#/store';
 
 defineOptions({
   name: 'SampleCard',
@@ -20,6 +20,7 @@ const props = defineProps<{
 
 const sampleStore = useSampleStore();
 const userStore = useUserStore();
+const ossFileStore = useOSSFileStore();
 
 const type = computed(() => {
   switch (props.sample.is_main) {
@@ -76,7 +77,12 @@ const canEdit = computed(() => {
         <!-- 商品 ID 和操作链接 -->
         <div class="mt-2 flex items-center space-x-3 text-sm text-gray-500">
           <span>ID: 1730933517007210531</span>
-          <a class="text-blue-500" href="#">{{ $t('scriptmanager') }}</a>
+          <a
+            class="text-blue-500"
+            href="#"
+            @click="ossFileStore.showOSSFileModal(props.sample.id!)"
+            >{{ $t('scriptmanager') }}</a
+          >
           <a
             class="text-blue-500"
             href="#"
