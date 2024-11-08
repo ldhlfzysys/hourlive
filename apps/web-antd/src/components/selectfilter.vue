@@ -11,28 +11,26 @@ defineOptions({
   name: 'SelectFilter',
 });
 
-const props = defineProps({
-  modelValue: {
-    default: () => [],
-    type: Array<string>,
-  },
-  options: {
-    required: true,
-    type: Array<DefaultOptionType>,
-  },
-  placeholder: {
-    default: '请选择选项',
-    type: String,
-  },
-  title: {
-    required: true,
-    type: String,
-  },
+const props = withDefaults(defineProps<SelectFilterProps>(), {
+  mode: 'multiple',
+  placeholder: '请选择',
+  width: 'w-[200px]',
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: SelectValue): void;
+}>();
 
-const selectedItems = ref(props.modelValue);
+interface SelectFilterProps {
+  modelValue: SelectValue;
+  options: DefaultOptionType[];
+  placeholder?: string;
+  title: string;
+  width?: string;
+  mode?: 'multiple' | 'SECRET_COMBOBOX_MODE_DO_NOT_USE' | 'tags';
+}
+
+const selectedItems = ref<SelectValue>(props.modelValue);
 
 watch(
   () => props.modelValue,
@@ -68,11 +66,11 @@ function updateSelectedItems(
     <div class="flex flex-wrap gap-2">
       <Select
         v-model:value="selectedItems"
+        :class="width"
         :filter-option="filterOption"
+        :mode="mode"
         :options="options"
         :placeholder="placeholder"
-        class="w-[800px]"
-        mode="multiple"
         show-search
         @change="updateSelectedItems"
       />

@@ -1,9 +1,33 @@
+import type { Dayjs } from 'dayjs';
+
 import type { BaseQuery } from './IBase';
 import type { Content } from './IContent';
 import type { HourliveMoneyRecord } from './IHourliveMoneyRecord';
 import type { Room } from './IRoom';
 import type { Timeslot, TimeslotCreateInMany } from './ITimeslot';
 import type { Agency, Customer } from './IUser';
+
+export interface TimeslotModel {
+  date: Dayjs;
+  slot: [Dayjs, Dayjs];
+  canEdit: boolean;
+}
+
+export interface TimeslotOrderFormState {
+  liveTime?: [Dayjs, Dayjs]; // 直播时段
+  timeslot?: [Dayjs, Dayjs]; // 时间段
+  timeslots?: TimeslotModel[]; // 时间段数组
+  agency?: string; // 机构id
+  roomId?: number; // 直播间id
+  contentId?: number | undefined; // 直播内容
+  cost?: number; // 花费
+  slotId?: number; // 时间段id
+  orderId?: number; // 订单id
+  status?: number; // 订单状态
+  repeat?: number; // 重复
+  customer?: string; // 客户
+  enableEdit?: boolean; // 是否可编辑
+}
 
 export interface TimeslotOrder {
   id: number;

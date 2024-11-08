@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { defineStore } from 'pinia';
 
@@ -21,8 +21,15 @@ async function getAllAgency() {
   );
 }
 
+// Store
 export const useAgencyStore = defineStore('agency-store', () => {
   const allAgency = ref<Agency[]>([]);
+  const agencyOptions = computed(() => {
+    return allAgency.value.map((item) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  });
 
   async function fetchAgency() {
     const res = await getAllAgency();
@@ -37,6 +44,7 @@ export const useAgencyStore = defineStore('agency-store', () => {
   return {
     $reset,
     agencyById,
+    agencyOptions,
     allAgency,
     fetchAgency,
   };

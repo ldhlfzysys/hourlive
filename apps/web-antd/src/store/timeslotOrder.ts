@@ -10,18 +10,20 @@ import type {
   StanderResult,
   TimeslotCreate,
   TimeslotOrder,
+  TimeslotOrderFormState,
 } from '#/types';
 
 // API
+const API_PREFIX = '/timeslotorder';
 enum OrderApi {
-  AllOrders = 'getallorders',
+  AllOrders = 'query',
   CancelOrders = 'cancelorders',
   MakeOrders = 'makeorders',
 }
 
 export function getAllOrder(params: OrderQuery) {
   return requestClient.post<StanderResult<TimeslotOrder[]>>(
-    OrderApi.AllOrders,
+    `${API_PREFIX}/${OrderApi.AllOrders}`,
     params,
   );
 }
@@ -37,20 +39,39 @@ export function cancelOrder(params: { order_id: number }) {
 // Store Define
 export const useTimeslotOrderStore = defineStore('timeslot-order-store', () => {
   const timeslotOrderMap = ref<Map<number, TimeslotOrder>>(new Map());
+  const formState = ref<TimeslotOrderFormState>({});
 
-  function $reset() {
+  function clearCache() {
     timeslotOrderMap.value = new Map();
   }
 
-  function fetchOrders(params: OrderQuery) {
-    getAllOrder(params).then((res) => {
-      console.log(res);
+  function resetFormState() {
+    formState.value = {};
+  }
+
+  function $reset() {
+    clearCache();
+  }
+
+  async function fetchOrders(params: OrderQuery) {
+    params.q_size = 999_999;
+    const res = await getAllOrder(params);
+    res.data.forEach((order) => {
+      timeslotOrderMap.value.set(order.id, order);
     });
+  }
+
+  function filterOrders(params?: OrderQuery): TimeslotOrder[] {
+    return params ? [] : [...timeslotOrderMap.value.values()];
   }
 
   return {
     $reset,
+    clearCache,
     fetchOrders,
+    filterOrders,
+    formState,
+    resetFormState,
     timeslotOrderMap,
   };
 });
