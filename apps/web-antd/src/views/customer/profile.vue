@@ -68,10 +68,6 @@ const modalOpen = ref(false);
 const QRLoginObj = ref(null);
 const bindFeishu = (item) => {
   console.log('login');
-  // if (document.querySelector('#login_container').hasChildNodes()) {
-  //   return;
-  // }
-
   // 清除登录容器中的内容，以便重新生成二维码
   document.querySelector('#login_container').innerHTML = '';
 
@@ -83,6 +79,7 @@ const bindFeishu = (item) => {
   const goto = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${
     client_id
   }&redirect_uri=${redirect_uri}&response_type=code&state=${state}`;
+
   QRLoginObj.value = QRLogin({
     goto,
     height: '300',
