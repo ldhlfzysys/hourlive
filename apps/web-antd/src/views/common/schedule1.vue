@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
 
 import { $t, i18n } from '@vben/locales';
+import { useUserStore } from '@vben/stores';
 
 import { Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -35,7 +36,11 @@ interface Event {
 // Data
 const orderStore = useTimeslotOrderStore();
 const agencyStore = useAgencyStore();
+const userStore = useUserStore();
 
+const isSuper = computed(() => {
+  return userStore.userRoles.includes('super');
+});
 const events = computed(() => {
   const allEvents: Event[] = [];
   orderStore.timeslotOrderList.forEach((order: TimeslotOrder) => {
@@ -127,99 +132,101 @@ function handleEventClick(event: Event, e: MouseEvent) {
 </script>
 
 <template>
-  <HourLivePage :content-overflow="true">
-    <template #header>
-      <div class="w-[40px]">
-        <SelectFilter
-          v-model="selectedAgencies"
-          :options="agencyStore.agencyOptions"
-          placeholder="请选择机构"
-          title="机构"
-        />
-      </div>
-    </template>
-
-    <template #content>
-      <div class="flex h-full flex-1 flex-row space-x-4">
-        <div class="flex h-full flex-1 flex-col">
-          <VueCal
-            v-model:active-view="activeView"
-            :disable-views="['years', 'year']"
-            :drag-to-create-event="false"
-            :events="events"
-            :events-on-month-view="true"
-            :locale="localeStr"
-            :selected-date="dayjs().format('YYYY-MM-DD')"
-            :time-from="0"
-            :time-step="120"
-            :time-to="24 * 60"
-            watch-real-time
-            @cell-click="handleCellClick"
-            @event-click="handleEventClick"
-          >
-            <!-- <template #event="{ event, view }">
-        
-        
-            <small class="vuecal__event-time" style="display: none;">
-            </small>
-            <div class="vuecal__event-content" v-html="event.content"/>
-          </template> -->
-          </VueCal>
+  <div>
+    <HourLivePage :content-overflow="true">
+      <template #header>
+        <div v-if="isSuper" class="w-[40px]">
+          <SelectFilter
+            v-model="selectedAgencies"
+            :options="agencyStore.agencyOptions"
+            placeholder="请选择机构"
+            title="机构"
+          />
         </div>
+      </template>
 
-        <div v-if="editing" class="flex h-full w-[500px] flex-col">
-          <div class="mb-2 flex items-center justify-between">
-            <h2 class="text-xl font-semibold">{{ $t('makeorder') }}</h2>
-            <button
-              class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
-              @click="editing = false"
+      <template #content>
+        <div class="flex h-full flex-1 flex-row space-x-4">
+          <div class="flex h-full flex-1 flex-col">
+            <VueCal
+              v-model:active-view="activeView"
+              :disable-views="['years', 'year']"
+              :drag-to-create-event="false"
+              :events="events"
+              :events-on-month-view="true"
+              :locale="localeStr"
+              :selected-date="dayjs().format('YYYY-MM-DD')"
+              :time-from="0"
+              :time-step="120"
+              :time-to="24 * 60"
+              watch-real-time
+              @cell-click="handleCellClick"
+              @event-click="handleEventClick"
             >
-              <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M6 18L18 6M6 6l12 12"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                />
-              </svg>
-            </button>
+              <!-- <template #event="{ event, view }">
+        
+        
+                <small class="vuecal__event-time" style="display: none;">
+                </small>
+                <div class="vuecal__event-content" v-html="event.content"/>
+              </template> -->
+            </VueCal>
           </div>
-          <TimeslotOrderForm />
+
+          <div v-if="editing" class="flex h-full w-[500px] flex-col">
+            <div class="mb-2 flex items-center justify-between">
+              <h2 class="text-xl font-semibold">{{ $t('makeorder') }}</h2>
+              <button
+                class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
+                @click="editing = false"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 18L18 6M6 6l12 12"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <TimeslotOrderForm />
+          </div>
         </div>
-      </div>
-    </template>
+      </template>
 
-    <template #footer></template>
-  </HourLivePage>
+      <template #footer></template>
+    </HourLivePage>
 
-  <div v-if="selectedEvent">
-    <Modal
-      v-model:open="showEventDetails"
-      :title="$t('orderdetail')"
-      style="width: 800px; max-height: 500px; overflow-y: auto"
-      @cancel="showEventDetails = false"
-    >
-      <Descriptions :column="3" bordered>
-        <DescriptionsItem :label="$t('id')">
-          {{ selectedEvent!.id }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="$t('agency')">
-          {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="$t('customer')">
-          {{ selectedEvent!.customer?.code }}
-        </DescriptionsItem>
+    <div v-if="selectedEvent">
+      <Modal
+        v-model:open="showEventDetails"
+        :title="$t('orderdetail')"
+        style="width: 800px; max-height: 500px; overflow-y: auto"
+        @cancel="showEventDetails = false"
+      >
+        <Descriptions :column="3" bordered>
+          <DescriptionsItem :label="$t('id')">
+            {{ selectedEvent!.id }}
+          </DescriptionsItem>
+          <DescriptionsItem :label="$t('agency')">
+            {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
+          </DescriptionsItem>
+          <DescriptionsItem :label="$t('customer')">
+            {{ selectedEvent!.customer?.code }}
+          </DescriptionsItem>
 
-        <DescriptionsItem :label="$t('content')" :span="3">
-          {{ selectedEvent!.contents.map((c) => c.id).join(',') }}
-        </DescriptionsItem>
-      </Descriptions>
-    </Modal>
+          <DescriptionsItem :label="$t('content')" :span="3">
+            {{ selectedEvent!.contents.map((c) => c.id).join(',') }}
+          </DescriptionsItem>
+        </Descriptions>
+      </Modal>
+    </div>
   </div>
 </template>
 

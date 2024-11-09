@@ -2,7 +2,7 @@
 import { $t } from '@vben/locales';
 
 import { Card } from 'ant-design-vue';
-import { Eye, Podcast, Truck, Users, Video } from 'lucide-vue-next';
+import { Calendar, Eye, Podcast, Truck, Users, Video } from 'lucide-vue-next';
 
 import HourLivePage from '#/views/template/common.vue';
 
@@ -15,8 +15,8 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
     <template #content>
       <div class="flex flex-col p-3">
-        <div class="flex flex-row gap-4">
-          <Card :title="$t('guide')">
+        <div class="grid grid-cols-[auto_auto_auto] items-start gap-4">
+          <Card :title="$t('guide')" class="shrink-0">
             <div>
               <!-- 团队管理 -->
               <div class="flex gap-x-3">
@@ -48,7 +48,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
                     </RouterLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    {{ $t('teammanagementdesc') }}
+                    {{ $t('team_desc') }}
                   </p>
                 </div>
               </div>
@@ -83,7 +83,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
                     </RouterLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    {{ $t('roomdesc') }}
+                    {{ $t('room_desc') }}
                   </p>
                 </div>
               </div>
@@ -118,7 +118,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
                     </RouterLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    {{ $t('hourlivepackagedesc') }}
+                    {{ $t('package_desc') }}
                   </p>
                 </div>
               </div>
@@ -153,7 +153,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
                     </RouterLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    {{ $t('shipping_address_desc') }}
+                    {{ $t('shipping_desc') }}
                   </p>
                 </div>
               </div>
@@ -188,20 +188,59 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
                     </RouterLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                    {{ $t('sampledesc') }}
+                    {{ $t('store_desc') }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- 直播日程 -->
+              <div class="flex gap-x-3">
+                <div class="w-20 text-end">
+                  <span class="text-xs text-gray-500 dark:text-neutral-400">
+                    {{ $t('live_schedule') }}
+                  </span>
+                </div>
+
+                <div
+                  class="relative after:absolute after:bottom-0 after:start-3.5 after:top-7 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 last:after:hidden dark:after:bg-neutral-700"
+                >
+                  <div
+                    class="relative z-10 flex size-7 items-center justify-center"
+                  >
+                    <div
+                      class="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="grow pb-8 pt-0.5">
+                  <h3
+                    class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white"
+                  >
+                    <Calendar />
+                    <RouterLink to="/live/schedule">
+                      {{ $t('schedule') }}
+                    </RouterLink>
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                    {{ $t('schedule_desc') }}
                   </p>
                 </div>
               </div>
             </div>
           </Card>
-          <Card title="今日场次">
-            <div></div>
+          <Card class="shrink-0" title="今日场次">
+            <div class="flex flex-col items-center py-4">
+              <span class="text-4xl font-bold text-blue-500">12</span>
+              <span class="mt-2 text-gray-500">场直播</span>
+            </div>
           </Card>
-          <Card title="进行中物流单">
-            <div></div>
+          <Card class="shrink-0" title="进行中物流单">
+            <div class="flex flex-col items-center py-4">
+              <span class="text-4xl font-bold text-green-500">8</span>
+              <span class="mt-2 text-gray-500">个订单</span>
+            </div>
           </Card>
-
-          <!-- End Timeline -->
         </div>
       </div>
     </template>

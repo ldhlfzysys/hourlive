@@ -280,5 +280,11 @@
   "shippingsample": "寄送样品",
   "shippingsampledesc": "在直播前，需要将样品寄送到机构仓库",
   "guide": "引导",
-  "hourlivepackage": "小时播套餐"
+  "hourlivepackage": "小时播套餐",
+  "team_desc": "添加主播",
+  "room_desc": "创建直播间，添加主播",
+  "package_desc": "创建小时播套餐",
+  "shipping_desc": "增加收货地址用于接受样品",
+  "store_desc": "管理样品",
+  "schedule_desc": "查看日程"
 }

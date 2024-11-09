@@ -115,7 +115,7 @@ function onCustomerChange(value: any) {
           :emit-update="true"
           :grid-items="2"
           :item-secondary-size="itemWidth"
-          :item-size="200"
+          :item-size="230"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"

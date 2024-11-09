@@ -85,6 +85,20 @@ const routes: RouteRecordRaw[] = [
     path: '/streamer',
     children: [config.streamer],
   },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:calendar',
+      order: 7,
+      title: $t('schedule'),
+    },
+    name: 'AgencySchedule1',
+    path: '/agency',
+
+    children: [config.schedule1],
+  },
 ];
 
 export default routes;
