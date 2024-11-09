@@ -103,6 +103,20 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.orders],
   },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['customer'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:settings',
+      order: 7,
+      title: $t('个人中心'),
+    },
+    name: 'profile',
+    path: '/profile',
+
+    children: [config.profile],
+  },
 ];
 
 export default routes;

@@ -39,6 +39,9 @@ interface AccessState {
  */
 export const useUserStore = defineStore('core-user', {
   actions: {
+    getUserInfo() {
+      return this.userInfo;
+    },
     setUserInfo(userInfo: BasicUserInfo | null) {
       // 设置用户信息
       this.userInfo = userInfo;

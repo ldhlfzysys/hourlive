@@ -61,6 +61,16 @@ const viewMap = {
     name: 'Orders',
     path: '/orders',
   },
+  profile: {
+    component: () => import('#/views/customer/profile.vue'),
+    meta: {
+      affixTab: true,
+      icon: 'lucide:user',
+      title: $t('个人中心'),
+    },
+    name: 'Profile',
+    path: '/profile',
+  },
   room: {
     component: () => import('#/views/agency/room.vue'),
     meta: {
