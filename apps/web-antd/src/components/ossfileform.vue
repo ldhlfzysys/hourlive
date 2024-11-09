@@ -64,7 +64,7 @@ const handleCancel = () => {
 };
 
 const beforeUpload = (file: File) => {
-  fileList.value = [file];
+  fileList.value = [...fileList.value, file];
   return false;
 };
 
@@ -73,17 +73,19 @@ const handleDrop = (e: DragEvent) => {
 };
 
 const handleUpload = async () => {
-  const file = fileList.value[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('file', file);
+  if (fileList.value.length === 0) return;
 
   try {
-    await ossFileStore.uploadFile({
-      fileData: formData,
-      product_id: props.productId,
-    });
+    for (const file of fileList.value) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      await ossFileStore.uploadFile({
+        fileData: formData,
+        product_id: props.productId,
+      });
+    }
+
     fileList.value = [];
     await ossFileStore.fetchFile();
     message.success('上传成功');
@@ -121,23 +123,32 @@ onMounted(async () => {
     :width="700"
     @cancel="handleCancel"
   >
-    <div v-if="canUpload" class="upload-container">
+    <div v-if="canUpload" class="mb-6 flex items-center gap-4">
+      <!-- 左侧文件列表 -->
+
+      <!-- 中间上传区域 -->
       <Upload.Dragger
         v-model:file-list="fileList"
         :before-upload="beforeUpload"
-        :multiple="false"
+        :multiple="true"
+        class="flex-1"
         @drop="handleDrop"
       >
-        <p class="ant-upload-drag-icon">
-          <CloudUpload />
-        </p>
-        <p class="ant-upload-text">{{ $t('点击或拖拽文件到此区域上传') }}</p>
+        <div class="flex h-40 flex-col items-center justify-center">
+          <p class="ant-upload-drag-icon">
+            <CloudUpload class="text-5xl text-blue-400" />
+          </p>
+          <p class="mt-2 text-gray-500">
+            {{ $t('点击或拖拽文件到此区域上传') }}
+          </p>
+        </div>
       </Upload.Dragger>
 
+      <!-- 右侧上传按钮 -->
       <Button
         :disabled="fileList.length === 0"
         :loading="uploading"
-        class="upload-button"
+        class="min-w-[80px] self-center"
         type="primary"
         @click="handleUpload"
       >
