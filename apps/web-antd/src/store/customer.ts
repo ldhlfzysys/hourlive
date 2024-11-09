@@ -1,3 +1,5 @@
+import { computed, ref } from 'vue';
+
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -13,8 +15,6 @@ import type {
   StanderResult,
 } from '#/types';
 import type { Customer } from '#/types/ICustomer';
-
-import { ref } from 'vue';
 
 // Query
 
@@ -90,6 +90,13 @@ export const useCustomerStore = defineStore('customer-store', () => {
   // 存储机构往来的小时播账户
   const agencyCustomers = ref<StanderResult<Customer[]>>();
 
+  const agencyCustomerOptions = computed(() => {
+    return agencyCustomers.value?.data.map((item) => ({
+      label: item.code,
+      value: item.id,
+    }));
+  });
+
   async function getAgencyCustomers() {
     const response = await requestClient.get<StanderResult<Customer[]>>(
       CustomerApi.AgencyGetCustomer,
@@ -99,6 +106,7 @@ export const useCustomerStore = defineStore('customer-store', () => {
 
   return {
     $reset,
+    agencyCustomerOptions,
     agencyCustomers,
     getAgencyCustomers,
   };

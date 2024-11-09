@@ -1,6 +1,6 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import type { OrderQuery, TimeslotOrder } from '#/types';
+import type { TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
@@ -36,7 +36,7 @@ const agencyStore = useAgencyStore();
 
 const events = computed(() => {
   const allEvents: Event[] = [];
-  orderStore.filterOrders().forEach((order: TimeslotOrder) => {
+  orderStore.timeslotOrderList.forEach((order: TimeslotOrder) => {
     order.timeslots.forEach((timeslot) => {
       const slotContent = order.contents
         .map((content) => {
@@ -50,24 +50,37 @@ const events = computed(() => {
         })
         .join(',');
 
-      const content = `
-      ${$t('timeslotorder_id')}:${order.id}<br>
-      ${$t('room_id')}:${order.room_id}<br>
-      ${$t('content')}:${slotContent}<br>
-      `;
+      const agencyName = agencyStore.agencyById(order.agency_id)?.name;
+
       allEvents.push({
         background: true,
-        class: 'sport',
-        content,
+        content: `
+         <div class="event-content">
+            <div>${$t('agency')}:${agencyName}</div>
+            <div>${$t('customer')}:${order.customer?.code}</div>
+          </div>
+        `,
         deletable: false,
         draggable: false,
         end: `${timeslot.date} ${timeslot.end_time}`,
         resizable: false,
         start: `${timeslot.date} ${timeslot.start_time}`,
+        title: `
+          <div class="event-container">
+            <div class="flex justify-between items-center text-sm">
+              <span style="font-size: 12px;margin-left: 10px;font-weight: 500;">${timeslot.start_time}-${timeslot.end_time}</span>
+              <span style="font-size: 11px;margin-right: 10px;">ID:${order.id}</span>
+            </div>
+           
+          </div>
+        `,
       });
     });
   });
-  return allEvents;
+
+  return allEvents.sort((a, b) => {
+    return dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1;
+  });
 });
 const selectedDate = ref('');
 const editing = ref(false);
@@ -82,10 +95,7 @@ const localeStr = computed(() => {
 // Life Time
 onMounted(() => {
   useAgencyStore().fetchAgency();
-  const query: OrderQuery = {
-    agency_id: -1,
-  };
-  useTimeslotOrderStore().fetchOrders(query);
+  useTimeslotOrderStore().queryTimeslotOrder();
 });
 
 // CalendarEvent
@@ -123,19 +133,47 @@ function handleCellClick(event: any) {
             :disable-views="['years', 'year']"
             :drag-to-create-event="false"
             :events="events"
+            :events-on-month-view="true"
             :locale="localeStr"
             :selected-date="dayjs().format('YYYY-MM-DD')"
             :time-from="0"
             :time-step="120"
             :time-to="24 * 60"
-            events-on-month-view="true"
             watch-real-time
             @cell-click="handleCellClick"
-          />
+          >
+            <!-- <template #event="{ event, view }">
+        
+        
+            <small class="vuecal__event-time" style="display: none;">
+            </small>
+            <div class="vuecal__event-content" v-html="event.content"/>
+          </template> -->
+          </VueCal>
         </div>
 
         <div v-if="editing" class="flex h-full w-[500px] flex-col">
-          <h2 class="mb-2 text-xl font-semibold">{{ $t('makeorder') }}</h2>
+          <div class="mb-2 flex items-center justify-between">
+            <h2 class="text-xl font-semibold">{{ $t('makeorder') }}</h2>
+            <button
+              class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
+              @click="editing = false"
+            >
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                />
+              </svg>
+            </button>
+          </div>
           <TimeslotOrderForm />
         </div>
       </div>
@@ -156,5 +194,27 @@ function handleCellClick(event: any) {
   /* padding: 0 12px; */
   display: flex;
   align-items: center;
+}
+
+:deep(.vuecal__event) {
+  overflow: hidden;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 4px;
+}
+
+:deep(.event-container) {
+  height: 100%;
+  border-radius: 1px;
+}
+
+:deep(.event-content) {
+  padding: 4px 10px;
+  font-size: 12px;
+  text-align: left;
+  word-break: break-all;
+}
+
+:deep(.vuecal__event-time) {
+  display: none;
 }
 </style>

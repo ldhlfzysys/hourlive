@@ -3,6 +3,7 @@ import type {
   StanderResult,
   TimeslotOrder,
   TimeslotOrderCreate,
+  TimeslotOrderFormState,
 } from '#/types';
 
 import { computed, ref } from 'vue';
@@ -65,6 +66,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   const showModal = ref(false);
 
+  const formState = ref<TimeslotOrderFormState>({});
+
   const timeslotOrderQuery = ref<OrderQuery>({
     agency_id: -1,
     begin_date: '',
@@ -86,11 +89,13 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       room_id: -1,
     };
     timeslotOrders.value = new Map();
+    formState.value = {};
   }
 
   async function queryTimeslotOrder() {
     try {
       timeslotOrderLoading.value = true;
+      timeslotOrderQuery.value.q_size = 99_999;
       const res = await getAllTimeslotOrders(timeslotOrderQuery.value);
       if (res.success) {
         res.data.forEach((timeslotOrder) => {
@@ -158,6 +163,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   return {
     $reset,
     createTimeslotOrder,
+    formState,
     isEditing,
     modifyTimeslotOrder,
     queryTimeslotOrder,
