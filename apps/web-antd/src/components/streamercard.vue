@@ -3,6 +3,8 @@ import type { Streamer } from '#/types';
 
 import { $t } from '@vben/locales';
 
+import { Button } from 'ant-design-vue';
+
 import { useStreamerStore } from '#/store';
 
 defineOptions({
@@ -19,11 +21,9 @@ function editStreamer(id: number) {
   streamerStore.showModal = true;
   streamerStore.isEditing = true;
   streamerStore.streamerCreate = { ...props.streamer };
-  console.log('编辑主播:', id);
 }
 
 function deleteStreamer(id: number) {
-  console.log('删除主播:', id);
   const streamerUpdate: Streamer = { ...props.streamer };
   streamerUpdate.hide = 1;
   streamerStore.modifyStreamer(streamerUpdate);
@@ -31,82 +31,64 @@ function deleteStreamer(id: number) {
 </script>
 
 <template>
-  <div class="streamer-card">
-    <div class="content">
-      <div class="header">
-        <h3>
-          <div class="info">
-            <span>{{ $t('username') }}： {{ streamer.name }}</span>
-            <span>{{ $t('account') }}： {{ streamer.user.account }}</span>
-          </div>
+  <div
+    class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
+  >
+    <!-- Header部分 -->
+    <div
+      class="flex items-center justify-between border-b border-gray-100 px-6 py-5"
+    >
+      <div class="flex items-center gap-3">
+        <h3 class="m-0 text-lg font-semibold text-gray-800">
+          {{ $t('username') }}: {{ props.streamer.name }}
         </h3>
-        <div class="details">
-          <p class="right-align">
-            {{ $t('id') }}: {{ streamer.id }} | {{ $t('create_time') }}:
-            {{ streamer.create_time }}
-          </p>
-        </div>
+        <span class="rounded-md bg-gray-50 px-3 py-1 text-sm text-gray-600">
+          ID: {{ props.streamer.id }}
+        </span>
       </div>
-      <div class="actions">
-        <Button type="danger" @click="deleteStreamer(streamer.id)">
+      <div class="flex gap-3">
+        <Button
+          class="min-w-[80px]"
+          type="primary"
+          @click="editStreamer(props.streamer.id)"
+        >
+          {{ $t('edit') }}
+        </Button>
+        <Button
+          class="min-w-[80px]"
+          type="danger"
+          @click="deleteStreamer(props.streamer.id)"
+        >
           {{ $t('delete') }}
         </Button>
       </div>
     </div>
+
+    <!-- 内容部分 -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-gray-500">{{
+              $t('account')
+            }}</span>
+            <span class="text-sm text-gray-900">{{
+              props.streamer.user.account
+            }}</span>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-gray-500">{{
+              $t('create_time')
+            }}</span>
+            <span class="text-sm text-gray-900">{{
+              props.streamer.create_time
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.streamer-card {
-  width: 100%;
-  max-height: 200px;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
-  transition: background-color 0.3s ease;
-}
-
-.streamer-card:hover {
-  background-color: #f0f0f0;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
-
-.header {
-  margin-bottom: 16px;
-}
-
-.info {
-  display: flex;
-  gap: 16px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-}
-
-.details {
-  font-size: 14px;
-  color: #666;
-}
-
-.right-align {
-  text-align: right;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.actions .ant-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-}
-</style>

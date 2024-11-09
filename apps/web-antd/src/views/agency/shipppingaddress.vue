@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { onMounted, ref } from 'vue';
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import { $t } from '@vben/locales';
 
@@ -15,15 +16,33 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const shippingAddressStore = useShippingAddressStore();
 
+const updateParts = ref({
+  viewEndIdx: 0,
+  viewStartIdx: 0,
+  visibleEndIdx: 0,
+  visibleStartIdx: 0,
+});
+
 onMounted(() => {
   console.log('=====mounted=====');
   shippingAddressStore.queryShippingAddress();
 });
 
 function onTop() {}
-
 function onBottom() {
   shippingAddressStore.queryShippingAddress();
+}
+
+function onUpdate(
+  viewStartIndex: number,
+  viewEndIndex: number,
+  visibleStartIndex: number,
+  visibleEndIndex: number,
+) {
+  updateParts.value.viewStartIdx = viewStartIndex;
+  updateParts.value.viewEndIdx = viewEndIndex;
+  updateParts.value.visibleStartIdx = visibleStartIndex;
+  updateParts.value.visibleEndIdx = visibleEndIndex;
 }
 </script>
 
@@ -42,21 +61,26 @@ function onBottom() {
 
     <template #content>
       <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :grid-items="2"
-          :item-secondary-size="650"
-          :item-size="220"
+        <DynamicScroller
           :items="shippingAddressStore.shippingAddressList"
-          :page-mode="true"
+          :min-item-size="100"
           class="scroller"
           key-field="id"
           @scroll-end="onBottom"
           @scroll-start="onTop"
+          @update="onUpdate"
         >
-          <ShippingAddressCard :shippingaddress="item" />
-        </RecycleScroller>
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :active="active"
+              :data-index="index"
+              :item="item"
+              class="p-4 first:pt-4"
+            >
+              <ShippingAddressCard :shippingaddress="item" />
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
       </div>
       <ShippingAddressForm />
     </template>
@@ -66,5 +90,14 @@ function onBottom() {
 <style scoped>
 .scroller {
   height: 100%;
+}
+
+:deep(.vue-recycle-scroller__item-wrapper) {
+  padding: 16px;
+  padding-bottom: 0;
+}
+
+:deep(.vue-recycle-scroller__item-wrapper:last-child) {
+  padding-bottom: 16px;
 }
 </style>

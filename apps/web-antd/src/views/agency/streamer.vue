@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
-import { useElementBounding } from '@vueuse/core';
 import { Button } from 'ant-design-vue';
 
 import StreamerCard from '#/components/streamercard.vue';
@@ -19,16 +19,28 @@ onMounted(() => {
   streamerStore.queryStreamer();
 });
 
-const itemWidth = ref(300);
-const scroller = ref();
-function onResize() {
-  const width = useElementBounding(scroller).width.value;
-  itemWidth.value = width / 2;
-}
-
 function onTop() {}
 function onBottom() {
   streamerStore.queryStreamer();
+}
+
+const updateParts = ref({
+  viewEndIdx: 0,
+  viewStartIdx: 0,
+  visibleEndIdx: 0,
+  visibleStartIdx: 0,
+});
+
+function onUpdate(
+  viewStartIndex: number,
+  viewEndIndex: number,
+  visibleStartIndex: number,
+  visibleEndIndex: number,
+) {
+  updateParts.value.viewStartIdx = viewStartIndex;
+  updateParts.value.viewEndIdx = viewEndIndex;
+  updateParts.value.visibleStartIdx = visibleStartIndex;
+  updateParts.value.visibleEndIdx = visibleEndIndex;
 }
 </script>
 
@@ -42,29 +54,28 @@ function onBottom() {
       >
         新增
       </Button>
-      <br />
     </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :grid-items="2"
-          :item-secondary-size="650"
-          :item-size="200"
+        <DynamicScroller
           :items="streamerStore.streamerList"
-          :page-mode="true"
+          :min-item-size="210"
           class="scroller"
           key-field="id"
-          @resize="onResize"
-          @scroll-end="onBottom"
-          @scroll-start="onTop"
+          @update="onUpdate"
         >
-          <div class="streamer-card-container">
-            <StreamerCard :streamer="item" />
-          </div>
-        </RecycleScroller>
+          <DynamicScrollerItem
+            v-for="item in streamerStore.streamerList"
+            :key="item.id"
+            :index="item.id"
+            :item="item"
+          >
+            <div class="streamer-card-container">
+              <StreamerCard :streamer="item" />
+            </div>
+          </DynamicScrollerItem>
+        </DynamicScroller>
       </div>
       <StreamerForm />
     </template>
