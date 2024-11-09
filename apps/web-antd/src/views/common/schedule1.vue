@@ -7,6 +7,7 @@ import VueCal from 'vue-cal';
 
 import { $t, i18n } from '@vben/locales';
 
+import { Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import SelectFilter from '#/components/selectfilter.vue';
@@ -17,6 +18,7 @@ import HourLivePage from '#/views/template/common.vue';
 import 'vue-cal/dist/vuecal.css';
 
 interface Event {
+  id: number;
   start: string; // Required.
   end: string; // Required.
   title?: string; // Optional.
@@ -63,6 +65,7 @@ const events = computed(() => {
         deletable: false,
         draggable: false,
         end: `${timeslot.date} ${timeslot.end_time}`,
+        id: order.id,
         resizable: false,
         start: `${timeslot.date} ${timeslot.start_time}`,
         title: `
@@ -86,6 +89,8 @@ const selectedDate = ref('');
 const editing = ref(false);
 const activeView = ref('month');
 const selectedAgencies = ref([]);
+const showEventDetails = ref(false);
+const selectedEvent = ref<null | TimeslotOrder>(null);
 
 // Function
 const localeStr = computed(() => {
@@ -108,6 +113,15 @@ function handleCellClick(event: any) {
     orderStore.formState = {
       enableEdit: true,
     };
+  }
+}
+
+function handleEventClick(event: Event, e: MouseEvent) {
+  const order = orderStore.orderById(event.id);
+
+  if (order) {
+    selectedEvent.value = order;
+    showEventDetails.value = true;
   }
 }
 </script>
@@ -141,6 +155,7 @@ function handleCellClick(event: any) {
             :time-to="24 * 60"
             watch-real-time
             @cell-click="handleCellClick"
+            @event-click="handleEventClick"
           >
             <!-- <template #event="{ event, view }">
         
@@ -181,6 +196,31 @@ function handleCellClick(event: any) {
 
     <template #footer></template>
   </HourLivePage>
+
+  <div v-if="selectedEvent">
+    <Modal
+      v-model:open="showEventDetails"
+      :title="$t('orderdetail')"
+      style="width: 800px; max-height: 500px; overflow-y: auto"
+      @cancel="showEventDetails = false"
+    >
+      <Descriptions :column="3" bordered>
+        <DescriptionsItem :label="$t('id')">
+          {{ selectedEvent!.id }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="$t('agency')">
+          {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="$t('customer')">
+          {{ selectedEvent!.customer?.code }}
+        </DescriptionsItem>
+
+        <DescriptionsItem :label="$t('content')" :span="3">
+          {{ selectedEvent!.contents.map((c) => c.id).join(',') }}
+        </DescriptionsItem>
+      </Descriptions>
+    </Modal>
+  </div>
 </template>
 
 <style scoped>

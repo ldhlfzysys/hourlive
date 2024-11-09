@@ -19,20 +19,20 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.superhome],
   },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['super'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:calendar',
-      order: -1,
-      title: $t('schedule'),
-    },
-    name: 'SuperSchedule',
-    path: '/super',
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['super'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:calendar',
+  //     order: -1,
+  //     title: $t('schedule'),
+  //   },
+  //   name: 'SuperSchedule',
+  //   path: '/super',
 
-    children: [config.schedule],
-  },
+  //   children: [config.schedule],
+  // },
   {
     component: BasicLayout,
     meta: {

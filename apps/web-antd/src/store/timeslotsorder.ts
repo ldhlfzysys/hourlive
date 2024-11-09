@@ -58,6 +58,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const isEditing = ref(false);
   const timeslotOrders = ref<Map<number, TimeslotOrder>>(new Map());
 
+  const orderById = computed(() => {
+    return (id: number) => timeslotOrders.value.get(id);
+  });
+
   const timeslotOrderList = computed(() => {
     return [...timeslotOrders.value.entries()]
       .sort(([keyA], [keyB]) => keyB - keyA)
@@ -166,6 +170,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     formState,
     isEditing,
     modifyTimeslotOrder,
+    orderById,
     queryTimeslotOrder,
     showModal,
     timeslotOrderCreate,
