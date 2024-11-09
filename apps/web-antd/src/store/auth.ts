@@ -125,9 +125,11 @@ export const useAuthStore = defineStore('auth', () => {
     // 回登陆页带上当前路由地址
     await router.replace({
       path: LOGIN_PATH,
-      query: {
-        redirect: DEFAULT_HOME_PATH,
-      },
+      query: redirect
+        ? {
+            redirect: encodeURIComponent(router.currentRoute.value.fullPath),
+          }
+        : {},
     });
   }
 
