@@ -3,7 +3,6 @@ import type { MakeErrorMessageFn, ResponseInterceptorConfig } from './types';
 
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
 import axios from 'axios';
 
 export const authenticateResponseInterceptor = ({
@@ -25,7 +24,7 @@ export const authenticateResponseInterceptor = ({
       console.log(error.responseData);
       if (error.responseData && error.responseData.status_code === 401) {
         console.log(error);
-        message.error($t('fallback.http.unauthorized'));
+        // message.error($t('fallback.http.unauthorized'));
         await doReAuthenticate();
         throw error;
       }
