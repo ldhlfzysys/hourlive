@@ -279,5 +279,6 @@
   "createcontentdesc": "直播场次代表一场直播",
   "shippingsample": "寄送样品",
   "shippingsampledesc": "在直播前，需要将样品寄送到机构仓库",
-  "guide": "引导"
+  "guide": "引导",
+  "hourlivepackage": "小时播套餐"
 }
