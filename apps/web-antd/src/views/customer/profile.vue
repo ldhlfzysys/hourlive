@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
-import { Button } from 'ant-design-vue';
+import { Button, TabPane, Tabs } from 'ant-design-vue';
 
 import HourLivePage from '#/views/template/common.vue';
 
@@ -52,7 +52,7 @@ const userInfo = ref<BasicUserInfo | null>(null);
 onMounted(() => {
   initScripot();
   userInfo.value = userStore.getUserInfo();
-  console.log(`userInfo : ${JSON.stringify(userInfo)}`);
+  console.log(`userInfo : ${JSON.stringify(userInfo.value)}`);
 });
 
 const bindClick = (item) => {
@@ -159,45 +159,43 @@ const handleModalOpen = () => {
 </script>
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header style="margin-left: 20px; font-size: 24px">
-      账户绑定
-    </template>
-    <template #content :content-overflow="true">
-      <div class="account-bind-list">
-        <div
-          v-for="item in accountBindList"
-          :key="item.key"
-          class="account-item"
-        >
-          <div :style="{ color: item.color }" class="avatar">
-            <Icon :icon="item.avatar" />
+    <template #content>
+      <Tabs default-active-key="1">
+        <TabPane key="1" tab="基础信息">
+          <!-- 在这里添加基础信息的内容 -->
+          <div class="basic-info">
+            <!-- 示例内容 -->
+            <h2>用户基础信息</h2>
+            <p>姓名: {{ userInfo?.name }}</p>
+            <p>邮箱: {{ userInfo?.email }}</p>
           </div>
-          <div class="details">
-            <div class="title">{{ item.title }}</div>
-            <div class="description">{{ item.description }}</div>
+        </TabPane>
+        <TabPane key="2" tab="账户绑定">
+          <div class="account-bind-list">
+            <div
+              v-for="item in accountBindList"
+              :key="item.key"
+              class="account-item"
+            >
+              <div :style="{ color: item.color }" class="avatar">
+                <Icon :icon="item.avatar" />
+              </div>
+              <div class="details">
+                <div class="title">{{ item.title }}</div>
+                <div class="description">{{ item.description }}</div>
+              </div>
+              <Button
+                class="focus-element"
+                type="primary"
+                @click="bindClick(item)"
+              >
+                {{ item.extra }}
+              </Button>
+            </div>
           </div>
-          <Button class="focus-element" type="primary" @click="bindClick(item)">
-            {{ item.extra }}
-          </Button>
-        </div>
-      </div>
-      <!-- <div v-if="modalOpen" class="custom-modal">
-        <div class="custom-modal-content">
-          <span class="close" @click="handleModalClose">&times;</span>
-          <h2>扫码授权登录</h2>
           <div id="login_container"></div>
-        </div>
-      </div> -->
-      <!-- <Modal
-        v-model:open="modalOpen"
-        height="400"
-        title="扫码授权登录"
-        @close="handleModalClose"
-        @open="handleModalOpen"
-      >
-        <div id="login_container"></div>
-      </Modal> -->
-      <div id="login_container"></div>
+        </TabPane>
+      </Tabs>
     </template>
   </HourLivePage>
 </template>

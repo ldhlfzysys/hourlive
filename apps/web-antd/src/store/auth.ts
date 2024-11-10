@@ -76,6 +76,50 @@ export const useAuthStore = defineStore('auth', () => {
     };
   }
 
+  // 飞书免登录
+  async function loginByToken(
+    token: string,
+    onSuccess?: () => Promise<void> | void,
+  ): Promise<null | UserInfo> {
+    // 异步处理用户登录操作并获取 accessToken
+    const userInfo: null | UserInfo = null;
+    try {
+      loginLoading.value = true;
+      const accessToken = token;
+
+      // 如果成功获取到 accessToken
+      if (accessToken) {
+        accessStore.setAccessToken(accessToken);
+
+        // 获取用户信息并存储到 accessStore 中
+        const fetchUserInfoResult = await fetchUserInfo();
+        const userInfo = fetchUserInfoResult;
+
+        userStore.setUserInfo(userInfo);
+        // accessStore.setAccessCodes(accessCodes);
+
+        if (accessStore.loginExpired) {
+          accessStore.setLoginExpired(false);
+        } else {
+          onSuccess
+            ? await onSuccess?.()
+            : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+        }
+
+        if (userInfo?.realName) {
+          notification.success({
+            description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.realName}`,
+            duration: 3,
+            message: $t('authentication.loginSuccess'),
+          });
+        }
+      }
+    } finally {
+      loginLoading.value = false;
+    }
+    return userInfo;
+  }
+
   async function register(params: RegisterParams) {
     const userInfo: null | UserInfo = null;
     try {
@@ -157,6 +201,7 @@ export const useAuthStore = defineStore('auth', () => {
     $reset,
     authLogin,
     fetchUserInfo,
+    loginByToken,
     loginLoading,
     logout,
     register,

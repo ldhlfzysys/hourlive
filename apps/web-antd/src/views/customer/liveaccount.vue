@@ -5,7 +5,7 @@ import { useLiveAccountStore } from '#/store';
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
-import { Button } from 'ant-design-vue';
+import { TabPane, Tabs } from 'ant-design-vue';
 
 import LiveAccountCard from '#/components/liveaccountcard.vue';
 import LiveAccountForm from '#/components/liveaccountform.vue';
@@ -47,13 +47,13 @@ function onUpdate(
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header>
-      <Button type="primary" @click="liveaccountStore.showModal = true">
-        {{ $t('createliveaccount') }}
-      </Button>
-    </template>
+    <template #header> </template>
 
     <template #content>
+      <Tabs>
+        <TabPane key="1" tab="Tab 1"> Content of Tab 1 </TabPane>
+        <TabPane key="2" tab="Tab 2"> Content of Tab 2 </TabPane>
+      </Tabs>
       <div class="flex flex-1 flex-col">
         <DynamicScroller
           :items="liveaccountStore.liveaccountList"
