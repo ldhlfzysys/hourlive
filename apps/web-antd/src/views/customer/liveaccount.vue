@@ -7,6 +7,7 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import { TabPane, Tabs } from 'ant-design-vue';
 
+import Empty from '#/components/empty.vue';
 import LiveAccountCard from '#/components/liveaccountcard.vue';
 import LiveAccountForm from '#/components/liveaccountform.vue';
 import HourLivePage from '#/views/template/common.vue';
@@ -56,6 +57,7 @@ function onUpdate(
       </Tabs>
       <div class="flex flex-1 flex-col">
         <DynamicScroller
+          v-if="liveaccountStore.liveaccountList.length > 0"
           :items="liveaccountStore.liveaccountList"
           :min-item-size="100"
           class="scroller"
@@ -75,6 +77,7 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
+        <Empty v-else class="flex-1" description="暂无直播账号数据，点击添加" />
       </div>
       <LiveAccountForm />
     </template>

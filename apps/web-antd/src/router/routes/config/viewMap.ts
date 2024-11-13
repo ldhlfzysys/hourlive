@@ -4,7 +4,7 @@ const viewMap = {
   agencyhome: {
     component: () => import('#/views/agency/home.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar',
       title: $t('home'),
     },
@@ -14,7 +14,7 @@ const viewMap = {
   agencySample: {
     component: () => import('#/views/agency/sample.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:package',
       title: $t('sample'),
     },
@@ -24,7 +24,7 @@ const viewMap = {
   content: {
     component: () => import('#/views/customer/content.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:tv-minimal-play',
       title: $t('content'),
     },
@@ -34,7 +34,7 @@ const viewMap = {
   customerhome: {
     component: () => import('#/views/customer/home.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar',
       title: $t('home'),
     },
@@ -44,7 +44,7 @@ const viewMap = {
   liveaccount: {
     component: () => import('#/views/customer/liveaccount.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:user-round',
       title: $t('liveaccount'),
     },
@@ -54,7 +54,7 @@ const viewMap = {
   orders: {
     component: () => import('#/views/customer/orders.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar-days',
       title: $t('sample'),
     },
@@ -64,7 +64,7 @@ const viewMap = {
   profile: {
     component: () => import('#/views/customer/profile.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:user',
       title: $t('个人中心'),
     },
@@ -74,7 +74,7 @@ const viewMap = {
   room: {
     component: () => import('#/views/agency/room.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:video',
       title: $t('room'),
     },
@@ -84,7 +84,7 @@ const viewMap = {
   sales: {
     component: () => import('#/views/agency/sales.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:package',
       title: $t('sample'),
     },
@@ -94,7 +94,7 @@ const viewMap = {
   sample: {
     component: () => import('#/views/customer/sample.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:package',
       title: $t('sample'),
     },
@@ -104,7 +104,7 @@ const viewMap = {
   sampleshipping: {
     component: () => import('#/views/customer/sampleshipping.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:truck',
       title: $t('sampleshipping'),
     },
@@ -114,7 +114,7 @@ const viewMap = {
   schedule: {
     component: () => import('#/views/common/schedule.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar',
       // title: $t('schedule'),
       title: 'schedule-x',
@@ -125,7 +125,7 @@ const viewMap = {
   schedule1: {
     component: () => import('#/views/common/schedule1.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar',
       // title: $t('schedule'),
       title: 'vue-cal',
@@ -136,7 +136,7 @@ const viewMap = {
   shippingaddress: {
     component: () => import('#/views/agency/shipppingaddress.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:map-pin',
       title: $t('shippingaddress'),
     },
@@ -147,7 +147,7 @@ const viewMap = {
   shippings: {
     component: () => import('#/views/customer/shippings.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:orders',
       title: $t('mysampleshipping'),
     },
@@ -158,7 +158,7 @@ const viewMap = {
   streamer: {
     component: () => import('#/views/agency/streamer.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:users',
       title: $t('teammanagement'),
     },
@@ -168,7 +168,7 @@ const viewMap = {
   superhome: {
     component: () => import('#/views/super/home.vue'),
     meta: {
-      affixTab: true,
+      affixTab: false,
       icon: 'lucide:calendar',
       title: $t('home'),
     },

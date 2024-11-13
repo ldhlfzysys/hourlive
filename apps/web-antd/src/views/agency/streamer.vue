@@ -5,6 +5,7 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 import { Button } from 'ant-design-vue';
 
+import Empty from '#/components/empty.vue';
 import StreamerCard from '#/components/streamercard.vue';
 import StreamerForm from '#/components/streamerform.vue';
 import { useStreamerStore } from '#/store';
@@ -57,8 +58,9 @@ function onUpdate(
     </template>
 
     <template #content>
-      <div class="flex flex-1 flex-col">
+      <div class="flex h-full flex-1 flex-col">
         <DynamicScroller
+          v-if="streamerStore.streamerList.length > 0"
           :items="streamerStore.streamerList"
           :min-item-size="210"
           class="scroller"
@@ -76,6 +78,11 @@ function onUpdate(
             </div>
           </DynamicScrollerItem>
         </DynamicScroller>
+        <Empty
+          v-else
+          class="flex-1"
+          description="暂无主播数据，点击上方按钮添加"
+        />
       </div>
       <StreamerForm />
     </template>

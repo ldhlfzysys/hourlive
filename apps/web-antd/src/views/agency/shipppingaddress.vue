@@ -7,6 +7,7 @@ import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
 
+import Empty from '#/components/empty.vue';
 import ShippingAddressCard from '#/components/shippingaddresscard.vue';
 import ShippingAddressForm from '#/components/shippingaddressform.vue';
 import { useShippingAddressStore } from '#/store';
@@ -62,6 +63,7 @@ function onUpdate(
     <template #content>
       <div class="flex flex-1 flex-col">
         <DynamicScroller
+          v-if="shippingAddressStore.shippingAddressList.length > 0"
           :items="shippingAddressStore.shippingAddressList"
           :min-item-size="100"
           class="scroller"
@@ -81,6 +83,11 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
+        <Empty
+          v-else
+          class="flex-1"
+          description="暂无收货地址数据，点击上方按钮添加"
+        />
       </div>
       <ShippingAddressForm />
     </template>

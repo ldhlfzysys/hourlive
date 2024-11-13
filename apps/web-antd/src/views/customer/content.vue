@@ -6,6 +6,7 @@ import { Button } from 'ant-design-vue';
 
 import ContentCard from '#/components/contentcard.vue';
 import ContentForm from '#/components/contentform.vue';
+import Empty from '#/components/empty.vue';
 import { useContentStore, useLiveAccountStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -55,6 +56,7 @@ function onUpdate(
     <template #content>
       <div class="flex flex-1 flex-col">
         <DynamicScroller
+          v-if="contentStore.contentList.length > 0"
           :items="contentStore.contentList"
           :min-item-size="100"
           class="scroller"
@@ -74,6 +76,11 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
+        <Empty
+          v-else
+          class="flex-1"
+          description="暂无内容数据，点击上方按钮添加"
+        />
       </div>
       <ContentForm />
     </template>

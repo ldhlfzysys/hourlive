@@ -11,6 +11,7 @@ import { $t } from '@vben/locales';
 
 import { useElementBounding } from '@vueuse/core';
 
+import Empty from '#/components/empty.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SampleForm from '#/components/sampleform.vue';
 import HourLivePage from '#/views/template/common.vue';
@@ -110,6 +111,7 @@ function onCustomerChange(value: any) {
     <template #content>
       <div class="flex flex-1 flex-col">
         <RecycleScroller
+          v-if="sampleStore.sampleList.length > 0"
           ref="scroller"
           v-slot="{ item }"
           :emit-update="true"
@@ -127,6 +129,11 @@ function onCustomerChange(value: any) {
         >
           <SampleCard :sample="item" />
         </RecycleScroller>
+        <Empty
+          v-else
+          class="flex-1"
+          description="暂无样本数据，请选择客户或添加新样本"
+        />
       </div>
       <SampleForm />
     </template>

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
+import Empty from '#/components/empty.vue';
 import ShippingCard from '#/components/shippingcard.vue';
 import { useSampleShippingStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
@@ -46,6 +47,7 @@ function onUpdate(
     <template #content>
       <div class="flex flex-1 flex-col overflow-hidden">
         <DynamicScroller
+          v-if="sampleShippingStore.sampleShippingList.length > 0"
           :items="sampleShippingStore.sampleShippingList"
           :min-item-size="250"
           class="scroller h-full"
@@ -73,6 +75,7 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
+        <Empty v-else class="flex-1" description="暂无物流数据" />
       </div>
       <ShippingForm />
     </template>
