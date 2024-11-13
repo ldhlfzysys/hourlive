@@ -12,10 +12,6 @@ defineOptions({
   name: 'OSSFileForm',
 });
 
-const props = defineProps<{
-  productId: number;
-}>();
-
 const emit = defineEmits(['update:visible']);
 
 const ossFileStore = useOSSFileStore();
@@ -48,10 +44,13 @@ const columns = [
 ];
 
 const fileTableData = computed(() => {
-  const files = ossFileStore.ossfiles.get(props.productId);
+  const files = ossFileStore.ossfiles[ossFileStore.currentProductId];
+
+  console.log(ossFileStore.ossfiles);
+  console.log(files);
   if (!files) return [];
 
-  return [...files.entries()].map(([name, path]) => ({
+  return Object.entries(files).map(([name, path]) => ({
     name,
     path,
     type: name.split('.').pop()?.toUpperCase() || '',
@@ -82,7 +81,7 @@ const handleUpload = async () => {
 
       await ossFileStore.uploadFile({
         fileData: formData,
-        product_id: props.productId,
+        product_id: ossFileStore.currentProductId,
       });
     }
 
@@ -102,7 +101,7 @@ const handleDelete = async (record: any) => {
   try {
     await ossFileStore.removeFile({
       name: record.name,
-      product_id: props.productId,
+      product_id: ossFileStore.currentProductId,
     });
     await ossFileStore.fetchFile();
     message.success('删除成功');

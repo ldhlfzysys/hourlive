@@ -57,12 +57,12 @@ export const useOSSFileStore = defineStore('file-store', () => {
   const showModal = ref(false);
 
   // product_id: <name, path>
-  const ossfiles = ref<Map<number, Map<string, string>>>(new Map());
+  const ossfiles = ref<Record<number, Record<string, string>>>({});
 
   function $reset() {
     uploading.value = false;
     fetching.value = false;
-    ossfiles.value = new Map();
+    ossfiles.value = {};
   }
 
   /*
@@ -103,9 +103,8 @@ export const useOSSFileStore = defineStore('file-store', () => {
     fetching.value = true;
     const result = await _fetchFile(currentProductId.value);
     if (result.success) {
-      ossfiles.value.set(
-        currentProductId.value,
-        new Map(result.data.map((item) => [item.name, item.path])),
+      ossfiles.value[currentProductId.value] = Object.fromEntries(
+        result.data.map((item) => [item.name, item.path]),
       );
     }
     fetching.value = false;
@@ -113,6 +112,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
 
   return {
     $reset,
+    currentProductId,
     fetchFile,
     fetching,
     ossfiles,
