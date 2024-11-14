@@ -1,7 +1,7 @@
 // base
 import { ref } from 'vue';
 
-import { notification } from 'ant-design-vue';
+import { message, notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -90,12 +90,12 @@ export const useOSSFileStore = defineStore('file-store', () => {
   async function uploadFile(file: OSSFileUpload) {
     uploading.value = true;
     const result = await _uploadFile(file);
-    if (result.success) {
-      notification.success({
-        description: '',
-        message: $t('success'),
-      });
+    if (result && result.success) {
+      message.success($t('success'));
+    } else {
+      message.error($t('error'));
     }
+    console.log('excute uploading finish');
     uploading.value = false;
   }
 

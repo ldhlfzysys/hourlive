@@ -104,7 +104,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     try {
       liveaccountLoading.value = true;
       const res = await _getAllLiveAccount(liveaccountQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.length > 0) {
           const lastLiveAccount = res.data.at(-1);
           if (lastLiveAccount && lastLiveAccount.id) {
@@ -126,7 +126,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     try {
       liveaccountCreateLoading.value = true;
       const res = await _newLiveAccount(liveaccountCreate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
       } else {
@@ -144,7 +144,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     try {
       liveaccountCreateLoading.value = true;
       const res = await _updateLiveAccount(liveaccountCreate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
       } else {

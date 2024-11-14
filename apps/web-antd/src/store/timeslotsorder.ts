@@ -101,7 +101,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslotOrderLoading.value = true;
       timeslotOrderQuery.value.q_size = 99_999;
       const res = await getAllTimeslotOrders(timeslotOrderQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         res.data.forEach((timeslotOrder) => {
           timeslotOrders.value.set(timeslotOrder.id, timeslotOrder);
         });
@@ -123,7 +123,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslotOrderCreateLoading.value = true;
 
       const res = await newTimeslotOrder(timeslotOrderCreate.value);
-      if (res.success) {
+      if (res && res.success) {
         timeslotOrders.value.set(res.data.id, res.data);
         showModal.value = false;
         timeslotOrderCreate.value = {
@@ -150,7 +150,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     try {
       timeslotOrderLoading.value = true;
       const res = await updateTimeslotOrder(updatedOrder);
-      if (res.success) {
+      if (res && res.success) {
         timeslotOrders.value.set(res.data.id, res.data);
         showModal.value = false;
       } else {

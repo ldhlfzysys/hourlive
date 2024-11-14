@@ -89,7 +89,7 @@ export const useRoomStore = defineStore('room-store', () => {
     try {
       roomLoading.value = true;
       const res = await getAllRooms(roomQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.length > 0) {
           const lastRoom = res.data.at(-1);
           if (lastRoom) {
@@ -118,7 +118,7 @@ export const useRoomStore = defineStore('room-store', () => {
       roomCreateLoading.value = true;
 
       const res = await newRoom(roomCreate.value);
-      if (res.success) {
+      if (res && res.success) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
         // 清空当前新增对象数据
@@ -146,7 +146,7 @@ export const useRoomStore = defineStore('room-store', () => {
     try {
       roomLoading.value = true;
       const res = await updateRoom(updatedRoom);
-      if (res.success) {
+      if (res && res.success) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
       } else {
@@ -165,7 +165,7 @@ export const useRoomStore = defineStore('room-store', () => {
     try {
       roomLoading.value = true;
       const res = await deleteRoom(roomId);
-      if (res.success) {
+      if (res && res.success) {
         rooms.value.delete(roomId);
         notification.success({
           description: $t('删除直播间成功'),

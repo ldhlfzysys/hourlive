@@ -100,7 +100,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     try {
       sampleQueryLoading.value = true;
       const res = await _getAllSamples(sampleQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.length > 0) {
           const lastSample = res.data.at(-1);
           if (lastSample && lastSample.id) {
@@ -122,7 +122,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     try {
       sampleUpdateLoading.value = true;
       const res = await _newSamples(sampleUpdate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
         showModal.value = false;
       } else {
@@ -140,7 +140,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     try {
       sampleUpdateLoading.value = true;
       const res = await _updateSample(sampleUpdate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         samples.value.set(res.data.id, res.data);
         showModal.value = false;
         showKSPModal.value = false;
@@ -171,7 +171,7 @@ export const useSampleStore = defineStore('sample-store', () => {
         url: sampleUpdate.value.product_link,
       });
       sampleFetchLoading.value = false;
-      if (res.success) {
+      if (res && res.success) {
         sampleUpdate.value = res.data;
         sampleUpdate.value.product_link = tempLink;
       }

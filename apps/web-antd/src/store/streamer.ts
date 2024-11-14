@@ -88,7 +88,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     try {
       streamerLoading.value = true;
       const res = await getAllStreamer(streamerQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.length > 0) {
           const lastStreamer = res.data.at(-1);
           if (lastStreamer) {
@@ -116,7 +116,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
       streamerCreateLoading.value = true;
 
       const res = await newStreamer(streamerCreate.value);
-      if (res.success) {
+      if (res && res.success) {
         streamers.value.set(res.data.id, res.data);
         showModal.value = false;
         streamerCreate.value = {
@@ -143,7 +143,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     try {
       streamerLoading.value = true;
       const res = await updateStreamer(updatedStreamer);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.hide === 1) {
           streamers.value.delete(res.data.id);
         } else {

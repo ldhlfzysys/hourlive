@@ -65,7 +65,7 @@ export const useFeishuStore = defineStore('feishu-store', () => {
     try {
       feishuLoading.value = true;
       const res = await getFeishuAppid();
-      if (res.success) {
+      if (res && res.success) {
         feishuData.value.appid = res.data;
       }
     } finally {
@@ -78,8 +78,8 @@ export const useFeishuStore = defineStore('feishu-store', () => {
       feishuCreateLoading.value = true;
       const res = await feishuAuthLogin(feishuData.value.code);
       console.log('authFeishuLogin', res);
-      alert(`获取access_token：${JSON.stringify(res)}`);
-      if (res.success) {
+      // alert(`获取access_token：${JSON.stringify(res)}`);
+      if (res && res.success) {
         feishuData.value.token = res.token.access_token;
         showModal.value = false;
         notification.success({

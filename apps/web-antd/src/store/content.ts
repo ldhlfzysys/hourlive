@@ -97,7 +97,7 @@ export const useContentStore = defineStore('content-store', () => {
     try {
       contentLoading.value = true;
       const res = await _getAllContent(contentQuery.value);
-      if (res.success) {
+      if (res && res.success) {
         if (res.data.length > 0) {
           const lastContent = res.data.at(-1);
           if (lastContent && lastContent.id) {
@@ -119,7 +119,7 @@ export const useContentStore = defineStore('content-store', () => {
     try {
       contentCreateLoading.value = true;
       const res = await _newContent(contentCreate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         showModal.value = false;
         contents.value.set(res.data.id, res.data);
       } else {
@@ -137,7 +137,7 @@ export const useContentStore = defineStore('content-store', () => {
     try {
       contentCreateLoading.value = true;
       const res = await _updateContent(contentCreate.value);
-      if (res.success && res.data.id) {
+      if (res && res.success && res.data.id) {
         showModal.value = false;
         contents.value.set(res.data.id, res.data);
       } else {
@@ -154,7 +154,7 @@ export const useContentStore = defineStore('content-store', () => {
   async function addSamples() {
     try {
       const res = await _addSamples(addSample.value);
-      if (res.success) {
+      if (res && res.success) {
         showAddSamplesModal.value = false;
       }
     } finally {

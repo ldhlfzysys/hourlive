@@ -100,7 +100,7 @@ export const useSampleShippingStore = defineStore(
       try {
         sampleShippingLoading.value = true;
         const res = await _getAllSampleShipping(sampleShippingQuery.value);
-        if (res.success) {
+        if (res && res.success) {
           if (res.data.length > 0) {
             const lastSampleShipping = res.data.at(-1);
             if (lastSampleShipping && lastSampleShipping.id) {
@@ -122,7 +122,7 @@ export const useSampleShippingStore = defineStore(
       try {
         sampleShippingCreateLoading.value = true;
         const res = await _newSampleShipping(sampleShippingCreate.value);
-        if (res.success && res.data.id) {
+        if (res && res.success && res.data.id) {
           showModal.value = false;
           sampleShippings.value.set(res.data.id, res.data);
         } else {
@@ -140,7 +140,7 @@ export const useSampleShippingStore = defineStore(
       try {
         sampleShippingCreateLoading.value = true;
         const res = await _updateSampleShipping(sampleShippingCreate.value);
-        if (res.success && res.data.id) {
+        if (res && res.success && res.data.id) {
           showModal.value = false;
           sampleShippings.value.set(res.data.id, res.data);
         } else {

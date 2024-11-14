@@ -95,7 +95,7 @@ export const useShippingAddressStore = defineStore(
       try {
         shippingAddressLoading.value = true;
         const res = await getAllShippingAddress(shippingAddressQuery.value);
-        if (res.success) {
+        if (res && res.success) {
           if (res.data.length > 0) {
             const lastShippingAddress = res.data.at(-1);
             if (lastShippingAddress) {
@@ -124,7 +124,7 @@ export const useShippingAddressStore = defineStore(
         shippingAddressCreateLoading.value = true;
 
         const res = await newShippingAddress(shippingAddressCreate.value);
-        if (res.success) {
+        if (res && res.success) {
           shippingAddresses.value.set(res.data.id, res.data);
           showModal.value = false;
           // 清空当前新增对象数据
@@ -152,7 +152,7 @@ export const useShippingAddressStore = defineStore(
       try {
         shippingAddressLoading.value = true;
         const res = await updateShippingAddress(updatedAddress);
-        if (res.success) {
+        if (res && res.success) {
           if (res.data.hide === 1) {
             shippingAddresses.value.delete(res.data.id);
           } else {

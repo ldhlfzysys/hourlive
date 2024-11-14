@@ -74,23 +74,18 @@ const handleDrop = (e: DragEvent) => {
 const handleUpload = async () => {
   if (fileList.value.length === 0) return;
 
-  try {
-    for (const file of fileList.value) {
-      const formData = new FormData();
-      formData.append('file', file);
+  for (const file of fileList.value) {
+    const formData = new FormData();
+    formData.append('file', file);
 
-      await ossFileStore.uploadFile({
-        fileData: formData,
-        product_id: ossFileStore.currentProductId,
-      });
-    }
-
-    fileList.value = [];
-    await ossFileStore.fetchFile();
-    message.success('上传成功');
-  } catch {
-    message.error('上传失败');
+    await ossFileStore.uploadFile({
+      fileData: formData,
+      product_id: ossFileStore.currentProductId,
+    });
   }
+
+  fileList.value = [];
+  await ossFileStore.fetchFile();
 };
 
 const handleDownload = (record: any) => {
