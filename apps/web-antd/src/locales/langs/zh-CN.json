@@ -276,7 +276,7 @@
   "createliveaccount": "创建直播账号",
   "createliveaccountdesc": "直播账号用于主播登录直播平台",
   "createcontent": "创建场次",
-  "createcontentdesc": "直播场次代表一场直播",
+  "createcontentdesc": "场次包含直播账号、样品，下单需要绑定场次",
   "shippingsample": "寄送样品",
   "shippingsampledesc": "在直播前，需要将样品寄送到机构仓库",
   "guide": "引导",
@@ -286,5 +286,13 @@
   "package_desc": "创建小时播套餐",
   "shipping_desc": "增加收货地址用于接受样品",
   "store_desc": "管理样品",
-  "schedule_desc": "查看日程"
+  "schedule_desc": "查看日程",
+  "pick_package": "小时播套餐",
+  "pick_package_des": "选择小时播套餐去下单",
+  "guide_sample": "管理您的样品",
+  "guide_content": "管理您的直播内容",
+  "guide_order": "去下单",
+  "guide_sample_tooltip": "直播时，需要用到样品实物和商品信息，因此您需要在系统中添加样品，并在直播前寄送给机构或达人",
+  "guide_content_tooltip": "需要提供直播账号给机构或达人，同时创建一个场次，场次可以绑定直播账号和样品，下单时需要提供场次，这样机构或达人就可以在订单中通过场次找到直播账号和样品了",
+  "guide_order_tooltip": "浏览闲时市场，选择适合您的小时播套餐并下单吧"
 }
