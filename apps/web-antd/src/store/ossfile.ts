@@ -78,7 +78,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
   async function removeFile(file: OSSFileDelete) {
     removing.value = true;
     const result = await _deleteFile(file);
-    if (result.success) {
+    if (result && result.success) {
       notification.error({
         description: '',
         message: $t('success'),
@@ -93,7 +93,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     if (result && result.success) {
       message.success($t('success'));
     } else {
-      message.error($t('error'));
+      message.error($t('upload_faild'));
     }
     console.log('excute uploading finish');
     uploading.value = false;
