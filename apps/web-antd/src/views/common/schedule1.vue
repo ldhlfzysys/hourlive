@@ -25,6 +25,7 @@ import 'vue-cal/dist/vuecal.css';
 
 interface Event {
   id: number;
+  slotId: number;
   start: string; // Required.
   end: string; // Required.
   title?: string; // Optional.
@@ -36,6 +37,12 @@ interface Event {
   draggable?: boolean; // Optional.
   deletable?: boolean; // optional - force undeletable when events are editable.
   resizable?: boolean; // optional - force unresizable when events are editable.
+}
+
+interface SlotEvent extends TimeslotOrder {
+  slotId: number;
+  start: string;
+  end: string;
 }
 
 // Data
@@ -83,6 +90,7 @@ const events = computed(() => {
         end: `${timeslot.date} ${timeslot.end_time}`,
         id: order.id,
         resizable: false,
+        slotId: timeslot.id,
         start: `${timeslot.date} ${timeslot.start_time}`,
         title: `
           <div class="event-container">
@@ -108,8 +116,7 @@ const selectedAgencies = ref([]);
 const selectedCustomers = ref([]);
 const selectedContents = ref([]);
 const selectedRooms = ref([]);
-const showEventDetails = ref(false);
-const selectedEvent = ref<null | TimeslotOrder>(null);
+const selectedEvent = ref<null | SlotEvent>(null);
 
 // Function
 const localeStr = computed(() => {
@@ -166,17 +173,26 @@ function handleCellClick(event: any) {
 }
 
 function handleEventClick(event: Event, e: MouseEvent) {
-  console.log(event);
   const order = orderStore.orderById(event.id);
 
   if (order) {
-    selectedEvent.value = order;
-    showEventDetails.value = true;
+    selectedEvent.value = {
+      ...order,
+      end: dayjs(event.end).format('MM/DD HH:mm'),
+      slotId: event.slotId,
+      start: dayjs(event.start).format('MM/DD HH:mm'),
+    };
+    orderStore.showEventDetails = true;
   }
 }
 
-function handleDeleteOrder() {
-  // orderStore.deleteOrders(slot);
+async function handleDeleteOrder() {
+  loading.value = true;
+  await orderStore.deleteOrders({
+    timeslot_ids: [selectedEvent.value!.slotId],
+    timeslotorder_id: selectedEvent.value!.id,
+  });
+  loading.value = false;
 }
 </script>
 
@@ -281,14 +297,17 @@ function handleDeleteOrder() {
 
     <div v-if="selectedEvent">
       <Modal
-        v-model:open="showEventDetails"
+        v-model:open="orderStore.showEventDetails"
         :title="$t('orderdetail')"
-        style="width: 800px; max-height: 500px; overflow-y: auto"
-        @cancel="showEventDetails = false"
+        style="width: 65%; max-height: 500px; overflow-y: auto"
+        @cancel="orderStore.showEventDetails = false"
       >
         <Descriptions :column="3" bordered>
           <DescriptionsItem :label="$t('id')">
             {{ selectedEvent!.id }}
+          </DescriptionsItem>
+          <DescriptionsItem :label="$t('timeslot')">
+            {{ selectedEvent!.start }} - {{ selectedEvent!.end }}
           </DescriptionsItem>
           <DescriptionsItem :label="$t('agency')">
             {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}

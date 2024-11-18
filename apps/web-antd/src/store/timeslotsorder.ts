@@ -82,6 +82,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   const showModal = ref(false);
   const confirmLoading = ref(false);
+  const showEventDetails = ref(false);
   // const formRef = ref<FormInstance>();
 
   const formState = ref<TimeslotOrderFormState>({});
@@ -151,6 +152,16 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   async function deleteOrders(slot: CancelTimeSlot) {
     const res = await cancelTimeslotOrder(slot);
     if (res.success) {
+      const timeslotOrder = timeslotOrders.value.get(slot.timeslotorder_id);
+      if (timeslotOrder) {
+        timeslotOrder.timeslots = timeslotOrder.timeslots.filter(
+          (timeslot) => !slot.timeslot_ids.includes(timeslot.id),
+        );
+        if (timeslotOrder.timeslots.length === 0) {
+          timeslotOrders.value.delete(slot.timeslotorder_id);
+        }
+      }
+      showEventDetails.value = false;
       notification.success({
         description: $t('deleteorder'),
         message: $t('success'),
@@ -282,6 +293,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     modifyTimeslotOrder,
     orderById,
     queryTimeslotOrder,
+    showEventDetails,
     showModal,
     timeslotOrderCreate,
     timeslotOrderCreateLoading,
