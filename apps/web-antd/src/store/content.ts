@@ -76,7 +76,7 @@ export const useContentStore = defineStore('content-store', () => {
   const contentQuery = ref<ContentQuery>({
     q_id: -1,
     q_order: 'desc',
-    q_size: 30,
+    q_size: 100,
   });
 
   function $reset() {

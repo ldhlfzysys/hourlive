@@ -4,6 +4,7 @@ import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
+import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
@@ -11,12 +12,15 @@ import { useUserStore } from '@vben/stores';
 import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
+import Empty from '#/components/empty.vue';
+import SampleCard from '#/components/samplecard.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
 import {
   useAgencyStore,
   useContentStore,
   useCustomerStore,
+  useSampleStore,
   useTimeslotOrderStore,
 } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
@@ -50,6 +54,7 @@ const orderStore = useTimeslotOrderStore();
 const agencyStore = useAgencyStore();
 const userStore = useUserStore();
 const customerStore = useCustomerStore();
+const sampleStore = useSampleStore();
 const contentStore = useContentStore();
 const isSuper = computed(() => {
   return userStore.userRoles.includes('super');
@@ -132,6 +137,34 @@ const availableFilters = computed(() => {
   return [];
 });
 
+const contentInfo = computed(() => {
+  const content = selectedEvent.value?.contents[0];
+  return {
+    content_desc: content?.content_desc,
+    content_link: content?.content_link,
+    content_text: content?.content_text,
+    create_time: content?.create_time,
+    customer_id: content?.customer_id,
+    update_time: content?.update_time,
+  };
+});
+
+const liveAccountInfo = computed(() => {
+  const liveAccount = selectedEvent.value?.contents[0]?.liveaccount;
+  return {
+    code: liveAccount?.code,
+    create_time: liveAccount?.create_time,
+    customer_id: liveAccount?.customer_id,
+    live_account: liveAccount?.live_account,
+    live_uid: liveAccount?.live_uid,
+    liveaccount_id: liveAccount?.id,
+    mobile: liveAccount?.mobile,
+    name: liveAccount?.name,
+    platform: liveAccount?.platform,
+    update_time: liveAccount?.update_time,
+  };
+});
+
 // Life Time
 onMounted(() => {
   useAgencyStore().fetchAgency();
@@ -187,12 +220,21 @@ function handleEventClick(event: Event, e: MouseEvent) {
 }
 
 async function handleDeleteOrder() {
-  loading.value = true;
-  await orderStore.deleteOrders({
-    timeslot_ids: [selectedEvent.value!.slotId],
-    timeslotorder_id: selectedEvent.value!.id,
+  Modal.confirm({
+    onOk: async () => {
+      loading.value = true;
+      await orderStore.deleteOrders({
+        timeslot_ids: [selectedEvent.value!.slotId],
+        timeslotorder_id: selectedEvent.value!.id,
+      });
+      loading.value = false;
+    },
+    title: $t('confirmdelete'),
   });
-  loading.value = false;
+}
+
+function handleDownload() {
+  console.log('download');
 }
 </script>
 
@@ -249,15 +291,7 @@ async function handleDeleteOrder() {
               watch-real-time
               @cell-click="handleCellClick"
               @event-click="handleEventClick"
-            >
-              <!-- <template #event="{ event, view }">
-        
-        
-                <small class="vuecal__event-time" style="display: none;">
-                </small>
-                <div class="vuecal__event-content" v-html="event.content"/>
-              </template> -->
-            </VueCal>
+            />
           </div>
 
           <div
@@ -299,7 +333,7 @@ async function handleDeleteOrder() {
       <Modal
         v-model:open="orderStore.showEventDetails"
         :title="$t('orderdetail')"
-        style="width: 65%; max-height: 500px; overflow-y: auto"
+        style="width: 70%; max-height: 500px; overflow-y: auto"
         @cancel="orderStore.showEventDetails = false"
       >
         <Descriptions :column="3" bordered>
@@ -317,12 +351,60 @@ async function handleDeleteOrder() {
           </DescriptionsItem>
 
           <DescriptionsItem :label="$t('content')" :span="3">
-            {{ selectedEvent!.contents.map((c) => c.id).join(',') }}
+            {{ selectedEvent!.contents[0].id }}
+          </DescriptionsItem>
+
+          <DescriptionsItem :label="$t('content_text')" :span="3">
+            <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
+              <div
+                v-for="[key, value] in Object.entries(contentInfo)"
+                :key="key"
+                class="flex items-center"
+              >
+                <strong>{{ $t(key) }}: </strong>
+                <div class="ml-2" v-html="value"></div>
+              </div>
+            </div>
+          </DescriptionsItem>
+
+          <DescriptionsItem :label="$t('liveaccount')" :span="3">
+            <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
+              <div
+                v-for="[key, value] in Object.entries(liveAccountInfo)"
+                :key="key"
+                class="flex items-center"
+              >
+                <strong>{{ $t(key) }}: </strong>
+                <div class="ml-2" v-html="value"></div>
+              </div>
+            </div>
           </DescriptionsItem>
         </Descriptions>
 
+        <RecycleScroller
+          v-if="sampleStore.sampleList.length > 0"
+          v-slot="{ item }"
+          :emit-update="true"
+          :grid-items="2"
+          :item-secondary-size="300"
+          :item-size="230"
+          :items="sampleStore.sampleList"
+          :page-mode="true"
+          class="scroller"
+          key-field="id"
+        >
+          <SampleCard :sample="item" />
+        </RecycleScroller>
+        <Empty
+          v-else
+          class="flex-1"
+          description="暂无样本数据，请选择客户或添加新样本"
+        />
+
         <template #footer>
-          <!-- <a-button key="back" @click="handleCancel">Return</a-button> -->
+          <Button key="download" type="primary" @click="handleDownload">
+            {{ $t('download') }}
+          </Button>
           <Button
             v-if="isSuper"
             key="submit"

@@ -3,8 +3,12 @@ import type { Sample } from './ISample';
 import type { BaseQuery } from './ISystem';
 import type { TimeslotOrder } from './ITimeslotOrder';
 import type { Customer } from './IUser';
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ContentQuery extends BaseQuery {}
+
+export interface ContentQuery extends BaseQuery {
+  customer_id?: number;
+  liveaccount_id?: number;
+  ids?: number[];
+}
 
 export interface AddSample {
   content_id: number;
