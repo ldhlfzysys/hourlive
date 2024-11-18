@@ -77,6 +77,9 @@ function createRequestClient(baseURL: string) {
       if (responseData.success) {
         return responseData;
       }
+      if (responseData.success === false && responseData.status_code === 401) {
+        throw new HourLiveError(responseData.message, responseData);
+      }
       // throw new HourLiveError(responseData.message, responseData);
     },
   });
