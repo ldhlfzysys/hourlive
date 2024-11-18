@@ -1,6 +1,9 @@
 import type {
+  CancelTimeSlot,
   OrderQuery,
   StanderResult,
+  TimeslotCreateInMany,
+  TimeslotModel,
   TimeslotOrder,
   TimeslotOrderCreate,
   TimeslotOrderFormState,
@@ -16,6 +19,7 @@ import { $t } from '#/locales';
 
 // 定义API端点的枚举
 enum TimeslotOrderApi {
+  CancelTimeslotOrder = 'timeslotorder/cancel',
   CreateTimeslotOrder = 'timeslotorder/create',
   QueryTimeslotOrder = 'timeslotorder/query',
   UpdateTimeslotOrder = 'timeslotorder/update',
@@ -25,6 +29,14 @@ enum TimeslotOrderApi {
 function getAllTimeslotOrders(params?: OrderQuery) {
   return requestClient.post<StanderResult<TimeslotOrder[]>>(
     TimeslotOrderApi.QueryTimeslotOrder,
+    params,
+  );
+}
+
+// 取消时段订单
+function cancelTimeslotOrder(params: CancelTimeSlot) {
+  return requestClient.post<StanderResult<TimeslotOrder>>(
+    TimeslotOrderApi.CancelTimeslotOrder,
     params,
   );
 }
@@ -69,6 +81,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   });
 
   const showModal = ref(false);
+  const confirmLoading = ref(false);
+  // const formRef = ref<FormInstance>();
 
   const formState = ref<TimeslotOrderFormState>({});
 
@@ -101,14 +115,95 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslotOrderLoading.value = true;
       timeslotOrderQuery.value.q_size = 99_999;
       const res = await getAllTimeslotOrders(timeslotOrderQuery.value);
-      if (res && res.success) {
-        res.data.forEach((timeslotOrder) => {
+      if (res.success) {
+        res.data.forEach((timeslotOrder: TimeslotOrder) => {
           timeslotOrders.value.set(timeslotOrder.id, timeslotOrder);
         });
       }
     } finally {
       timeslotOrderLoading.value = false;
     }
+  }
+
+  function generateTimeslots() {
+    if (
+      formState.value.liveTime === undefined ||
+      formState.value.timeslot === undefined
+    ) {
+      return;
+    }
+    let startTime = formState.value.liveTime[0];
+    const endTime = formState.value.liveTime[1];
+    const timeslots: TimeslotModel[] = [];
+
+    while (startTime.isSame(endTime) || startTime.isBefore(endTime)) {
+      timeslots.push({
+        canEdit: true,
+        date: startTime.clone(),
+        slot: formState.value.timeslot,
+      });
+      startTime = startTime.add(1, 'day');
+    }
+
+    formState.value.timeslots = timeslots;
+  }
+
+  async function deleteOrders(slot: CancelTimeSlot) {
+    const res = await cancelTimeslotOrder(slot);
+    if (res.success) {
+      notification.success({
+        description: $t('deleteorder'),
+        message: $t('success'),
+      });
+    }
+  }
+
+  async function makeOrders() {
+    if (formState.value.timeslots === undefined) {
+      return;
+    }
+
+    // await formRef.value?.validateFields().then((values) => {
+    //   console.log(values);
+    // });
+
+    const timeslots: TimeslotCreateInMany[] = [];
+
+    formState.value.timeslots.forEach((slot) => {
+      if (slot.canEdit) {
+        const startDate = Array.isArray(slot.date) ? slot.date[0] : slot.date;
+        const endDate = Array.isArray(slot.date) ? slot.date[1] : slot.date;
+        const timeslot: TimeslotCreateInMany = {
+          date: startDate.format('YYYY-MM-DD'),
+          end_date: endDate.format('YYYY-MM-DD'),
+          end_time: slot.slot[1].format('HH:mm'),
+          hourlive_money_cost: 0,
+          start_time: slot.slot[0].format('HH:mm'),
+        };
+        timeslots.push(timeslot);
+      }
+    });
+
+    if (timeslots.length === 0) {
+      confirmLoading.value = false;
+      notification.warning({
+        description: $t('currentnochange'),
+        message: $t('warning'),
+      });
+      return;
+    }
+
+    const params: TimeslotOrderCreate = {
+      content_id: formState.value.contentId ?? -1,
+      room_id: formState.value.roomId ?? -1,
+      timeslots,
+    };
+
+    params.id =
+      formState.value.orderId === undefined ? -1 : formState.value.orderId;
+
+    timeslotOrderCreate.value = params;
+    createTimeslotOrder();
   }
 
   async function createTimeslotOrder() {
@@ -127,10 +222,11 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
         timeslotOrders.value.set(res.data.id, res.data);
         showModal.value = false;
         timeslotOrderCreate.value = {
-          content_id: 0,
-          room_id: 0,
+          content_id: -1,
+          room_id: -1,
           timeslots: [],
         };
+        formState.value = {};
         notification.success({
           description: $t('新增时段订单成功'),
           message: $t('操作成功'),
@@ -143,6 +239,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       }
     } finally {
       timeslotOrderCreateLoading.value = false;
+    }
+  }
+
+  async function deleteTimeslotOrders() {
+    try {
+      timeslotOrderLoading.value = true;
+      const res = await cancelTimeslotOrder(timeslotOrderCreate.value);
+    } finally {
+      timeslotOrderLoading.value = false;
     }
   }
 
@@ -166,9 +271,14 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   return {
     $reset,
+    confirmLoading,
     createTimeslotOrder,
+    deleteOrders,
+    deleteTimeslotOrders,
     formState,
+    generateTimeslots,
     isEditing,
+    makeOrders,
     modifyTimeslotOrder,
     orderById,
     queryTimeslotOrder,

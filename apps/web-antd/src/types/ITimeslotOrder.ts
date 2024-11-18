@@ -8,7 +8,7 @@ import type { Timeslot, TimeslotCreateInMany } from './ITimeslot';
 import type { Agency, Customer } from './IUser';
 
 export interface TimeslotModel {
-  date: Dayjs;
+  date: [Dayjs, Dayjs] | Dayjs;
   slot: [Dayjs, Dayjs];
   canEdit: boolean;
 }
@@ -24,7 +24,6 @@ export interface TimeslotOrderFormState {
   slotId?: number; // 时间段id
   orderId?: number; // 订单id
   status?: number; // 订单状态
-  repeat?: number; // 重复
   customer?: string; // 客户
   enableEdit?: boolean; // 是否可编辑
 }

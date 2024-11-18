@@ -31,6 +31,19 @@ export const useAgencyStore = defineStore('agency-store', () => {
     }));
   });
 
+  function roomsByAgencyIds(ids: number[]) {
+    return allAgency.value
+      .filter((agency) => ids.includes(agency.id))
+      .flatMap((agency) => agency.rooms);
+  }
+
+  function roomOptionsByAgencyIds(ids: number[]) {
+    return roomsByAgencyIds(ids)?.map((room) => ({
+      label: `${room.id.toString()}-${room.name}`,
+      value: room.id,
+    }));
+  }
+
   async function fetchAgency() {
     const res = await getAllAgency();
     allAgency.value = res.data;
@@ -47,5 +60,7 @@ export const useAgencyStore = defineStore('agency-store', () => {
     agencyOptions,
     allAgency,
     fetchAgency,
+    roomOptionsByAgencyIds,
+    roomsByAgencyIds,
   };
 });

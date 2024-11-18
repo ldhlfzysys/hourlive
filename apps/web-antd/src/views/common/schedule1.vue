@@ -1,6 +1,6 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import type { TimeslotOrder } from '#/types';
+import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
@@ -8,12 +8,17 @@ import VueCal from 'vue-cal';
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
+import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
-import { useAgencyStore, useTimeslotOrderStore } from '#/store';
+import {
+  useAgencyStore,
+  useContentStore,
+  useCustomerStore,
+  useTimeslotOrderStore,
+} from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-cal/dist/vuecal.css';
@@ -37,10 +42,16 @@ interface Event {
 const orderStore = useTimeslotOrderStore();
 const agencyStore = useAgencyStore();
 const userStore = useUserStore();
-
+const customerStore = useCustomerStore();
+const contentStore = useContentStore();
 const isSuper = computed(() => {
   return userStore.userRoles.includes('super');
 });
+
+const isAgency = computed(() => {
+  return userStore.userRoles.includes('agency');
+});
+
 const events = computed(() => {
   const allEvents: Event[] = [];
   orderStore.timeslotOrderList.forEach((order: TimeslotOrder) => {
@@ -91,9 +102,12 @@ const events = computed(() => {
   });
 });
 const selectedDate = ref('');
-const editing = ref(false);
+const loading = ref(false);
 const activeView = ref('month');
 const selectedAgencies = ref([]);
+const selectedCustomers = ref([]);
+const selectedContents = ref([]);
+const selectedRooms = ref([]);
 const showEventDetails = ref(false);
 const selectedEvent = ref<null | TimeslotOrder>(null);
 
@@ -102,26 +116,57 @@ const localeStr = computed(() => {
   return i18n.global.locale.value.toLowerCase();
 });
 
+const availableFilters = computed(() => {
+  if (isSuper.value) {
+    return ['agency', 'room', 'customer', 'content'];
+  } else if (isAgency.value) {
+    return ['room', 'customer', 'content'];
+  }
+  return [];
+});
+
 // Life Time
 onMounted(() => {
   useAgencyStore().fetchAgency();
+  fetchCustomerData();
   useTimeslotOrderStore().queryTimeslotOrder();
 });
+
+function fetchCustomerData() {
+  if (isSuper.value) {
+    useCustomerStore().fetchAllCustomers();
+  } else if (isAgency.value) {
+    useCustomerStore().getAgencyCustomers();
+  }
+}
 
 // CalendarEvent
 function handleCellClick(event: any) {
   selectedDate.value = event.format('YYYY-MM-DD HH:00');
+  const startTime = dayjs(event.format('YYYY-MM-DD HH:00'));
+  const endTime = startTime.add(2, 'hour');
   if (activeView.value === 'month') {
     activeView.value = 'day';
   } else {
-    editing.value = true;
-    orderStore.formState = {
-      enableEdit: true,
-    };
+    if (isSuper.value) {
+      orderStore.isEditing = true;
+      const initTiMeModel: TimeslotModel = {
+        canEdit: true,
+        date: startTime.clone(),
+        slot: [startTime.clone(), endTime.clone()],
+      };
+      orderStore.formState = {
+        enableEdit: true,
+        liveTime: [dayjs(selectedDate.value), dayjs(selectedDate.value)],
+        timeslot: [startTime, endTime],
+        timeslots: [initTiMeModel],
+      };
+    }
   }
 }
 
 function handleEventClick(event: Event, e: MouseEvent) {
+  console.log(event);
   const order = orderStore.orderById(event.id);
 
   if (order) {
@@ -129,18 +174,44 @@ function handleEventClick(event: Event, e: MouseEvent) {
     showEventDetails.value = true;
   }
 }
+
+function handleDeleteOrder() {
+  // orderStore.deleteOrders(slot);
+}
 </script>
 
 <template>
   <div>
     <HourLivePage :content-overflow="true">
       <template #header>
-        <div v-if="isSuper" class="w-[40px]">
+        <div v-for="filter in availableFilters" :key="filter">
           <SelectFilter
+            v-if="filter === 'agency'"
             v-model="selectedAgencies"
             :options="agencyStore.agencyOptions"
-            placeholder="请选择机构"
-            title="机构"
+            :placeholder="$t('selectagency')"
+            :title="$t('agency')"
+          />
+          <SelectFilter
+            v-if="filter === 'room'"
+            v-model="selectedRooms"
+            :options="agencyStore.roomOptionsByAgencyIds(selectedAgencies)"
+            :placeholder="$t('selectroom')"
+            :title="$t('room')"
+          />
+          <SelectFilter
+            v-if="filter === 'customer'"
+            v-model="selectedCustomers"
+            :options="customerStore.customerOptions ?? []"
+            :placeholder="$t('selectcustomer')"
+            :title="$t('hourlive_account')"
+          />
+          <SelectFilter
+            v-if="filter === 'content'"
+            v-model="selectedContents"
+            :options="customerStore.contentOptions ?? []"
+            :placeholder="$t('selectcontent')"
+            :title="$t('content')"
           />
         </div>
       </template>
@@ -173,12 +244,14 @@ function handleEventClick(event: Event, e: MouseEvent) {
             </VueCal>
           </div>
 
-          <div v-if="editing" class="flex h-full w-[500px] flex-col">
+          <div
+            v-if="orderStore.isEditing"
+            class="flex h-full w-[500px] flex-col"
+          >
             <div class="mb-2 flex items-center justify-between">
-              <h2 class="text-xl font-semibold">{{ $t('makeorder') }}</h2>
               <button
                 class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
-                @click="editing = false"
+                @click="orderStore.isEditing = false"
               >
                 <svg
                   class="h-5 w-5"
@@ -194,6 +267,9 @@ function handleEventClick(event: Event, e: MouseEvent) {
                   />
                 </svg>
               </button>
+              <Button type="primary" @click="orderStore.makeOrders">
+                {{ $t('makeorder') }}
+              </Button>
             </div>
             <TimeslotOrderForm />
           </div>
@@ -225,6 +301,19 @@ function handleEventClick(event: Event, e: MouseEvent) {
             {{ selectedEvent!.contents.map((c) => c.id).join(',') }}
           </DescriptionsItem>
         </Descriptions>
+
+        <template #footer>
+          <!-- <a-button key="back" @click="handleCancel">Return</a-button> -->
+          <Button
+            v-if="isSuper"
+            key="submit"
+            :loading="loading"
+            type="primary"
+            @click="handleDeleteOrder"
+          >
+            {{ $t('delete') }}
+          </Button>
+        </template>
       </Modal>
     </div>
   </div>

@@ -6,6 +6,7 @@ import { requestClient } from '#/api/request';
 
 // Model
 import type {
+  IdQuery,
   LiveAccount,
   LiveAccountCreate,
   LiveAccountDelete,
@@ -14,22 +15,40 @@ import type {
   OSSFileDelete,
   StanderResult,
 } from '#/types';
+import type { Content } from '#/types/IContent';
 import type { Customer } from '#/types/ICustomer';
-
 // Query
 
 // API
 enum CustomerApi {
   // 查询机构往来的小时播账户
   AgencyGetCustomer = '/agency/getallcustomers',
+  AllCustomers = '/super/allcustomers',
   CreateLiveAccount = 'createliveaccount',
   DeleteFile = 'deletefile',
-  DeleteLiveAccount = 'deleteliveaccount',
 
+  DeleteLiveAccount = 'deleteliveaccount',
+  GetCustomerById = '/queryById',
   GetFileList = 'getfilelist',
   GetLiveAccount = 'getliveaccount',
   UpdateLiveAccount = 'updateliveaccount',
   UploadFile = 'uploadfile',
+}
+
+function getCustomerById(id: number) {
+  const params: IdQuery = {
+    id,
+  };
+  return requestClient.get<StanderResult<Customer>>(
+    `${CustomerApi.GetCustomerById}`,
+    {
+      params,
+    },
+  );
+}
+
+function getAllCustomers() {
+  return requestClient.get<StanderResult<Customer[]>>(CustomerApi.AllCustomers);
 }
 
 function getLiveAccount() {
@@ -90,11 +109,25 @@ export const useCustomerStore = defineStore('customer-store', () => {
   // 存储机构往来的小时播账户
   const agencyCustomers = ref<StanderResult<Customer[]>>();
 
-  const agencyCustomerOptions = computed(() => {
-    return agencyCustomers.value?.data.map((item) => ({
+  const customerOptions = computed(() => {
+    return agencyCustomers.value?.data.map((item: Customer) => ({
       label: item.code,
       value: item.id,
     }));
+  });
+
+  const contentOptions = computed(() => {
+    return agencyCustomers.value?.data
+      .flatMap((item: Customer) => item.contents)
+      .map((item: Content) => {
+        if (item.liveaccount !== undefined) {
+          return {
+            label: `${item.liveaccount.name} - ${item.liveaccount.live_account}`,
+            value: item.id,
+          };
+        }
+        return { label: item.id.toString(), value: item.id };
+      });
   });
 
   async function getAgencyCustomers() {
@@ -104,10 +137,30 @@ export const useCustomerStore = defineStore('customer-store', () => {
     agencyCustomers.value = response;
   }
 
+  async function fetchAllCustomers() {
+    const response = await getAllCustomers();
+    agencyCustomers.value = response;
+  }
+
+  async function customerById(id: number) {
+    const customer = agencyCustomers.value?.data.find((item) => item.id === id);
+    if (customer === undefined) {
+      const response = await getCustomerById(id);
+      if (response.code === 200) {
+        agencyCustomers.value?.data.push(response.data);
+        return response.data;
+      }
+    }
+    return customer;
+  }
+
   return {
     $reset,
-    agencyCustomerOptions,
     agencyCustomers,
+    contentOptions,
+    customerById,
+    customerOptions,
+    fetchAllCustomers,
     getAgencyCustomers,
   };
 });
