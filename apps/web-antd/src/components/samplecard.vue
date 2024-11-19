@@ -71,7 +71,7 @@ const canEdit = computed(() => {
           </h2>
 
           <div class="mt-3 flex items-center space-x-4 text-sm">
-            <span class="text-gray-500">ID: {{ props.sample.id }}</span>
+            <span class="text-gray-500">ID: {{ props.sample.product_id }}</span>
             <div class="flex space-x-3">
               <a
                 class="transform text-blue-600 transition-colors hover:text-blue-800"

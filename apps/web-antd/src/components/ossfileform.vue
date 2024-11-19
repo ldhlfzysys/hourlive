@@ -73,10 +73,9 @@ const handleDrop = (e: DragEvent) => {
 
 const handleUpload = async () => {
   if (fileList.value.length === 0) return;
-
   for (const file of fileList.value) {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file.originFileObj);
 
     await ossFileStore.uploadFile({
       fileData: formData,

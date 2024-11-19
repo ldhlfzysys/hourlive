@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Empty } from 'ant-design-vue';
+import { Empty, Spin } from 'ant-design-vue';
 
 defineOptions({
   name: 'Empty',
@@ -8,16 +8,20 @@ defineOptions({
 withDefaults(
   defineProps<{
     description?: string;
+    loading?: boolean;
   }>(),
   {
     description: '暂无数据',
+    loading: false,
   },
 );
 </script>
 
 <template>
   <div class="empty-container">
-    <Empty :description="description" />
+    <Spin :spinning="loading">
+      <Empty :description="description" />
+    </Spin>
   </div>
 </template>
 

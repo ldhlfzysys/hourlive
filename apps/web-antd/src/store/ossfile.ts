@@ -1,7 +1,7 @@
 // base
 import { ref } from 'vue';
 
-import { message, notification } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -79,10 +79,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     removing.value = true;
     const result = await _deleteFile(file);
     if (result && result.success) {
-      notification.error({
-        description: '',
-        message: $t('success'),
-      });
+      message.success($t('success'));
     }
     removing.value = false;
   }

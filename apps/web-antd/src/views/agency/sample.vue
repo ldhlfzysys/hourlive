@@ -131,6 +131,7 @@ function onCustomerChange(value: any) {
         </RecycleScroller>
         <Empty
           v-else
+          :loading="sampleStore.sampleQueryLoading"
           class="flex-1"
           description="暂无样本数据，请选择客户或添加新样本"
         />
