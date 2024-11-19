@@ -59,6 +59,16 @@ export const useSampleStore = defineStore('sample-store', () => {
     q_size: 30,
   });
 
+  function clearSamples() {
+    samples.value = new Map();
+    sampleQuery.value = {
+      is_main: '-1',
+      q_id: -1,
+      q_order: 'desc',
+      q_size: 30,
+    };
+  }
+
   function $reset() {
     sampleQueryLoading.value = false;
     sampleUpdateLoading.value = false;
@@ -184,6 +194,7 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   return {
     $reset,
+    clearSamples,
     createSample,
     fetechProductInfo,
     makeCreate,

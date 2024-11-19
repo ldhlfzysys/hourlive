@@ -8,7 +8,6 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 import { useElementBounding } from '@vueuse/core';
 import { Button } from 'ant-design-vue';
 
-import Empty from '#/components/empty.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SampleForm from '#/components/sampleform.vue';
@@ -85,14 +84,14 @@ function onUpdate(
     <template #content>
       <div class="flex flex-1 flex-col">
         <RecycleScroller
-          v-if="sampleStore.sampleList.length > 0"
           ref="scroller"
           v-slot="{ item }"
           :emit-update="true"
-          :grid-items="2"
+          :grid-items="3"
           :item-secondary-size="itemWidth"
-          :item-size="230"
+          :item-size="100"
           :items="sampleStore.sampleList"
+          :loading="sampleStore.sampleQueryLoading"
           :page-mode="true"
           class="scroller"
           key-field="id"
@@ -103,11 +102,6 @@ function onUpdate(
         >
           <SampleCard :sample="item" />
         </RecycleScroller>
-        <Empty
-          v-else
-          class="flex-1"
-          description="暂无样品数据，点击上方按钮添加"
-        />
       </div>
       <SampleForm />
       <SampleKspForm />

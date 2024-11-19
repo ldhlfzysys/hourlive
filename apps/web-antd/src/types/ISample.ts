@@ -6,6 +6,8 @@ import type { Agency, Customer } from './IUser';
 export interface SampleQuery extends BaseQuery {
   is_main?: string;
   customer_id?: number;
+  ids?: number[];
+  content_ids?: number[];
 }
 
 export interface Sample {

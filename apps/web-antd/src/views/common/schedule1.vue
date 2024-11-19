@@ -9,10 +9,10 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
+import { useElementBounding } from '@vueuse/core';
 import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
-import Empty from '#/components/empty.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
@@ -25,6 +25,7 @@ import {
 } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import 'vue-cal/dist/vuecal.css';
 
 interface Event {
@@ -62,6 +63,16 @@ const isSuper = computed(() => {
 
 const isAgency = computed(() => {
   return userStore.userRoles.includes('agency');
+});
+
+const itemWidth = ref(300);
+const scroller = ref();
+
+const updateParts = ref({
+  viewEndIdx: 0,
+  viewStartIdx: 0,
+  visibleEndIdx: 0,
+  visibleStartIdx: 0,
 });
 
 const events = computed(() => {
@@ -180,6 +191,24 @@ function fetchCustomerData() {
   }
 }
 
+function onResize() {
+  const width = useElementBounding(scroller).width.value;
+  itemWidth.value = width / 3;
+  console.log('onResize', itemWidth.value);
+}
+
+function onUpdate(
+  viewStartIndex: number,
+  viewEndIndex: number,
+  visibleStartIndex: number,
+  visibleEndIndex: number,
+) {
+  updateParts.value.viewStartIdx = viewStartIndex;
+  updateParts.value.viewEndIdx = viewEndIndex;
+  updateParts.value.visibleStartIdx = visibleStartIndex;
+  updateParts.value.visibleEndIdx = visibleEndIndex;
+}
+
 // CalendarEvent
 function handleCellClick(event: any) {
   selectedDate.value = event.format('YYYY-MM-DD HH:00');
@@ -209,6 +238,12 @@ function handleEventClick(event: Event, e: MouseEvent) {
   const order = orderStore.orderById(event.id);
 
   if (order) {
+    sampleStore.clearSamples();
+    sampleStore.sampleQuery.content_ids = order.contents.map(
+      (content) => content.id,
+    );
+    sampleStore.sampleQuery.q_size = 100;
+    sampleStore.querySample();
     selectedEvent.value = {
       ...order,
       end: dayjs(event.end).format('MM/DD HH:mm'),
@@ -333,73 +368,80 @@ function handleDownload() {
       <Modal
         v-model:open="orderStore.showEventDetails"
         :title="$t('orderdetail')"
-        style="width: 70%; max-height: 500px; overflow-y: auto"
+        style="width: 75%; max-height: 500px; overflow-y: auto"
         @cancel="orderStore.showEventDetails = false"
       >
-        <Descriptions :column="3" bordered>
-          <DescriptionsItem :label="$t('id')">
-            {{ selectedEvent!.id }}
-          </DescriptionsItem>
-          <DescriptionsItem :label="$t('timeslot')">
-            {{ selectedEvent!.start }} - {{ selectedEvent!.end }}
-          </DescriptionsItem>
-          <DescriptionsItem :label="$t('agency')">
-            {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
-          </DescriptionsItem>
-          <DescriptionsItem :label="$t('customer')">
-            {{ selectedEvent!.customer?.code }}
-          </DescriptionsItem>
+        <div class="flex h-full flex-1 flex-col">
+          <Descriptions :column="3" bordered>
+            <DescriptionsItem :label="$t('id')">
+              {{ selectedEvent!.id }}
+            </DescriptionsItem>
+            <DescriptionsItem :label="$t('timeslot')">
+              {{ selectedEvent!.start }} - {{ selectedEvent!.end }}
+            </DescriptionsItem>
+            <DescriptionsItem :label="$t('agency')">
+              {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
+            </DescriptionsItem>
+            <DescriptionsItem :label="$t('customer')">
+              {{ selectedEvent!.customer?.code }}
+            </DescriptionsItem>
 
-          <DescriptionsItem :label="$t('content')" :span="3">
-            {{ selectedEvent!.contents[0].id }}
-          </DescriptionsItem>
+            <DescriptionsItem :label="$t('content')" :span="3">
+              {{ selectedEvent!.contents[0].id }}
+            </DescriptionsItem>
 
-          <DescriptionsItem :label="$t('content_text')" :span="3">
-            <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
-              <div
-                v-for="[key, value] in Object.entries(contentInfo)"
-                :key="key"
-                class="flex items-center"
-              >
-                <strong>{{ $t(key) }}: </strong>
-                <div class="ml-2" v-html="value"></div>
+            <DescriptionsItem :label="$t('content_text')" :span="3">
+              <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
+                <div
+                  v-for="[key, value] in Object.entries(contentInfo)"
+                  :key="key"
+                  class="flex items-center"
+                >
+                  <strong>{{ $t(key) }}: </strong>
+                  <div class="ml-2" v-html="value"></div>
+                </div>
               </div>
-            </div>
-          </DescriptionsItem>
+            </DescriptionsItem>
 
-          <DescriptionsItem :label="$t('liveaccount')" :span="3">
-            <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
-              <div
-                v-for="[key, value] in Object.entries(liveAccountInfo)"
-                :key="key"
-                class="flex items-center"
-              >
-                <strong>{{ $t(key) }}: </strong>
-                <div class="ml-2" v-html="value"></div>
+            <DescriptionsItem :label="$t('liveaccount')" :span="3">
+              <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
+                <div
+                  v-for="[key, value] in Object.entries(liveAccountInfo)"
+                  :key="key"
+                  class="flex items-center"
+                >
+                  <strong>{{ $t(key) }}: </strong>
+                  <div class="ml-2" v-html="value"></div>
+                </div>
               </div>
-            </div>
-          </DescriptionsItem>
-        </Descriptions>
+            </DescriptionsItem>
+          </Descriptions>
 
-        <RecycleScroller
-          v-if="sampleStore.sampleList.length > 0"
-          v-slot="{ item }"
-          :emit-update="true"
-          :grid-items="2"
-          :item-secondary-size="300"
-          :item-size="230"
-          :items="sampleStore.sampleList"
-          :page-mode="true"
-          class="scroller"
-          key-field="id"
-        >
-          <SampleCard :sample="item" />
-        </RecycleScroller>
-        <Empty
-          v-else
-          class="flex-1"
-          description="暂无样本数据，请选择客户或添加新样本"
-        />
+          <div
+            v-if="sampleStore.sampleList.length > 0"
+            class="flex h-full flex-1 flex-col"
+          >
+            <br />
+            <h1>{{ $t('sample') }}</h1>
+            <RecycleScroller
+              ref="scroller"
+              v-slot="{ item }"
+              :emit-update="true"
+              :grid-items="3"
+              :item-secondary-size="itemWidth"
+              :item-size="itemWidth * 0.8"
+              :items="sampleStore.sampleList"
+              :loading="sampleStore.sampleQueryLoading"
+              :page-mode="true"
+              class="scroller"
+              key-field="id"
+              @resize="onResize"
+              @update="onUpdate"
+            >
+              <SampleCard :sample="item" />
+            </RecycleScroller>
+          </div>
+        </div>
 
         <template #footer>
           <Button key="download" type="primary" @click="handleDownload">
