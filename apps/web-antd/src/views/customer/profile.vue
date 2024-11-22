@@ -9,10 +9,7 @@ import { Button, TabPane, Tabs } from 'ant-design-vue';
 
 import HourLivePage from '#/views/template/common.vue';
 
-// const TableItem = Table.Item;
-// const TableItemMeta = Table.Item.Meta;
-
-// 账号绑定 list
+// 账号绑定列表
 const accountBindList = ref([
   {
     avatar: 'ri:taobao-fill',
@@ -49,16 +46,18 @@ const accountBindList = ref([
 const userStore = useUserStore();
 const userInfo = ref<BasicUserInfo | null>(null);
 
+// 组件挂载时初始化
 onMounted(() => {
   initScripot();
   userInfo.value = userStore.getUserInfo();
   console.log(`userInfo : ${JSON.stringify(userInfo.value)}`);
 });
 
+// 处理绑定按钮点击事件
 const bindClick = (item) => {
   console.log(`bindClick : ${item.title}`);
-  // 飞书
   if (item.key === '4') {
+    // handleModalOpen();
     bindFeishu(item);
   }
 };
@@ -66,53 +65,49 @@ const bindClick = (item) => {
 const isListenerAdded = ref(false);
 const modalOpen = ref(false);
 const QRLoginObj = ref(null);
+
+// 处理飞书绑定
 const bindFeishu = (item) => {
   console.log('login');
-  // 清除登录容器中的内容，以便重新生成二维码
-  document.querySelector('#login_container').innerHTML = '';
+  const loginContainer = document.querySelector('#login_container');
+  if (loginContainer) {
+    loginContainer.innerHTML = '';
+  }
 
-  // 飞书
-  const client_id = 'cli_a79a51e6f9fb500d'; // 飞书应用的 client_id
-  const redirect_uri = 'http://localhost:9000/feishu/oauth/callbackQrcode'; // 飞书应用的 redirect_uri
-  // var userInfo = getUserInfo();
-  const state = userInfo.value?.userId; // 飞书应用的 state
-  const goto = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${
-    client_id
-  }&redirect_uri=${redirect_uri}&response_type=code&state=${state}`;
+  const client_id = 'cli_a79a51e6f9fb500d';
+  const redirect_uri = 'http://localhost:9000/feishu/oauth/callbackQrcode';
+  const state = userInfo.value?.userId;
+  const goto = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`;
 
   QRLoginObj.value = QRLogin({
     goto,
     height: '300',
     id: 'login_container',
-    style: 'width:500px;height:300px', // 可选的，二维码html标签的style属性
+    style: 'width:500px;height:300px',
     width: '500',
   });
 
+  // 处理消息事件
   const handleMessage = (event) => {
-    // 使用 matchOrigin 和 matchData 方法来判断 message 和来自的页面 url 是否合法
     if (
       QRLoginObj.value.matchOrigin(event.origin) &&
       QRLoginObj.value.matchData(event.data)
     ) {
       const loginTmpCode = event.data.tmp_code;
       console.log(`loginTmpCode : ${loginTmpCode}`);
-      // 在授权页面地址上拼接上参数 tmp_code，并跳转
-      // window.location.href = `${redirect_uri}&tmp_code=${loginTmpCode}`;
-
-      // 使用 window.open 在新窗口中打开链接
       const newWindow = window.open(
         `${goto}&temp_code=${loginTmpCode}`,
         '_blank',
       );
-      // 确保新窗口成功打开
       if (newWindow) {
-        newWindow.focus(); // 可选：将焦点移到新窗口
+        newWindow.focus();
       } else {
-        // 如果新窗口未能打开，可能是因为浏览器阻止了弹出窗口
         alert('请允许弹出窗口以继续操作。');
       }
     }
   };
+
+  // 添加消息事件监听器
   if (!isListenerAdded.value) {
     isListenerAdded.value = true;
     if (window.addEventListener !== undefined) {
@@ -124,52 +119,48 @@ const bindFeishu = (item) => {
 
   modalOpen.value = true;
 };
+
+// 初始化脚本
 const initScripot = () => {
   const script = document.createElement('script');
   script.src =
     'https://lf-package-cn.feishucdn.com/obj/feishu-static/lark/passport/qrcode/LarkSSOSDKWebQRCode-1.0.3.js';
   document.head.append(script);
 
-  // 监听脚本加载成事件
   script.addEventListener('load', () => {
     console.log('飞书 LarkSSOSDKWebQRCode 加载完成');
-    // 在这里可以调用库的 API
   });
 };
 
+// 处理模态框关闭
 const handleModalClose = () => {
   modalOpen.value = false;
-  // 将焦点返回到触发模态框的元素
   const triggerElement = document.querySelector('.focus-element');
   if (triggerElement) {
     (triggerElement as HTMLElement).focus();
   }
 };
 
+// 处理模态框打开
 const handleModalOpen = () => {
   modalOpen.value = true;
-  // 在模态框打开时，将焦点设置到模态框内的一个元素
-  setTimeout(() => {
-    const modalElement = document.querySelector('.modal-focus-element');
-    if (modalElement) {
-      (modalElement as HTMLElement).focus();
-    }
-  }, 0);
+  // setTimeout(() => {
+  //   const modalElement = document.querySelector('.modal-focus-element');
+  //   if (modalElement) {
+  //     (modalElement as HTMLElement).focus();
+  //   }
+  // }, 0);
+
+  // const modalElement = document.querySelector('.modal-focus-element');
+  // if (modalElement) {
+  //   (modalElement as HTMLElement).focus();
+  // }
 };
 </script>
 <template>
   <HourLivePage :content-overflow="true">
     <template #content>
-      <Tabs default-active-key="1">
-        <TabPane key="1" tab="基础信息">
-          <!-- 在这里添加基础信息的内容 -->
-          <div class="basic-info">
-            <!-- 示例内容 -->
-            <h2>用户基础信息</h2>
-            <p>姓名: {{ userInfo?.name }}</p>
-            <p>邮箱: {{ userInfo?.email }}</p>
-          </div>
-        </TabPane>
+      <Tabs default-active-key="2">
         <TabPane key="2" tab="账户绑定">
           <div class="account-bind-list">
             <div
@@ -193,6 +184,12 @@ const handleModalOpen = () => {
               </Button>
             </div>
           </div>
+          <!-- <div v-if="modalOpen" class="custom-modal">
+            <div class="custom-modal-content">
+              <span class="close" @click="handleModalClose">&times;</span>
+              <div id="login_container"></div>
+            </div>
+          </div> -->
           <div id="login_container"></div>
         </TabPane>
       </Tabs>
