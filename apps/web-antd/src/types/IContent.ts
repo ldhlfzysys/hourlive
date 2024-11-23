@@ -16,7 +16,7 @@ export interface AddSample {
 }
 
 export interface Content {
-  id: number;
+  id?: number;
   create_time?: string; // DateTime in ISO format
   update_time?: string; // DateTime in ISO format
   customer_id?: number;

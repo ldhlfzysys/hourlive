@@ -36,7 +36,8 @@ export const useContentStore = defineStore('content-store', () => {
   const contentLoading = ref(false);
   const contentCreateLoading = ref(false);
   const contentCreate = ref<Content>({
-    // 根据 Content 类型添加其他必要的初始字段
+    content_text: '',
+    liveaccount_id: undefined,
   });
   const addSample = ref<AddSample>({
     content_id: -1,
@@ -53,11 +54,13 @@ export const useContentStore = defineStore('content-store', () => {
 
   const showModal = ref(false);
   const showAddSamplesModal = ref(false);
+  const showDescModal = ref(false);
 
   function makeCreate() {
     showModal.value = true;
     contentCreate.value = {
-      // 根据 Content 类型添加其他必要的初始字段
+      content_text: '',
+      liveaccount_id: undefined,
     };
   }
   function makeUpdate(id: number) {
@@ -65,6 +68,14 @@ export const useContentStore = defineStore('content-store', () => {
     const sample = contents.value.get(id);
     if (sample) {
       contentCreate.value = sample;
+    }
+  }
+
+  function makeDescUpdate(id: number) {
+    showDescModal.value = true;
+    const content = contents.value.get(id);
+    if (content) {
+      contentCreate.value = content;
     }
   }
 
@@ -139,6 +150,7 @@ export const useContentStore = defineStore('content-store', () => {
       const res = await _updateContent(contentCreate.value);
       if (res && res.success && res.data.id) {
         showModal.value = false;
+        showDescModal.value = false;
         contents.value.set(res.data.id, res.data);
       } else {
         notification.error({
@@ -174,9 +186,11 @@ export const useContentStore = defineStore('content-store', () => {
     contents,
     createContent,
     makeCreate,
+    makeDescUpdate,
     makeUpdate,
     queryContent,
     showAddSamplesModal,
+    showDescModal,
     showModal,
     updateContent,
   };

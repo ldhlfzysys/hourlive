@@ -5,6 +5,7 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import { Button } from 'ant-design-vue';
 
 import ContentCard from '#/components/contentcard.vue';
+import ContentDescForm from '#/components/contentdescform.vue';
 import ContentForm from '#/components/contentform.vue';
 import Empty from '#/components/empty.vue';
 import { useContentStore, useLiveAccountStore } from '#/store';
@@ -48,7 +49,7 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="contentStore.showModal = true">
+      <Button type="primary" @click="contentStore.makeCreate()">
         {{ $t('createcontent') }}
       </Button>
     </template>
@@ -83,6 +84,7 @@ function onUpdate(
         />
       </div>
       <ContentForm />
+      <ContentDescForm />
     </template>
   </HourLivePage>
 </template>

@@ -40,6 +40,13 @@ const liveaccount = computed(() => {
         <p class="text-sm text-gray-600">
           {{ props.content.content_text }}
         </p>
+        <a
+          class="transform text-blue-600 transition-colors hover:text-blue-800"
+          href="#"
+          @click="contentStore.makeDescUpdate(props.content.id!)"
+        >
+          {{ $t('content_desc') }}
+        </a>
       </div>
       <Button
         class="min-w-[80px]"

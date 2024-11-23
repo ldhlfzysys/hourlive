@@ -3,100 +3,63 @@ import { $t } from '@vben/locales';
 
 import { Input, Modal, Select, SelectOption } from 'ant-design-vue';
 
-import { useLiveAccountStore } from '#/store';
+import { useContentStore, useLiveAccountStore } from '#/store';
 
 defineOptions({
   name: 'ContentForm',
 });
 
+const contentStore = useContentStore();
 const liveaccountStore = useLiveAccountStore();
 
 function handleOk() {
-  if (liveaccountStore.liveaccountCreate.id) {
-    liveaccountStore.updateLiveAccount();
+  if (contentStore.contentCreate.id) {
+    contentStore.updateContent();
   } else {
-    liveaccountStore.createLiveAccount();
+    contentStore.createContent();
   }
 }
 </script>
 
 <template>
   <Modal
-    v-model:open="liveaccountStore.showModal"
-    :confirm-loading="liveaccountStore.liveaccountCreateLoading"
+    v-model:open="contentStore.showModal"
+    :confirm-loading="contentStore.contentCreateLoading"
     :title="$t('create')"
     centered
     width="800px"
     @ok="handleOk"
   >
     <div class="overflow-hidden rounded-lg border bg-white shadow">
-      <div class="flex flex-row px-4 py-5 sm:px-6">
-        <Input
-          v-model:value="liveaccountStore.liveaccountCreate.name"
-          :placeholder="$t('shop_name')"
-          class="mr-3 text-lg font-medium leading-6 text-gray-900"
-        />
-        <Input
-          v-model:value="liveaccountStore.liveaccountCreate.code"
-          :placeholder="$t('shop_code')"
-          class="mt-1 max-w-2xl text-sm text-gray-500"
-        />
-      </div>
-      <div class="flex flex-row justify-between">
-        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('mobile') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.mobile"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('email') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.email"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
+      <div class="flex flex-col gap-4 p-6">
+        <!-- 内容文本 -->
+        <div class="flex flex-row items-center">
+          <span class="mr-2 w-24 text-sm font-medium text-gray-500">
+            {{ $t('content_text') }}
+          </span>
+          <Input
+            v-model:value="contentStore.contentCreate.content_text"
+            class="flex-1"
+          />
         </div>
 
-        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('live_account') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_account"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('live_uid') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_uid"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-        </div>
-
-        <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              <Select
-                v-model:value="liveaccountStore.liveaccountCreate.platform"
-                class="w-[100px]"
-              >
-                <SelectOption value="TikTok"> TikTok</SelectOption>
-                <SelectOption value="Shopee"> Shopee </SelectOption>
-              </Select>
-            </span>
-          </div>
+        <!-- 选择直播账号 -->
+        <div class="flex flex-row items-center">
+          <span class="mr-2 w-24 text-sm font-medium text-gray-500">
+            {{ $t('live_account') }}
+          </span>
+          <Select
+            v-model:value="contentStore.contentCreate.liveaccount_id"
+            class="flex-1"
+          >
+            <SelectOption
+              v-for="account in liveaccountStore.liveaccountList"
+              :key="account.id"
+              :value="account.id"
+            >
+              {{ account.name }}
+            </SelectOption>
+          </Select>
         </div>
       </div>
     </div>
