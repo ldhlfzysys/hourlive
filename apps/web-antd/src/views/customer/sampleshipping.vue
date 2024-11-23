@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import type { Sample } from '#/types/ISample';
 
-import { useSampleStore } from '#/store';
+import {
+  useAgencyStore,
+  useSampleShippingStore,
+  useSampleStore,
+} from '#/store';
 
 // @ts-ignore
 import { computed, onMounted, ref } from 'vue';
@@ -14,16 +18,15 @@ import HourLivePage from '#/views/template/common.vue';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const sampleStore = useSampleStore();
-
+const agencyStore = useAgencyStore();
+const sampleShippingStore = useSampleShippingStore();
 function getData() {
   sampleStore.querySample();
 }
 
-const modalVisible = ref(false);
 const targetKeys = ref<string[]>([]);
 function createShipping() {
-  console.log('createShipping');
-  modalVisible.value = true;
+  sampleShippingStore.showSampleShippingForm = true;
 }
 
 const searchValue = ref('');
@@ -35,6 +38,7 @@ function filterOption(inputValue: string, option: Sample) {
 
 onMounted(() => {
   sampleStore.querySample();
+  agencyStore.fetchAgency();
 });
 
 // 简化 handleSearch 函数
@@ -136,11 +140,7 @@ const selectedSamples = computed(() => {
           </template>
         </Transfer>
       </div>
-      <SampleShippingForm
-        v-model:visible="modalVisible"
-        :sample-list="selectedSamples"
-        receiver-address="123123"
-      />
+      <SampleShippingForm :sample-list="selectedSamples" />
     </template>
 
     <template #footer> </template>

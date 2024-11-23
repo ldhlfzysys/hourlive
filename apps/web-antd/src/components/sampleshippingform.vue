@@ -1,59 +1,74 @@
 <script setup>
-import { defineProps, ref } from 'vue';
+import { computed, defineProps, ref } from 'vue';
 
-import { Col, DatePicker, Form, Input, List, Modal, Row } from 'ant-design-vue';
+import {
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  List,
+  Modal,
+  Row,
+  Select,
+} from 'ant-design-vue';
 import dayjs from 'dayjs';
+
+import { useAgencyStore, useSampleShippingStore } from '#/store';
 
 defineOptions({
   name: 'SampleShippingForm',
 });
 
 const props = defineProps({
-  receiverAddress: {
-    required: true,
-    type: String,
-  },
   sampleList: {
     required: true,
     type: Array,
-  },
-  visible: {
-    required: true,
-    type: Boolean,
   },
 });
 
 const emit = defineEmits(['update:visible']);
 
-const formRef = ref();
+const agencyStore = useAgencyStore();
+const sampleShippingStore = useSampleShippingStore();
 
-const formState = ref({
-  logisticsCompany: '',
-  logisticsDate: dayjs(),
-  receiverAddress: props.receiverAddress,
-  sendDate: dayjs(),
-  sender: '',
-  trackingNumber: '',
+const selectedAgency = computed(() => {
+  console.log('update selected agency');
+
+  return agencyStore.agencyById(
+    sampleShippingStore.sampleShippingCreate.agency_id,
+  );
 });
 
+const shippingAddress = computed(() => {
+  if (selectedAgency.value) {
+    return selectedAgency.value.shippingaddress;
+  }
+  return [];
+});
+
+const formRef = ref();
+
 const rules = {
-  logisticsCompany: [{ message: '请输入物流公司', required: true }],
-  sender: [{ message: '请输入寄件人', required: true }],
-  trackingNumber: [{ message: '请输入物流单号', required: true }],
+  agency_id: [{ message: '请选择寄送机构', required: true }],
+  express_company: [{ message: '请输入物流公司', required: true }],
+  receiver_address: [{ message: '请选择收货地址', required: true }],
+  sender_name: [{ message: '请输入寄件人', required: true }],
+  tracking_number: [{ message: '请输入物流单号', required: true }],
 };
 
 const handleOk = async () => {
   try {
     await formRef.value.validate();
+    sampleShippingStore.createSampleShipping(props.sampleList);
     // 处理表单提交逻辑
-    emit('update:visible', false);
+    // emit('update:visible', false);
   } catch (error) {
     console.error('Validation failed:', error);
   }
 };
 
 const handleCancel = () => {
-  emit('update:visible', false);
+  sampleShippingStore.showSampleShippingForm = false;
 };
 
 const getTotalSamples = () => {
@@ -62,61 +77,107 @@ const getTotalSamples = () => {
 
 // 计算 Modal 宽度
 const modalWidth = `${Math.min(90, Math.max(800, window.innerWidth * 0.75))}px`;
+
+const handleAgencyChange = (value) => {
+  // 清空收货地址
+  sampleShippingStore.sampleShippingCreate.receiver_address = '';
+};
 </script>
 
 <template>
   <Modal
-    :open="props.visible"
+    :confirm-loading="sampleShippingStore.sampleShippingCreateLoading"
+    :open="sampleShippingStore.showSampleShippingForm"
     :style="{ top: '20px' }"
     title="创建包裹"
     width="90%"
     @cancel="handleCancel"
     @ok="handleOk"
   >
-    <Form ref="formRef" :model="formState" :rules="rules">
+    <Form
+      ref="formRef"
+      :model="sampleShippingStore.sampleShippingCreate"
+      :rules="rules"
+    >
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="物流时间" name="logisticsDate">
-            <DatePicker
-              v-model:value="formState.logisticsDate"
-              :default-value="dayjs()"
-              style="width: 100%"
-            />
+          <Form.Item label="选择寄送的机构" name="agency_id" required>
+            <Select
+              v-model:value="sampleShippingStore.sampleShippingCreate.agency_id"
+              @change="handleAgencyChange"
+            >
+              <Select.Option
+                v-for="agency in agencyStore.allAgency"
+                :key="agency.id"
+                :label="agency.name"
+                :value="agency.id"
+              >
+                {{ agency.name }}
+              </Select.Option>
+            </Select>
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="物流公司" name="logisticsCompany">
-            <Input v-model:value="formState.logisticsCompany" />
+          <Form.Item label="收获地址" name="receiver_address" required>
+            <Select
+              v-model:value="
+                sampleShippingStore.sampleShippingCreate.receiver_address
+              "
+              :custom-height="true"
+              :dropdown-match-select-width="false"
+              :style="{ width: '100%' }"
+            >
+              <Select.Option
+                v-for="address in shippingAddress ?? []"
+                :key="address.id"
+                :label="address.address"
+                :value="address.address"
+              >
+                <div class="address-option">{{ address.address }}</div>
+              </Select.Option>
+            </Select>
           </Form.Item>
         </Col>
       </Row>
 
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="物流单号" name="trackingNumber">
-            <Input v-model:value="formState.trackingNumber" />
+          <Form.Item label="物流公司" name="express_company" required>
+            <Input
+              v-model:value="
+                sampleShippingStore.sampleShippingCreate.express_company
+              "
+            />
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="寄件人" name="sender">
-            <Input v-model:value="formState.sender" />
+          <Form.Item label="物流单号" name="tracking_number" required>
+            <Input
+              v-model:value="
+                sampleShippingStore.sampleShippingCreate.tracking_number
+              "
+            />
           </Form.Item>
         </Col>
       </Row>
 
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="寄件时间" name="sendDate">
-            <DatePicker
-              v-model:value="formState.sendDate"
-              :default-value="dayjs()"
-              style="width: 100%"
+          <Form.Item label="寄件人" name="sender_name" required>
+            <Input
+              v-model:value="
+                sampleShippingStore.sampleShippingCreate.sender_name
+              "
             />
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="收货地址" name="receiverAddress">
-            <Input v-model:value="formState.receiverAddress" :disabled="true" />
+          <Form.Item label="寄送时间" name="sendDate">
+            <DatePicker
+              v-model:value="sampleShippingStore.sampleShippingCreate.send_time"
+              :default-value="dayjs()"
+              style="width: 100%"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -156,7 +217,7 @@ const modalWidth = `${Math.min(90, Math.max(800, window.innerWidth * 0.75))}px`;
 }
 
 .sample-scroll {
-  height: 50vh; /* 使用视窗高度的50% */
+  height: 50vh; /* 使用视���高度的50% */
   padding: 10px;
   overflow-y: auto;
   border: 1px solid #f0f0f0;
@@ -205,5 +266,38 @@ const modalWidth = `${Math.min(90, Math.max(800, window.innerWidth * 0.75))}px`;
 :deep(.ant-modal) {
   top: 5vh; /* Modal 距离顶部为屏幕高度的5% */
   padding-bottom: 0;
+}
+
+.address-option {
+  max-width: 500px;
+  padding: 8px 0;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+:deep(.ant-select-selector) {
+  height: auto !important;
+  padding: 4px 8px !important;
+}
+
+:deep(.ant-select-selection-search) {
+  height: auto !important;
+  line-height: 1.5 !important;
+}
+
+:deep(.ant-select-selection-item) {
+  height: auto !important;
+  min-height: 30px !important;
+  padding: 4px 8px !important;
+  line-height: 1.5 !important;
+  white-space: normal !important;
+}
+
+:deep(.ant-form-item-control-input) {
+  min-height: auto;
+}
+
+:deep(.ant-select-single .ant-select-selector) {
+  height: auto !important;
 }
 </style>

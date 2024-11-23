@@ -9,6 +9,7 @@ import { $t } from '#/locales';
 
 // types
 import type {
+  Sample,
   SampleShipping,
   SampleShippingQuery,
   StanderResult,
@@ -54,11 +55,13 @@ export const useSampleShippingStore = defineStore(
     });
 
     const showModal = ref(false);
+    const showSampleShippingForm = ref(false);
 
     function makeCreate() {
       showModal.value = true;
       sampleShippingCreate.value = {};
     }
+
     function makeUpdate(id: number) {
       showModal.value = true;
       const sample = sampleShippings.value.get(id);
@@ -118,12 +121,22 @@ export const useSampleShippingStore = defineStore(
       }
     }
 
-    async function createSampleShipping() {
+    async function createSampleShipping(samples: Sample[]) {
       try {
         sampleShippingCreateLoading.value = true;
-        const res = await _newSampleShipping(sampleShippingCreate.value);
+        // 只保留需要的字段
+        const simplifiedSamples = samples.map((sample) => ({
+          id: sample.id,
+          sample_count: sample.sample_count,
+        }));
+
+        const res = await _newSampleShipping({
+          ...sampleShippingCreate.value,
+          samples: simplifiedSamples,
+        });
+
         if (res && res.success && res.data.id) {
-          showModal.value = false;
+          showSampleShippingForm.value = false;
           sampleShippings.value.set(res.data.id, res.data);
         } else {
           notification.error({
@@ -169,6 +182,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingQuery,
       sampleShippings,
       showModal,
+      showSampleShippingForm,
       updateSampleShipping,
     };
   },
