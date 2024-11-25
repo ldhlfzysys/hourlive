@@ -35,6 +35,13 @@ interface Props {
             class="select-none text-[14px] text-gray-400"
           />
         </Tooltip>
+        <a
+          class="flex-1 text-end text-sm text-gray-400 transition-colors hover:text-gray-600"
+          href="https://mcn1fj4mlkm2.feishu.cn/mindnotes/J2Uzbv0acmYLDBnWoMJc3MHqnmd"
+          target="_blank"
+        >
+          {{ $t('guide_doc') }}
+        </a>
       </div>
     </template>
     <div>

@@ -61,7 +61,7 @@ const orderguide = computed(() => [
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header></template>
+    <template #header> </template>
 
     <template #content>
       <div class="flex flex-col p-3">
