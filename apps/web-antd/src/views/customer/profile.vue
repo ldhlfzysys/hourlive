@@ -1,13 +1,16 @@
 <script lang="ts" setup>
+// eslint-disable
 import type { UserInfo } from '@vben/types';
+
 
 import { computed, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
-import { Button, Input, message, Upload } from 'ant-design-vue';
+import { Button, Input, message, Modal, Upload } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
+import { useFeishuStore } from '#/store/feishu';
 import { useOSSFileStore } from '#/store/ossfile';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -50,6 +53,7 @@ const userStore = useUserStore();
 const userInfo = ref<UserInfo>({ avatar: '', username: '' });
 
 const ossFileStore = useOSSFileStore();
+const feishuStore = useFeishuStore();
 
 // 计算属性：头像URL
 const avatarSrc = computed(() => {
@@ -63,9 +67,11 @@ const avatarSrc = computed(() => {
 onMounted(() => {
   console.log('onMounted');
   initScripot();
-  // userInfo.value = authStore.fetchUserInfo() || {};
   userInfo.value = userStore.getUserInfo() || {};
-  console.log(`userInfo : ${JSON.stringify(userInfo.value)}`);
+  console.log(` onMounted userInfo : ${JSON.stringify(userInfo.value)}`);
+
+  // 查询绑定的飞书用户信息
+  feishuStore.queryBoundFeishuUser(userInfo.value.userId);
 });
 
 // 修改头像
@@ -94,10 +100,6 @@ const handleAvatarChange = async (info) => {
   }
 };
 
-// 修改名称
-const handleNameChange = (event) => {
-  userInfo.value.name = event.target.value;
-};
 
 // 处理绑定按钮点击事件
 const bindClick = (item) => {
@@ -153,7 +155,7 @@ const bindFeishu = (item) => {
     }
   };
 
-  // 添加消息事件监听器
+  // 添加息事件监听器
   if (!isListenerAdded.value) {
     isListenerAdded.value = true;
     if (window.addEventListener !== undefined) {
@@ -202,6 +204,24 @@ const handleModalOpen = () => {
   //   (modalElement as HTMLElement).focus();
   // }
 };
+
+const isEditModalOpen = ref(false);
+const tempUsername = ref('');
+
+// 打开编辑模态框
+const openEditModal = () => {
+  console.log(`输入更新的新名称: ${tempUsername.value}`);
+  tempUsername.value = userInfo.value.username;
+  isEditModalOpen.value = true;
+};
+
+// 保存用户名
+const saveUsername = () => {
+  console.log(`保存用户名: ${tempUsername.value}`);
+  userInfo.value.username = tempUsername.value;
+  isEditModalOpen.value = false;
+  authStore.updateUser({ username: tempUsername.value });
+};
 </script>
 <template>
   <HourLivePage :content-overflow="true">
@@ -215,12 +235,8 @@ const handleModalOpen = () => {
         >
           <img :src="avatarSrc" alt="avatar" class="avatar-img" />
         </Upload>
-        <Input
-          v-model="userInfo.username"
-          class="name-input"
-          placeholder="输入名称"
-          @change="handleNameChange"
-        />
+        <span>{{ userInfo.username || '默认名称' }}</span>
+        <Button class="edit-icon" @click="openEditModal">编辑</Button>
       </div>
       <div class="account-bind-list">
         <div
@@ -233,7 +249,13 @@ const handleModalOpen = () => {
           </div>
           <div class="details">
             <div class="title">{{ item.title }}</div>
-            <div class="description">{{ item.description }}</div>
+            <div class="description">
+              {{
+                item.key === '4' && feishuStore.feishuBind
+                  ? `绑定的飞书账户: ${feishuStore.feishuBind.name}`
+                  : item.description
+              }}
+            </div>
           </div>
           <Button class="focus-element" type="primary" @click="bindClick(item)">
             {{ item.extra }}
@@ -241,6 +263,14 @@ const handleModalOpen = () => {
         </div>
       </div>
       <div id="login_container"></div>
+      <!-- 模态框 -->
+      <Modal
+        v-model:visible="isEditModalOpen"
+        title="编辑名称"
+        @ok="saveUsername"
+      >
+        <Input v-model="tempUsername" placeholder="输入新名称" />
+      </Modal>
     </template>
   </HourLivePage>
 </template>
@@ -349,5 +379,33 @@ const handleModalOpen = () => {
 .name-input {
   font-size: 16px;
   width: 200px;
+}
+
+.edit-icon {
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #007bff;
+}
+
+.edit-icon:hover {
+  color: #0056b3;
+}
+
+.modal {
+  .ant-modal-content {
+    border-radius: 8px;
+  }
+  .ant-modal-header {
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .ant-modal-title {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .ant-modal-footer {
+    border-top: none;
+  }
 }
 </style>

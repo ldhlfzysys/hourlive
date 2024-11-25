@@ -129,3 +129,12 @@ export interface UserResetpassword {
   password: string; // base64 encoded
   password_confirm: string;
 }
+
+export interface UserUpdate {
+  password?: string; // Optional, max length 50
+  role_id?: number;
+  user_type?: number;
+  username?: string; // Optional, max length 50
+  mobile?: string; // Optional, max length 15
+  email?: string; // Optional, max length 100
+}

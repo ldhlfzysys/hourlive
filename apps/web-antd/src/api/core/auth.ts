@@ -1,4 +1,4 @@
-import type { LoginParams, RegisterParams, StanderResult, User } from '#/types';
+import type {LoginParams, RegisterParams, StanderResult, User, UserUpdate} from '#/types';
 
 import { baseRequestClient, requestClient } from '#/api/request';
 
@@ -29,6 +29,10 @@ export namespace AuthApi {
  */
 export async function registerApi(data: RegisterParams) {
   return requestClient.post<StanderResult<any>>('/user/register', data);
+}
+
+export async function updateUserApi(data: UserUpdate) {
+  return requestClient.post<StanderResult<any>>('/user/update_user', data);
 }
 
 /**

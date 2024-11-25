@@ -13,6 +13,7 @@ import type { StanderResult } from '#/types';
 enum FeishuApi {
   AUTH_LOGIN = '/feishu/authLogin',
   GET_APPID = '/feishu/getappid',
+  GET_BOUND_USER = '/feishu/get_bound_user',
 }
 
 async function getFeishuAppid() {
@@ -25,6 +26,17 @@ async function feishuAuthLogin(code: string) {
       code,
     },
   });
+}
+
+async function getBoundFeishuUser(userId: number) {
+  return requestClient.get<StanderResult<FeishuBindUser>>(
+    FeishuApi.GET_BOUND_USER,
+    {
+      params: {
+        userId,
+      },
+    },
+  );
 }
 
 export const useFeishuStore = defineStore('feishu-store', () => {
@@ -40,6 +52,9 @@ export const useFeishuStore = defineStore('feishu-store', () => {
   });
 
   const showModal = ref(false);
+
+  // 定义一个响应式对象来存储 FeishuBindUser
+  const feishuBind = ref<FeishuBindUser | null>(null);
 
   function makeCreate() {
     showModal.value = true;
@@ -96,13 +111,36 @@ export const useFeishuStore = defineStore('feishu-store', () => {
     }
   }
 
+  async function queryBoundFeishuUser(userId: number) {
+    try {
+      const res = await getBoundFeishuUser(userId);
+      if (res && res.success) {
+        // 存储查询到的 FeishuBindUser 对象
+        feishuBind.value = res.data;
+        console.log('Bound Feishu User:', feishuBind.value);
+      } else {
+        notification.error({
+          description: res.message,
+          message: $t('queryFail'),
+        });
+      }
+    } catch (error) {
+      notification.error({
+        description: error.message,
+        message: $t('queryFail'),
+      });
+    }
+  }
+
   return {
     $reset,
     authFeishuLogin,
+    feishuBind,
     feishuCreateLoading,
     feishuData,
     feishuLoading,
     makeCreate,
+    queryBoundFeishuUser,
     queryFeishuAppid,
     showModal,
   };

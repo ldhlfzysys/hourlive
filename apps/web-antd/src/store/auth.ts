@@ -1,7 +1,7 @@
 import type { LoginAndRegisterParams } from '@vben/common-ui';
 import type { UserInfo } from '@vben/types';
 
-import type { RegisterParams } from '#/types';
+import type { RegisterParams, UserUpdate } from '#/types';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -12,7 +12,7 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { getUserInfoApi, loginApi, registerApi } from '#/api';
+import { getUserInfoApi, loginApi, registerApi, updateUserApi } from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -193,6 +193,33 @@ export const useAuthStore = defineStore('auth', () => {
     return userInfo;
   }
 
+  async function updateUser(userData: Partial<UserUpdate>) {
+    try {
+      const result = await updateUserApi(userData);
+      if (result.success) {
+        const updatedUserInfo = await fetchUserInfo();
+        userStore.setUserInfo(updatedUserInfo);
+        notification.success({
+          description: $t('modifysuccess'),
+          duration: 3,
+          message: $t('user.updateSuccess'),
+        });
+      } else {
+        notification.error({
+          description: $t('updatefail'),
+          duration: 3,
+          message: $t('user.updateFailed'),
+        });
+      }
+    } catch {
+      notification.error({
+        description: $t('error'),
+        duration: 3,
+        message: $t('user.updateError'),
+      });
+    }
+  }
+
   function $reset() {
     loginLoading.value = false;
   }
@@ -206,5 +233,6 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     register,
     registerLoading,
+    updateUser,
   };
 });
