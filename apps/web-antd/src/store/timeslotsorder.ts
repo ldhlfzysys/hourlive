@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import type {
   CancelTimeSlot,
+  Content,
   OrderQuery,
+  SlotEvent,
   StanderResult,
+  TableInfo,
   TimeslotCreateInMany,
   TimeslotModel,
   TimeslotOrder,
@@ -16,6 +21,7 @@ import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
+import { useDownloaderStore, useOSSFileStore, useSampleStore } from '#/store';
 
 // 定义API端点的枚举
 enum TimeslotOrderApi {
@@ -68,6 +74,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   });
 
   const isEditing = ref(false);
+  const downloadLoading = ref(false);
   const timeslotOrders = ref<Map<number, TimeslotOrder>>(new Map());
 
   const orderById = computed(() => {
@@ -280,12 +287,167 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
   }
 
+  async function downloadTimeslotOrder(slot: SlotEvent) {
+    downloadLoading.value = true;
+    const order = slot;
+    const tableInfoList: TableInfo[] = [];
+    const content: Content = order.contents[0]!;
+    const liveaccount = content.liveaccount!;
+
+    const orderInfo: TableInfo = {
+      data: [
+        {
+          agency: order.agency,
+          content_id: `${liveaccount?.name}-${liveaccount?.live_account}`,
+          customer: order.customer,
+          id: order.id,
+          room_id: order.room_id,
+          timeslot: `${order.start} - ${order.end}`,
+        },
+      ],
+      title: [
+        $t('timeslotorder_id'),
+        $t('agency'),
+        $t('room_id'),
+        $t('customer'),
+        $t('content_id'),
+        $t('timeslot'),
+      ],
+    };
+    tableInfoList.push(orderInfo);
+
+    const liveInfo: TableInfo = {
+      data: [
+        {
+          content_id: content.id,
+          content_link: content.content_link,
+          content_text: content.content_text,
+          create_time: content.create_time,
+          customer_id: content.customer_id,
+          update_time: content.update_time,
+        },
+      ],
+      title: [
+        $t('content_id'),
+        $t('create_time'),
+        $t('update_time'),
+        $t('customer_id'),
+        $t('content_link'),
+        $t('content_text'),
+      ],
+    };
+    tableInfoList.push(liveInfo);
+
+    const liveAccountInfo: TableInfo = {
+      data: [
+        {
+          code: liveaccount.code,
+          create_time: liveaccount.create_time,
+          customer_id: liveaccount.customer_id,
+          live_account: liveaccount.live_account,
+          live_uid: liveaccount.live_uid,
+          liveaccount_id: liveaccount.id,
+          mobile: liveaccount.mobile,
+          name: liveaccount.name,
+          platform: liveaccount.platform,
+          update_time: liveaccount.update_time,
+        },
+      ],
+      title: [
+        $t('liveaccount_id'),
+        $t('create_time'),
+        $t('update_time'),
+        $t('name'),
+        $t('code'),
+        $t('platform'),
+        $t('live_account'),
+        $t('live_uid'),
+        $t('mobile'),
+        $t('customer_id'),
+      ],
+    };
+    tableInfoList.push(liveAccountInfo);
+    const all_samples: any[] = [];
+
+    for (const sample of useSampleStore().sampleList) {
+      if (Object.keys(sample.id!).length === 0) {
+        useOSSFileStore().currentProductId = sample.id!;
+        await useOSSFileStore().fetchFile();
+      }
+
+      const fileList = useOSSFileStore()
+        .getFileList(sample.id!)
+        .map((file) => {
+          return {
+            name: file[0],
+            path: file[1],
+          };
+        });
+
+      // let shipping_status : number = -1
+      // if (sample.agencys && sample.agencys.length > 0) {
+      //   shipping_status = 0;
+      // }
+      const sample_info: object = {
+        attachment: fileList,
+        customer_id: sample.customer_id!,
+        product_discount: sample.product_discount,
+        product_final_price: sample.product_final_price!,
+        product_image: sample.product_image,
+        product_ksp: sample.product_ksp,
+        product_link: sample.product_link,
+        product_name: sample.product_name,
+        product_script: sample.product_script,
+        product_srp: sample.product_srp,
+        sample_id: sample.id!,
+        shipping_status_text: '',
+      };
+
+      all_samples.push(sample_info);
+    }
+
+    const samplesInfo: TableInfo = {
+      data: all_samples,
+      imageColumns: [
+        {
+          columnIndex: 2,
+          key: 'product_image',
+        },
+      ],
+      title: [
+        $t('customer_id'),
+        $t('sample_id'),
+        $t('product_image'),
+        $t('product_name'),
+        $t('hourlive.info.repostatus'),
+        $t('product_srp'),
+        $t('product_final_price'),
+        $t('product_discount'),
+        $t('product_link'),
+        $t('product_ksp'),
+        $t('customscript'),
+        $t('scripfile'),
+      ],
+    };
+    tableInfoList.push(samplesInfo);
+
+    const download_name = `${order.room_id!}_${order.customer.code!}_${
+      liveaccount.name
+    }_${liveaccount.live_account}_${order.start}-${order.end}`;
+
+    await useDownloaderStore().downloadExcel(tableInfoList, download_name);
+
+    downloadLoading.value = false;
+  }
+
   return {
     $reset,
     confirmLoading,
     createTimeslotOrder,
     deleteOrders,
     deleteTimeslotOrders,
+    downloadLoading,
+    downloadTimeslotOrder,
     formState,
     generateTimeslots,
     isEditing,

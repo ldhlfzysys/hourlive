@@ -85,6 +85,10 @@ export const useOSSFileStore = defineStore('file-store', () => {
   商品脚本相关
   */
 
+  function getFileList(product_id: number) {
+    return Object.values(ossfiles.value[product_id] || {});
+  }
+
   async function showOSSFileModal(product_id: number) {
     showModal.value = true;
     currentProductId.value = product_id;
@@ -140,6 +144,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     currentProductId,
     fetchFile,
     fetching,
+    getFileList,
     ossfiles,
     removeFile,
     removing,

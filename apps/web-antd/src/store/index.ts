@@ -2,6 +2,7 @@ export * from './agency';
 export * from './auth';
 export * from './content';
 export * from './customer';
+export * from './downloader';
 export * from './feishu';
 export * from './liveaccount';
 export * from './ossfile';

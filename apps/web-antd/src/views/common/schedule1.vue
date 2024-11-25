@@ -1,6 +1,6 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import type { TimeslotModel, TimeslotOrder } from '#/types';
+import type { SlotEvent, TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref } from 'vue';
 import VueCal from 'vue-cal';
@@ -42,12 +42,6 @@ interface Event {
   draggable?: boolean; // Optional.
   deletable?: boolean; // optional - force undeletable when events are editable.
   resizable?: boolean; // optional - force unresizable when events are editable.
-}
-
-interface SlotEvent extends TimeslotOrder {
-  slotId: number;
-  start: string;
-  end: string;
 }
 
 // Data
@@ -193,8 +187,7 @@ function fetchCustomerData() {
 
 function onResize() {
   const width = useElementBounding(scroller).width.value;
-  itemWidth.value = width / 3;
-  console.log('onResize', itemWidth.value);
+  itemWidth.value = width / 2;
 }
 
 function onUpdate(
@@ -268,8 +261,8 @@ async function handleDeleteOrder() {
   });
 }
 
-function handleDownload() {
-  console.log('download');
+function disablePastDates(date: Date): boolean {
+  return dayjs(date).isBefore(dayjs(), 'day');
 }
 </script>
 
@@ -314,6 +307,7 @@ function handleDownload() {
           <div class="flex h-full flex-1 flex-col">
             <VueCal
               v-model:active-view="activeView"
+              :disable-dates="disablePastDates"
               :disable-views="['years', 'year']"
               :drag-to-create-event="false"
               :events="events"
@@ -367,8 +361,9 @@ function handleDownload() {
     <div v-if="selectedEvent">
       <Modal
         v-model:open="orderStore.showEventDetails"
+        :body-style="{ overflowY: 'auto', maxHeight: '500px' }"
         :title="$t('orderdetail')"
-        style="width: 75%; max-height: 500px; overflow-y: auto"
+        style="top: 10px; width: 85%"
         @cancel="orderStore.showEventDetails = false"
       >
         <div class="flex h-full flex-1 flex-col">
@@ -427,9 +422,9 @@ function handleDownload() {
               ref="scroller"
               v-slot="{ item }"
               :emit-update="true"
-              :grid-items="3"
+              :grid-items="2"
               :item-secondary-size="itemWidth"
-              :item-size="itemWidth * 0.8"
+              :item-size="240"
               :items="sampleStore.sampleList"
               :loading="sampleStore.sampleQueryLoading"
               :page-mode="true"
@@ -444,7 +439,15 @@ function handleDownload() {
         </div>
 
         <template #footer>
-          <Button key="download" type="primary" @click="handleDownload">
+          <Button
+            key="download"
+            :disabled="
+              sampleStore.sampleQueryLoading || orderStore.downloadLoading
+            "
+            :loading="orderStore.downloadLoading"
+            type="primary"
+            @click="orderStore.downloadTimeslotOrder(selectedEvent)"
+          >
             {{ $t('download') }}
           </Button>
           <Button
@@ -495,5 +498,11 @@ function handleDownload() {
 
 :deep(.vuecal__event-time) {
   display: none;
+}
+
+:deep(.vuecal__cell--disabled) {
+  color: #a0a0a0 !important; /* Gray text */
+  pointer-events: none; /* Disable click events */
+  background-color: #f0f0f0 !important; /* Light gray background */
 }
 </style>

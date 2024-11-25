@@ -52,6 +52,12 @@ export interface TimeslotOrder {
   subsidy_type: string;
 }
 
+export interface SlotEvent extends TimeslotOrder {
+  slotId: number;
+  start: string;
+  end: string;
+}
+
 export interface TimeslotOrderCreate {
   id?: number;
   room_id: number;
