@@ -45,6 +45,22 @@ function _fetchFile(product_id: number) {
   );
 }
 
+// 新增的 API 方法
+function _uploadAvatar(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return requestClient.post<StanderResult<string>>(
+    'oss/uploadavatar',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+}
+
 // store
 export const useOSSFileStore = defineStore('file-store', () => {
   // loading
@@ -107,6 +123,18 @@ export const useOSSFileStore = defineStore('file-store', () => {
     fetching.value = false;
   }
 
+  async function uploadAvatar(file: File) {
+    uploading.value = true;
+    const result = await _uploadAvatar(file);
+    if (result && result.success) {
+      message.success($t('success'));
+    } else {
+      message.error($t('upload_faild'));
+    }
+    uploading.value = false;
+    return result;
+  }
+
   return {
     $reset,
     currentProductId,
@@ -117,6 +145,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     removing,
     showModal,
     showOSSFileModal,
+    uploadAvatar,
     uploadFile,
     uploading,
   };

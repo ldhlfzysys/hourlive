@@ -36,6 +36,22 @@ export interface User {
   customer?: Customer;
   agency?: Agency;
   home?: string;
+  /**
+   * 用户姓名
+   */
+  name?: string;
+  /**
+   * 用户头像
+   */
+  avatar?: string;
+  /**
+   * 用户手机号
+   */
+  mobile?: string;
+  /**
+   * 用户邮箱
+   */
+  email?: string;
 }
 
 export interface LoginParams {

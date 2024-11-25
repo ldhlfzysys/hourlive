@@ -180,14 +180,14 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUserInfo() {
     const user = await getUserInfoApi();
     const userInfo: UserInfo = {
-      avatar: '',
+      avatar: user.data.avatar ?? '',
       desc: '',
       homePath: user.data.home ?? '',
       realName: user.data.account,
       roles: user.data.role.auths.map((item) => item.code),
       token: '',
       userId: user.data.id.toString(),
-      username: user.data.account,
+      username: user.data.name ?? user.data.account,
     };
     userStore.setUserInfo(userInfo);
     return userInfo;

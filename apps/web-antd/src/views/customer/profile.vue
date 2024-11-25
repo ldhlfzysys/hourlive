@@ -1,41 +1,43 @@
 <script lang="ts" setup>
-import type { BasicUserInfo } from '@vben/types';
+import type { UserInfo } from '@vben/types';
 
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
-import { Button, TabPane, Tabs } from 'ant-design-vue';
+import { Button, Input, message, Upload } from 'ant-design-vue';
 
+import { useAuthStore } from '#/store';
+import { useOSSFileStore } from '#/store/ossfile';
 import HourLivePage from '#/views/template/common.vue';
 
 // 账号绑定列表
 const accountBindList = ref([
+  // {
+  //   avatar: 'ri:taobao-fill',
+  //   color: '#ff4000',
+  //   description: '当前未绑定淘宝账号',
+  //   extra: '绑定',
+  //   key: '1',
+  //   title: '绑定淘宝',
+  // },
+  // {
+  //   avatar: 'fa-brands:alipay',
+  //   color: '#2eabff',
+  //   description: '当前未绑定支付宝账号',
+  //   extra: '绑定',
+  //   key: '2',
+  //   title: '绑定支付宝',
+  // },
+  // {
+  //   avatar: 'bi:tiktok',
+  //   description: '当前未绑定钉钉账号',
+  //   extra: '绑定',
+  //   key: '3',
+  //   title: '绑定钉钉',
+  // },
   {
-    avatar: 'ri:taobao-fill',
-    color: '#ff4000',
-    description: '当前未绑定淘宝账号',
-    extra: '绑定',
-    key: '1',
-    title: '绑定淘宝',
-  },
-  {
-    avatar: 'fa-brands:alipay',
-    color: '#2eabff',
-    description: '当前未绑定支付宝账号',
-    extra: '绑定',
-    key: '2',
-    title: '绑定支付宝',
-  },
-  {
-    avatar: 'bi:tiktok',
-    description: '当前未绑定钉钉账号',
-    extra: '绑定',
-    key: '3',
-    title: '绑定钉钉',
-  },
-  {
-    avatar: 'bi:tiktok',
+    avatar: 'ri:feishu-fill',
     description: '当前未绑定飞书账号',
     extra: '绑定',
     key: '4',
@@ -43,15 +45,59 @@ const accountBindList = ref([
   },
 ]);
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
-const userInfo = ref<BasicUserInfo | null>(null);
+const userInfo = ref<UserInfo>({ avatar: '', username: '' });
+
+const ossFileStore = useOSSFileStore();
+
+// 计算属性：头像URL
+const avatarSrc = computed(() => {
+  return (
+    userInfo.value.avatar ||
+    'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png'
+  );
+});
 
 // 组件挂载时初始化
 onMounted(() => {
+  console.log('onMounted');
   initScripot();
-  userInfo.value = userStore.getUserInfo();
+  // userInfo.value = authStore.fetchUserInfo() || {};
+  userInfo.value = userStore.getUserInfo() || {};
   console.log(`userInfo : ${JSON.stringify(userInfo.value)}`);
 });
+
+// 修改头像
+const handleAvatarChange = async (info) => {
+  const isImage = info.file.type.startsWith('image/');
+  const isLt1M = info.file.size / 1024 / 1024 < 1;
+
+  if (!isImage) {
+    message.error('文件格式不正确，请上传图片文件');
+    return;
+  }
+
+  if (!isLt1M) {
+    message.error('图片大小不能超过1MB');
+    return;
+  }
+
+  // 手动上传头像
+  try {
+    const result = await ossFileStore.uploadAvatar(info.file);
+    if (result && result.success) {
+      userInfo.value.avatar = result.data.avatar; // 假设后端返回新的头像URL
+    }
+  } catch (error) {
+    console.error('Avatar upload failed:', error);
+  }
+};
+
+// 修改名称
+const handleNameChange = (event) => {
+  userInfo.value.name = event.target.value;
+};
 
 // 处理绑定按钮点击事件
 const bindClick = (item) => {
@@ -160,39 +206,41 @@ const handleModalOpen = () => {
 <template>
   <HourLivePage :content-overflow="true">
     <template #content>
-      <Tabs default-active-key="2">
-        <TabPane key="2" tab="账户绑定">
-          <div class="account-bind-list">
-            <div
-              v-for="item in accountBindList"
-              :key="item.key"
-              class="account-item"
-            >
-              <div :style="{ color: item.color }" class="avatar">
-                <Icon :icon="item.avatar" />
-              </div>
-              <div class="details">
-                <div class="title">{{ item.title }}</div>
-                <div class="description">{{ item.description }}</div>
-              </div>
-              <Button
-                class="focus-element"
-                type="primary"
-                @click="bindClick(item)"
-              >
-                {{ item.extra }}
-              </Button>
-            </div>
+      <div class="user-profile">
+        <Upload
+          :before-upload="() => false"
+          :show-upload-list="false"
+          accept=".jpg, .jpeg, .png"
+          @change="handleAvatarChange"
+        >
+          <img :src="avatarSrc" alt="avatar" class="avatar-img" />
+        </Upload>
+        <Input
+          v-model="userInfo.username"
+          class="name-input"
+          placeholder="输入名称"
+          @change="handleNameChange"
+        />
+      </div>
+      <div class="account-bind-list">
+        <div
+          v-for="item in accountBindList"
+          :key="item.key"
+          class="account-item"
+        >
+          <div :style="{ color: item.color }" class="avatar">
+            <Icon :icon="item.avatar" />
           </div>
-          <!-- <div v-if="modalOpen" class="custom-modal">
-            <div class="custom-modal-content">
-              <span class="close" @click="handleModalClose">&times;</span>
-              <div id="login_container"></div>
-            </div>
-          </div> -->
-          <div id="login_container"></div>
-        </TabPane>
-      </Tabs>
+          <div class="details">
+            <div class="title">{{ item.title }}</div>
+            <div class="description">{{ item.description }}</div>
+          </div>
+          <Button class="focus-element" type="primary" @click="bindClick(item)">
+            {{ item.extra }}
+          </Button>
+        </div>
+      </div>
+      <div id="login_container"></div>
     </template>
   </HourLivePage>
 </template>
@@ -282,5 +330,24 @@ const handleModalOpen = () => {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.name-input {
+  font-size: 16px;
+  width: 200px;
 }
 </style>
