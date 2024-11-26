@@ -5,7 +5,7 @@ import { defineStore } from 'pinia';
 import { requestClient } from '#/api/request';
 
 // Model & Query
-import type { Agency, StanderResult } from '#/types';
+import type { Agency, AgencyHomeInfo, StanderResult } from '#/types';
 
 // Model
 
@@ -21,6 +21,10 @@ async function getAllAgency() {
   );
 }
 
+async function getAgencyHomeInfo() {
+  return requestClient.post<StanderResult<AgencyHomeInfo>>('home/agencyhome');
+}
+
 // Store
 export const useAgencyStore = defineStore('agency-store', () => {
   const allAgency = ref<Agency[]>([]);
@@ -30,6 +34,13 @@ export const useAgencyStore = defineStore('agency-store', () => {
       value: item.id,
     }));
   });
+
+  const agencyHomeInfo = ref<AgencyHomeInfo>();
+
+  async function fetchAgencyHomeInfo() {
+    const res = await getAgencyHomeInfo();
+    agencyHomeInfo.value = res.data;
+  }
 
   function roomsByAgencyIds(ids: number[]) {
     return allAgency.value
@@ -57,9 +68,11 @@ export const useAgencyStore = defineStore('agency-store', () => {
   return {
     $reset,
     agencyById,
+    agencyHomeInfo,
     agencyOptions,
     allAgency,
     fetchAgency,
+    fetchAgencyHomeInfo,
     roomOptionsByAgencyIds,
     roomsByAgencyIds,
   };

@@ -14,6 +14,15 @@ defineOptions({
   name: 'SampleKspForm',
 });
 
+const props = withDefaults(
+  defineProps<{
+    allowEdit?: boolean;
+  }>(),
+  {
+    allowEdit: false,
+  },
+);
+
 const editorRef = ref();
 const mode = ref('simple');
 
@@ -40,7 +49,8 @@ const handleOk = () => {
   <Modal
     v-model:visible="sampleStore.showKSPModal"
     :confirm-loading="sampleStore.sampleUpdateLoading"
-    :title="$t('save')"
+    :footer="allowEdit ? undefined : null"
+    :title="$t('product_ksp')"
     centered
     width="800px"
     @ok="handleOk"

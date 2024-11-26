@@ -12,6 +12,15 @@ defineOptions({
   name: 'OSSFileForm',
 });
 
+const props = withDefaults(
+  defineProps<{
+    allowEdit?: boolean;
+  }>(),
+  {
+    allowEdit: false,
+  },
+);
+
 const emit = defineEmits(['update:visible']);
 
 const ossFileStore = useOSSFileStore();
@@ -112,14 +121,12 @@ onMounted(async () => {
 <template>
   <Modal
     v-model:visible="ossFileStore.showModal"
-    :title="$t('文件管理')"
+    :footer="null"
+    :title="$t('scripfile')"
     :width="700"
     @cancel="handleCancel"
   >
-    <div v-if="canUpload" class="mb-6 flex items-center gap-4">
-      <!-- 左侧文件列表 -->
-
-      <!-- 中间上传区域 -->
+    <div v-if="canUpload && allowEdit" class="mb-6 flex items-center gap-4">
       <Upload.Dragger
         v-model:file-list="fileList"
         :before-upload="beforeUpload"
@@ -137,7 +144,6 @@ onMounted(async () => {
         </div>
       </Upload.Dragger>
 
-      <!-- 右侧上传按钮 -->
       <Button
         :disabled="fileList.length === 0"
         :loading="uploading"

@@ -296,5 +296,13 @@
   "guide_content_tooltip": "需要提供直播账号给机构或达人，同时创建一个场次，场次可以绑定直播账号和样品，下单时需要提供场次，这样机构或达人就可以在订单中通过场次找到直播账号和样品了",
   "guide_order_tooltip": "浏览闲时市场，选择适合您的小时播套餐并下单吧",
   "upload_faild": "上传失败",
-  "guide_doc": "详细文档"
+  "guide_doc": "详细文档",
+  "today_content": "今日场次",
+  "onroute_shipping": "进行中物流单",
+  "new_order": "未处理套餐",
+  "one_live": "场直播",
+  "one_order": "未处理小时播套餐订单",
+  "one_shipping": "未签收物流单",
+  "agency_shippings": "样品物流单",
+  "samplelist": "样品列表"
 }

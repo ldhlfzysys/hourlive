@@ -110,6 +110,12 @@ export interface Agency {
   shippingaddress?: ShippingAddress[];
 }
 
+export interface AgencyHomeInfo {
+  today_content: number;
+  onroute_shipping: number;
+  new_order: number;
+}
+
 export interface AgencyUpdate {
   id: number;
   name: string;

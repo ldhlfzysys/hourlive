@@ -101,7 +101,7 @@ function onUpdate(
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <SampleCard :sample="item" />
+          <SampleCard :allow-edit="true" :sample="item" />
         </RecycleScroller>
         <Empty
           v-else
@@ -109,9 +109,9 @@ function onUpdate(
           description="暂无样品数据，点击上方按钮添加"
         />
       </div>
-      <SampleForm />
-      <SampleKspForm />
-      <OSSFileForm />
+      <SampleForm :allow-edit="true" />
+      <SampleKspForm :allow-edit="true" />
+      <OSSFileForm :allow-edit="true" />
     </template>
 
     <!-- <template #footer> 123 </template> -->

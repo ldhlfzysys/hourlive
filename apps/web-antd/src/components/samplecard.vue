@@ -14,9 +14,15 @@ defineOptions({
   name: 'SampleCard',
 });
 
-const props = defineProps<{
-  sample: Sample;
-}>();
+const props = withDefaults(
+  defineProps<{
+    allowEdit?: boolean;
+    sample: Sample;
+  }>(),
+  {
+    allowEdit: false,
+  },
+);
 
 const sampleStore = useSampleStore();
 const userStore = useUserStore();
@@ -40,7 +46,7 @@ const type = computed(() => {
 });
 
 const canEdit = computed(() => {
-  return userStore.userRoles.includes('customer');
+  return userStore.userRoles.includes('customer') && props.allowEdit;
 });
 </script>
 
@@ -111,6 +117,17 @@ const canEdit = computed(() => {
           >
             {{ $t('edit') }}
           </Button>
+        </div>
+
+        <div
+          v-if="props.sample.sample_count && props.sample.sample_count > 0"
+          class="mt-auto"
+        >
+          <span
+            class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10"
+          >
+            {{ $t('sample_count') }}: {{ props.sample.sample_count }}
+          </span>
         </div>
       </div>
     </div>

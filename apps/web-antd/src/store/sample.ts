@@ -40,6 +40,8 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   const showKSPModal = ref(false);
 
+  const showSampleList = ref(false); // 控制样品列表显示
+
   // sample store
   const samples = ref<Map<number, Sample>>(new Map());
 
@@ -210,6 +212,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     sampleUpdateLoading,
     showKSPModal,
     showModal,
+    showSampleList,
     updateSample,
   };
 });

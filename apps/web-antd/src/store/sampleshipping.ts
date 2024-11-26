@@ -29,13 +29,19 @@ function _newSampleShipping(params: SampleShipping) {
   );
 }
 
-function _updateSampleShipping(params: SampleShipping) {
+function _agencyUpdate(params: SampleShipping) {
   return requestClient.post<StanderResult<SampleShipping>>(
-    'shipping/update',
+    'shipping/agencyupdate',
     params,
   );
 }
 
+function _customerUpdate(params: SampleShipping) {
+  return requestClient.post<StanderResult<SampleShipping>>(
+    'shipping/customerupdate',
+    params,
+  );
+}
 // store
 export const useSampleShippingStore = defineStore(
   'sampleshipping-store',
@@ -44,6 +50,7 @@ export const useSampleShippingStore = defineStore(
 
     const sampleShippingLoading = ref(false);
     const sampleShippingCreateLoading = ref(false);
+    const sampleShippingUpdateLoading = ref(false);
     const sampleShippingCreate = ref<SampleShipping>({});
     // liveaccounts
     const sampleShippings = ref<Map<number, SampleShipping>>(new Map());
@@ -72,6 +79,32 @@ export const useSampleShippingStore = defineStore(
 
     function contentById(id: number) {
       return sampleShippings.value.get(id);
+    }
+
+    async function agencyUpdate(sampleShipping: SampleShipping) {
+      try {
+        sampleShippingUpdateLoading.value = true;
+        const res = await _agencyUpdate(sampleShipping);
+        if (res && res.success && res.data.id) {
+          sampleShippings.value.set(res.data.id, res.data);
+          sampleShippingUpdateLoading.value = false;
+        }
+      } finally {
+        sampleShippingUpdateLoading.value = false;
+      }
+    }
+
+    async function customerUpdate(sampleShipping: SampleShipping) {
+      try {
+        sampleShippingUpdateLoading.value = true;
+        const res = await _customerUpdate(sampleShipping);
+        if (res && res.success && res.data.id) {
+          sampleShippings.value.set(res.data.id, res.data);
+          sampleShippingUpdateLoading.value = false;
+        }
+      } finally {
+        sampleShippingUpdateLoading.value = false;
+      }
     }
 
     // query
@@ -149,28 +182,12 @@ export const useSampleShippingStore = defineStore(
       }
     }
 
-    async function updateSampleShipping() {
-      try {
-        sampleShippingCreateLoading.value = true;
-        const res = await _updateSampleShipping(sampleShippingCreate.value);
-        if (res && res.success && res.data.id) {
-          showModal.value = false;
-          sampleShippings.value.set(res.data.id, res.data);
-        } else {
-          notification.error({
-            description: res.message,
-            message: $t('updatefail'),
-          });
-        }
-      } finally {
-        sampleShippingCreateLoading.value = false;
-      }
-    }
-
     return {
       $reset,
+      agencyUpdate,
       contentById,
       createSampleShipping,
+      customerUpdate,
       makeCreate,
       makeUpdate,
       querySampleShipping,
@@ -183,7 +200,6 @@ export const useSampleShippingStore = defineStore(
       sampleShippings,
       showModal,
       showSampleShippingForm,
-      updateSampleShipping,
     };
   },
 );

@@ -21,6 +21,16 @@ const viewMap = {
     name: 'AgencySample',
     path: '/agency/sample',
   },
+  agencyshippings: {
+    component: () => import('#/views/agency/shippings.vue'),
+    meta: {
+      affixTab: false,
+      icon: 'lucide:orders',
+      title: $t('agency_shippings'),
+    },
+    name: 'Shippings',
+    path: '/shippings',
+  },
   content: {
     component: () => import('#/views/customer/content.vue'),
     meta: {
@@ -133,6 +143,7 @@ const viewMap = {
     name: 'Schedule1',
     path: '/schedule1',
   },
+
   shippingaddress: {
     component: () => import('#/views/agency/shipppingaddress.vue'),
     meta: {
@@ -143,7 +154,6 @@ const viewMap = {
     name: 'ShippingAddress',
     path: '/shippingaddress',
   },
-
   shippings: {
     component: () => import('#/views/customer/shippings.vue'),
     meta: {

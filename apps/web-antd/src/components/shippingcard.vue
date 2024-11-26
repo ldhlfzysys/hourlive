@@ -1,11 +1,18 @@
 <script lang="ts" setup>
-import type { SampleShipping } from '#/types';
+import type { Sample, SampleShipping } from '#/types';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import { useAgencyStore, useSampleShippingStore } from '#/store';
+import { Button } from 'ant-design-vue';
+
+import SampleList from '#/components/samplelist.vue';
+import {
+  useAgencyStore,
+  useSampleShippingStore,
+  useSampleStore,
+} from '#/store';
 
 defineOptions({
   name: 'ShippingCard',
@@ -20,6 +27,10 @@ const agencyStore = useAgencyStore();
 const agency = computed(() => {
   return agencyStore.agencyById(props.sampleshipping.agency_id!);
 });
+
+const sampleStore = useSampleStore();
+
+const sampleArray = ref<Sample[]>(props.sampleshipping.samples || []);
 </script>
 
 <template>
@@ -49,13 +60,23 @@ const agency = computed(() => {
           }}
         </span>
       </div>
-      <!-- <Button 
-        type="primary" 
-        class="min-w-[80px]" 
-        @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
-      >
-        {{ $t('edit') }}
-      </Button> -->
+
+      <!-- 新增的按钮组 -->
+      <div class="flex items-center gap-3">
+        <a
+          class="cursor-pointer text-blue-600 hover:text-blue-800"
+          @click="sampleStore.showSampleList = true"
+        >
+          {{ $t('checksample') }}
+        </a>
+        <Button
+          class="min-w-[80px]"
+          type="primary"
+          @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
+        >
+          {{ $t('edit') }}
+        </Button>
+      </div>
     </div>
 
     <!-- 内容部分 -->
@@ -128,5 +149,8 @@ const agency = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- 添加 SampleList 组件 -->
+    <SampleList :samples="sampleArray" />
   </div>
 </template>
