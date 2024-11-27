@@ -14,7 +14,7 @@ defineOptions({
   name: 'SampleKspForm',
 });
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     allowEdit?: boolean;
   }>(),

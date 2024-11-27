@@ -77,7 +77,12 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
-        <Empty v-else class="flex-1" description="暂无物流数据" />
+        <Empty
+          v-else
+          :description="$t('empty_shipping_tip')"
+          :loading="sampleShippingStore.sampleShippingLoading"
+          class="flex-1"
+        />
       </div>
       <ShippingForm />
       <SampleKspForm />

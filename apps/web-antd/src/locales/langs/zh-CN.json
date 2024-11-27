@@ -304,5 +304,14 @@
   "one_order": "未处理小时播套餐订单",
   "one_shipping": "未签收物流单",
   "agency_shippings": "样品物流单",
-  "samplelist": "样品列表"
+  "samplelist": "样品列表",
+  "selectexpress": "请输入物流公司",
+  "inputsendername": "请输入寄件人",
+  "inputtracking": "请输入物流单号",
+  "total": "共",
+  "piece": "件",
+  "empty_sample_tip": "暂无样品数据，点击上方按钮添加",
+  "empty_liveaccount_tip": "暂无直播账号数据，点击添加",
+  "empty_content_tip": "暂无内容数据，点击上方按钮添加",
+  "empty_shipping_tip": "暂无物流数据"
 }

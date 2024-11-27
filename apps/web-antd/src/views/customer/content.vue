@@ -79,12 +79,13 @@ function onUpdate(
         </DynamicScroller>
         <Empty
           v-else
+          :description="$t('empty_content_tip')"
+          :loading="contentStore.contentLoading"
           class="flex-1"
-          description="暂无内容数据，点击上方按钮添加"
         />
       </div>
       <ContentForm />
-      <ContentDescForm />
+      <ContentDescForm :allow-edit="true" />
     </template>
   </HourLivePage>
 </template>

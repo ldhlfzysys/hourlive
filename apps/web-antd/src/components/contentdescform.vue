@@ -14,6 +14,15 @@ defineOptions({
   name: 'ContentDescForm',
 });
 
+withDefaults(
+  defineProps<{
+    allowEdit?: boolean;
+  }>(),
+  {
+    allowEdit: false,
+  },
+);
+
 const editorRef = ref();
 const mode = ref('simple');
 
@@ -41,6 +50,7 @@ const handleOk = () => {
   <Modal
     v-model:open="contentStore.showDescModal"
     :confirm-loading="contentStore.contentCreateLoading"
+    :footer="allowEdit ? undefined : null"
     :title="$t('save')"
     centered
     width="800px"

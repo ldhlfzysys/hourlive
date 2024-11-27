@@ -105,8 +105,9 @@ function onUpdate(
         </RecycleScroller>
         <Empty
           v-else
+          :description="$t('empty_sample_tip')"
+          :loading="sampleStore.sampleQueryLoading"
           class="flex-1"
-          description="暂无样品数据，点击上方按钮添加"
         />
       </div>
       <SampleForm :allow-edit="true" />

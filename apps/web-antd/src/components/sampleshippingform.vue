@@ -1,5 +1,6 @@
 <script setup>
 import { computed, defineProps, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import {
   Col,
@@ -48,12 +49,14 @@ const shippingAddress = computed(() => {
 
 const formRef = ref();
 
+const { t } = useI18n();
+
 const rules = {
-  agency_id: [{ message: '请选择寄送机构', required: true }],
-  express_company: [{ message: '请输入物流公司', required: true }],
-  receiver_address: [{ message: '请选择收货地址', required: true }],
-  sender_name: [{ message: '请输入寄件人', required: true }],
-  tracking_number: [{ message: '请输入物流单号', required: true }],
+  agency_id: [{ message: t('selectagency'), required: true }],
+  express_company: [{ message: t('selectexpress'), required: true }],
+  receiver_address: [{ message: t('select_shipping_address'), required: true }],
+  sender_name: [{ message: t('inputsendername'), required: true }],
+  tracking_number: [{ message: t('inputtracking'), required: true }],
 };
 
 const handleOk = async () => {
@@ -89,7 +92,7 @@ const handleAgencyChange = (value) => {
     :confirm-loading="sampleShippingStore.sampleShippingCreateLoading"
     :open="sampleShippingStore.showSampleShippingForm"
     :style="{ top: '20px' }"
-    title="创建包裹"
+    :title="t('createshipping')"
     width="90%"
     @cancel="handleCancel"
     @ok="handleOk"
@@ -101,7 +104,7 @@ const handleAgencyChange = (value) => {
     >
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="选择寄送的机构" name="agency_id" required>
+          <Form.Item :label="t('selectagency')" name="agency_id" required>
             <Select
               v-model:value="sampleShippingStore.sampleShippingCreate.agency_id"
               @change="handleAgencyChange"
@@ -118,7 +121,11 @@ const handleAgencyChange = (value) => {
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="收获地址" name="receiver_address" required>
+          <Form.Item
+            :label="t('shipping_address')"
+            name="receiver_address"
+            required
+          >
             <Select
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.receiver_address
@@ -142,7 +149,11 @@ const handleAgencyChange = (value) => {
 
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="物流公司" name="express_company" required>
+          <Form.Item
+            :label="t('express_company')"
+            name="express_company"
+            required
+          >
             <Input
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.express_company
@@ -151,7 +162,11 @@ const handleAgencyChange = (value) => {
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="物流单号" name="tracking_number" required>
+          <Form.Item
+            :label="t('tracking_number')"
+            name="tracking_number"
+            required
+          >
             <Input
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.tracking_number
@@ -163,7 +178,7 @@ const handleAgencyChange = (value) => {
 
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item label="寄件人" name="sender_name" required>
+          <Form.Item :label="t('sender_name')" name="sender_name" required>
             <Input
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.sender_name
@@ -172,9 +187,11 @@ const handleAgencyChange = (value) => {
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item label="寄送时间" name="sendDate">
+          <Form.Item :label="t('sender_time')" name="sendDate">
             <DatePicker
-              v-model:value="sampleShippingStore.sampleShippingCreate.send_time"
+              v-model:value="
+                sampleShippingStore.sampleShippingCreate.shipping_time
+              "
               :default-value="dayjs()"
               style="width: 100%"
             />
@@ -184,9 +201,10 @@ const handleAgencyChange = (value) => {
 
       <div class="sample-list">
         <h3>
-          寄送样品列表
+          {{ t('sampleinshipping') }}
           <span class="sample-summary">
-            ({{ sampleList.length }}种样品，共{{ getTotalSamples() }}件)
+            ({{ sampleList.length }}{{ t('sample') }}，{{ t('total')
+            }}{{ getTotalSamples() }}{{ t('piece') }})
           </span>
         </h3>
         <div class="sample-scroll">
@@ -217,7 +235,7 @@ const handleAgencyChange = (value) => {
 }
 
 .sample-scroll {
-  height: 50vh; /* 使用视���高度的50% */
+  height: 50vh; /* 使用视高度的50% */
   padding: 10px;
   overflow-y: auto;
   border: 1px solid #f0f0f0;
@@ -270,14 +288,14 @@ const handleAgencyChange = (value) => {
 
 .address-option {
   max-width: 500px;
-  padding: 8px 0;
+  padding: 4px 0;
   word-wrap: break-word;
   white-space: normal;
 }
 
 :deep(.ant-select-selector) {
   height: auto !important;
-  padding: 4px 8px !important;
+  padding: 2px 4px !important;
 }
 
 :deep(.ant-select-selection-search) {
@@ -287,9 +305,9 @@ const handleAgencyChange = (value) => {
 
 :deep(.ant-select-selection-item) {
   height: auto !important;
-  min-height: 30px !important;
-  padding: 4px 8px !important;
-  line-height: 1.5 !important;
+  min-height: 24px !important;
+  padding: 2px 4px !important;
+  line-height: 1.4 !important;
   white-space: normal !important;
 }
 

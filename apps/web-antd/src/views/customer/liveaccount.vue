@@ -77,7 +77,12 @@ function onUpdate(
             </DynamicScrollerItem>
           </template>
         </DynamicScroller>
-        <Empty v-else class="flex-1" description="暂无直播账号数据，点击添加" />
+        <Empty
+          v-else
+          :description="$t('empty_liveaccount_tip')"
+          :loading="liveaccountStore.liveaccountLoading"
+          class="flex-1"
+        />
       </div>
       <LiveAccountForm />
     </template>

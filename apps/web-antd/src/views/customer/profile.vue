@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-// eslint-disable
 import type { UserInfo } from '@vben/types';
 
-
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
 import { Button, Input, message, Modal, Upload } from 'ant-design-vue';
+import { Check, Mail, Pencil, Phone, QrCode, User, X } from 'lucide-vue-next';
 
 import { useAuthStore } from '#/store';
 import { useFeishuStore } from '#/store/feishu';
@@ -16,33 +15,11 @@ import HourLivePage from '#/views/template/common.vue';
 
 // 账号绑定列表
 const accountBindList = ref([
-  // {
-  //   avatar: 'ri:taobao-fill',
-  //   color: '#ff4000',
-  //   description: '当前未绑定淘宝账号',
-  //   extra: '绑定',
-  //   key: '1',
-  //   title: '绑定淘宝',
-  // },
-  // {
-  //   avatar: 'fa-brands:alipay',
-  //   color: '#2eabff',
-  //   description: '当前未绑定支付宝账号',
-  //   extra: '绑定',
-  //   key: '2',
-  //   title: '绑定支付宝',
-  // },
-  // {
-  //   avatar: 'bi:tiktok',
-  //   description: '当前未绑定钉钉账号',
-  //   extra: '绑定',
-  //   key: '3',
-  //   title: '绑定钉钉',
-  // },
   {
-    avatar: 'ri:feishu-fill',
+    color: '#3370ff',
     description: '当前未绑定飞书账号',
     extra: '绑定',
+    icon: 'Bird', // Lucide icon name for Feishu
     key: '4',
     title: '绑定飞书',
   },
@@ -50,7 +27,7 @@ const accountBindList = ref([
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const userInfo = ref<UserInfo>({ avatar: '', username: '' });
+const userInfo = ref<UserInfo>();
 
 const ossFileStore = useOSSFileStore();
 const feishuStore = useFeishuStore();
@@ -58,7 +35,7 @@ const feishuStore = useFeishuStore();
 // 计算属性：头像URL
 const avatarSrc = computed(() => {
   return (
-    userInfo.value.avatar ||
+    userInfo.value?.avatar ||
     'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png'
   );
 });
@@ -100,7 +77,6 @@ const handleAvatarChange = async (info) => {
   }
 };
 
-
 // 处理绑定按钮点击事件
 const bindClick = (item) => {
   console.log(`bindClick : ${item.title}`);
@@ -127,49 +103,69 @@ const bindFeishu = (item) => {
   const state = userInfo.value?.userId;
   const goto = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`;
 
-  QRLoginObj.value = QRLogin({
-    goto,
-    height: '300',
-    id: 'login_container',
-    style: 'width:500px;height:300px',
-    width: '500',
-  });
-
-  // 处理消息事件
-  const handleMessage = (event) => {
+  // 确保 DOM 元素存在后再初始化
+  nextTick(() => {
     if (
-      QRLoginObj.value.matchOrigin(event.origin) &&
-      QRLoginObj.value.matchData(event.data)
-    ) {
-      const loginTmpCode = event.data.tmp_code;
-      console.log(`loginTmpCode : ${loginTmpCode}`);
-      const newWindow = window.open(
-        `${goto}&temp_code=${loginTmpCode}`,
-        '_blank',
-      );
-      if (newWindow) {
-        newWindow.focus();
-      } else {
-        alert('请允许弹出窗口以继续操作。');
-      }
-    }
-  };
+      document.querySelector('#login_container') && // QRLoginObj.value = QRLogin({
+      //   goto,
+      //   height: '300',
+      //   id: 'login_container',
+      //   style: 'width:500px;height:300px',
+      //   width: '500',
+      // });
 
-  // 添加息事件监听器
-  if (!isListenerAdded.value) {
-    isListenerAdded.value = true;
-    if (window.addEventListener !== undefined) {
-      window.addEventListener('message', handleMessage, false);
-    } else if (window.attachEvent !== undefined) {
-      window.attachEvent('onmessage', handleMessage);
+      // 添加消息事件监听器
+      !isListenerAdded.value
+    ) {
+      const handleMessage = (event) => {
+        if (
+          QRLoginObj.value?.matchOrigin(event.origin) &&
+          QRLoginObj.value?.matchData(event.data)
+        ) {
+          const loginTmpCode = event.data.tmp_code;
+          console.log(`loginTmpCode : ${loginTmpCode}`);
+          const newWindow = window.open(
+            `${goto}&temp_code=${loginTmpCode}`,
+            '_blank',
+          );
+          if (newWindow) {
+            newWindow.focus();
+          }
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+      isListenerAdded.value = true;
+
+      // 保存清理函数
+      onBeforeUnmount(() => {
+        window.removeEventListener('message', handleMessage);
+        isListenerAdded.value = false;
+      });
     }
-  }
+  });
 
   modalOpen.value = true;
 };
 
+// 处理模态框关闭
+const handleModalClose = () => {
+  modalOpen.value = false;
+  // 清理二维码容器
+  const loginContainer = document.querySelector('#login_container');
+  if (loginContainer) {
+    loginContainer.innerHTML = '';
+  }
+  QRLoginObj.value = null;
+};
+
 // 初始化脚本
 const initScripot = () => {
+  // 检查是否已经加载过脚本
+  if (document.querySelector('script[src*="LarkSSOSDKWebQRCode"]')) {
+    return;
+  }
+
   const script = document.createElement('script');
   script.src =
     'https://lf-package-cn.feishucdn.com/obj/feishu-static/lark/passport/qrcode/LarkSSOSDKWebQRCode-1.0.3.js';
@@ -178,15 +174,6 @@ const initScripot = () => {
   script.addEventListener('load', () => {
     console.log('飞书 LarkSSOSDKWebQRCode 加载完成');
   });
-};
-
-// 处理模态框关闭
-const handleModalClose = () => {
-  modalOpen.value = false;
-  const triggerElement = document.querySelector('.focus-element');
-  if (triggerElement) {
-    (triggerElement as HTMLElement).focus();
-  }
 };
 
 // 处理模态框打开
@@ -222,190 +209,252 @@ const saveUsername = () => {
   isEditModalOpen.value = false;
   authStore.updateUser({ username: tempUsername.value });
 };
+
+// 表单验证
+const validateEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+  return regex.test(email);
+};
+
+const validatePhone = (phone: string) => {
+  const regex = /^1[3-9]\d{9}$/;
+  return regex.test(phone);
+};
+
+// 保存个人信息
+const saveUserInfo = async (field: string) => {
+  try {
+    const value = userForm.value[field];
+
+    // 表单验证
+    if (field === 'email' && !validateEmail(value)) {
+      message.error('请输入有效的邮箱地址');
+      return;
+    }
+    if (field === 'phone' && !validatePhone(value)) {
+      message.error('请输入有效的手机号');
+      return;
+    }
+
+    await authStore.updateUser({ [field]: value });
+    editState.value[field] = false;
+    message.success('保存成功');
+  } catch {
+    message.error('保存失败');
+  }
+};
+
+const userForm = ref({
+  email: '',
+  phone: '',
+  username: '',
+});
+
+const editState = ref({
+  email: false,
+  phone: false,
+  username: false,
+});
 </script>
 <template>
   <HourLivePage :content-overflow="true">
     <template #content>
-      <div class="user-profile">
-        <Upload
-          :before-upload="() => false"
-          :show-upload-list="false"
-          accept=".jpg, .jpeg, .png"
-          @change="handleAvatarChange"
-        >
-          <img :src="avatarSrc" alt="avatar" class="avatar-img" />
-        </Upload>
-        <span>{{ userInfo.username || '默认名称' }}</span>
-        <Button class="edit-icon" @click="openEditModal">编辑</Button>
-      </div>
-      <div class="account-bind-list">
-        <div
-          v-for="item in accountBindList"
-          :key="item.key"
-          class="account-item"
-        >
-          <div :style="{ color: item.color }" class="avatar">
-            <Icon :icon="item.avatar" />
+      <div class="mx-auto max-w-4xl space-y-6 p-6">
+        <!-- 个人信息卡片 -->
+        <div class="rounded-lg bg-white p-6 shadow-md">
+          <!-- 头像区域 -->
+          <div class="mb-8 flex justify-center">
+            <Upload
+              :before-upload="() => false"
+              :show-upload-list="false"
+              accept=".jpg, .jpeg, .png"
+              @change="handleAvatarChange"
+            >
+              <div class="group relative">
+                <img
+                  :src="avatarSrc"
+                  alt="avatar"
+                  class="h-32 w-32 rounded-full object-cover"
+                />
+                <div
+                  class="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                >
+                  <Pencil class="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </Upload>
           </div>
-          <div class="details">
-            <div class="title">{{ item.title }}</div>
-            <div class="description">
-              {{
-                item.key === '4' && feishuStore.feishuBind
-                  ? `绑定的飞书账户: ${feishuStore.feishuBind.name}`
-                  : item.description
-              }}
+
+          <!-- 个人信息表单 -->
+          <div class="space-y-4">
+            <!-- 用户名 -->
+            <div
+              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
+            >
+              <div class="flex items-center gap-2 text-gray-500">
+                <User class="h-5 w-5" />
+                <span>用户名</span>
+              </div>
+              <div class="flex items-center">
+                <template v-if="!editState.username">
+                  <span class="mr-3">{{ userForm.username }}</span>
+                  <Pencil
+                    class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
+                    @click="editState.username = true"
+                  />
+                </template>
+                <template v-else>
+                  <div class="flex items-center space-x-2">
+                    <Input
+                      v-model:value="userForm.username"
+                      class="w-48"
+                      @press-enter="saveUserInfo('username')"
+                    />
+                    <Check
+                      class="h-5 w-5 cursor-pointer text-green-500"
+                      @click="saveUserInfo('username')"
+                    />
+                    <X
+                      class="h-5 w-5 cursor-pointer text-red-500"
+                      @click="editState.username = false"
+                    />
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- 手机号 -->
+            <div
+              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
+            >
+              <div class="flex items-center gap-2 text-gray-500">
+                <Phone class="h-5 w-5" />
+                <span>手机号</span>
+              </div>
+              <div class="flex items-center">
+                <template v-if="!editState.phone">
+                  <span class="mr-3">{{ userForm.phone || '未设置' }}</span>
+                  <Pencil
+                    class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
+                    @click="editState.phone = true"
+                  />
+                </template>
+                <template v-else>
+                  <div class="flex items-center space-x-2">
+                    <Input
+                      v-model:value="userForm.phone"
+                      class="w-48"
+                      @press-enter="saveUserInfo('phone')"
+                    />
+                    <Check
+                      class="h-5 w-5 cursor-pointer text-green-500"
+                      @click="saveUserInfo('phone')"
+                    />
+                    <X
+                      class="h-5 w-5 cursor-pointer text-red-500"
+                      @click="editState.phone = false"
+                    />
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- 邮箱 -->
+            <div
+              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
+            >
+              <div class="flex items-center gap-2 text-gray-500">
+                <Mail class="h-5 w-5" />
+                <span>邮箱</span>
+              </div>
+              <div class="flex items-center">
+                <template v-if="!editState.email">
+                  <span class="mr-3">{{ userForm.email || '未设置' }}</span>
+                  <Pencil
+                    class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
+                    @click="editState.email = true"
+                  />
+                </template>
+                <template v-else>
+                  <div class="flex items-center space-x-2">
+                    <Input
+                      v-model:value="userForm.email"
+                      class="w-48"
+                      @press-enter="saveUserInfo('email')"
+                    />
+                    <Check
+                      class="h-5 w-5 cursor-pointer text-green-500"
+                      @click="saveUserInfo('email')"
+                    />
+                    <X
+                      class="h-5 w-5 cursor-pointer text-red-500"
+                      @click="editState.email = false"
+                    />
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
-          <Button class="focus-element" type="primary" @click="bindClick(item)">
-            {{ item.extra }}
-          </Button>
+        </div>
+
+        <!-- 账号绑定卡片 -->
+        <div class="rounded-lg bg-white p-6 shadow-md">
+          <h2 class="mb-6 text-lg font-medium">账号绑定</h2>
+          <div class="space-y-4">
+            <div
+              v-for="item in accountBindList"
+              :key="item.key"
+              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
+            >
+              <div class="flex items-center space-x-4">
+                <div
+                  :style="{ backgroundColor: `${item.color}10` }"
+                  class="flex h-10 w-10 items-center justify-center rounded-full"
+                >
+                  <component
+                    :is="item.icon"
+                    :style="{ color: item.color }"
+                    class="h-6 w-6"
+                  />
+                </div>
+                <div>
+                  <div class="font-medium">{{ item.title }}</div>
+                  <div class="text-sm text-gray-500">
+                    {{
+                      item.key === '4' && feishuStore.feishuBind
+                        ? `已绑定: ${feishuStore.feishuBind.name}`
+                        : item.description
+                    }}
+                  </div>
+                </div>
+              </div>
+              <Button
+                class="flex items-center gap-2"
+                ghost
+                type="primary"
+                @click="bindClick(item)"
+              >
+                <QrCode class="h-4 w-4" />
+                {{ feishuStore.feishuBind ? '重新绑定' : '绑定' }}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="login_container"></div>
-      <!-- 模态框 -->
+
+      <!-- 二维码弹窗 -->
       <Modal
-        v-model:visible="isEditModalOpen"
-        title="编辑名称"
-        @ok="saveUsername"
+        v-model:visible="modalOpen"
+        :destroy-on-close="true"
+        :footer="null"
+        title="扫码绑定飞书"
+        @cancel="handleModalClose"
       >
-        <Input v-model="tempUsername" placeholder="输入新名称" />
+        <div
+          id="login_container"
+          class="flex min-h-[300px] items-center justify-center"
+        ></div>
       </Modal>
     </template>
   </HourLivePage>
 </template>
-<style lang="less" scoped>
-.account-bind-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.account-item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.avatar {
-  font-size: 40px;
-  margin-right: 20px;
-}
-
-.details {
-  flex-grow: 1;
-}
-
-.title {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.description {
-  color: #888;
-  font-size: 14px;
-}
-
-.bind-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.bind-button:hover {
-  background-color: #0056b3;
-}
-
-.custom-modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.custom-modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 500px;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.avatar-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-right: 20px;
-  cursor: pointer;
-}
-
-.name-input {
-  font-size: 16px;
-  width: 200px;
-}
-
-.edit-icon {
-  margin-left: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  color: #007bff;
-}
-
-.edit-icon:hover {
-  color: #0056b3;
-}
-
-.modal {
-  .ant-modal-content {
-    border-radius: 8px;
-  }
-  .ant-modal-header {
-    background-color: #f9f9f9;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  .ant-modal-title {
-    font-weight: bold;
-    font-size: 16px;
-  }
-  .ant-modal-footer {
-    border-top: none;
-  }
-}
-</style>
