@@ -290,7 +290,11 @@ function disablePastDates(date: Date): boolean {
   <div>
     <HourLivePage :content-overflow="true">
       <template #header>
-        <div v-for="filter in availableFilters" :key="filter">
+        <div
+          v-for="filter in availableFilters"
+          :key="filter"
+          class="flex w-[full] flex-wrap"
+        >
           <SelectFilter
             v-if="filter === 'agency'"
             v-model="selectedAgencies"

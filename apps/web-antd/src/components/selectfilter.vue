@@ -14,7 +14,7 @@ defineOptions({
 const props = withDefaults(defineProps<SelectFilterProps>(), {
   mode: 'multiple',
   placeholder: '请选择',
-  width: 'w-[200px]',
+  width: 'min-w-[200px]',
 });
 
 const emit = defineEmits<{
@@ -59,7 +59,7 @@ function updateSelectedItems(
   <div class="m-4 flex items-start">
     <!-- rtl让文本从左边溢出;text-right让文本靠右排列 -->
     <span
-      class="mr-2 mt-1 w-[80px] whitespace-nowrap text-right font-bold"
+      class="mr-2 mt-1 whitespace-nowrap text-right font-bold"
       style="direction: rtl"
       >{{ title }}</span
     >
