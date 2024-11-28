@@ -6,6 +6,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import VueCal from 'vue-cal';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
+import { AccessControl, useAccess } from '@vben/access';
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
@@ -13,6 +14,7 @@ import { useElementBounding } from '@vueuse/core';
 import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
+import Empty from '#/components/empty.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
@@ -27,6 +29,8 @@ import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import 'vue-cal/dist/vuecal.css';
+
+const { hasAccessByRoles } = useAccess();
 
 interface Event {
   id: number;
@@ -51,13 +55,6 @@ const userStore = useUserStore();
 const customerStore = useCustomerStore();
 const sampleStore = useSampleStore();
 const contentStore = useContentStore();
-const isSuper = computed(() => {
-  return userStore.userRoles.includes('super');
-});
-
-const isAgency = computed(() => {
-  return userStore.userRoles.includes('agency');
-});
 
 const itemWidth = ref(300);
 const scroller = ref();
@@ -153,15 +150,6 @@ const localeStr = computed(() => {
   return i18n.global.locale.value.toLowerCase();
 });
 
-const availableFilters = computed(() => {
-  if (isSuper.value) {
-    return ['agency', 'room', 'customer', 'content'];
-  } else if (isAgency.value) {
-    return ['room', 'customer', 'content'];
-  }
-  return [];
-});
-
 const contentInfo = computed(() => {
   const content = selectedEvent.value?.contents[0];
   return {
@@ -198,9 +186,9 @@ onMounted(() => {
 });
 
 function fetchCustomerData() {
-  if (isSuper.value) {
+  if (hasAccessByRoles(['super'])) {
     useCustomerStore().fetchAllCustomers();
-  } else if (isAgency.value) {
+  } else if (hasAccessByRoles(['agency'])) {
     useCustomerStore().getAgencyCustomers();
   }
 }
@@ -230,7 +218,7 @@ function handleCellClick(event: any) {
   if (activeView.value === 'month') {
     activeView.value = 'day';
   } else {
-    if (isSuper.value) {
+    if (hasAccessByRoles(['super'])) {
       orderStore.isEditing = true;
       const initTiMeModel: TimeslotModel = {
         canEdit: true,
@@ -290,45 +278,44 @@ function disablePastDates(date: Date): boolean {
   <div>
     <HourLivePage :content-overflow="true">
       <template #header>
-        <div
-          v-for="filter in availableFilters"
-          :key="filter"
-          class="flex w-[full] flex-wrap"
-        >
-          <SelectFilter
-            v-if="filter === 'agency'"
-            v-model="selectedAgencies"
-            :options="agencyStore.agencyOptions"
-            :placeholder="$t('selectagency')"
-            :title="$t('agency')"
-          />
-          <SelectFilter
-            v-if="filter === 'room'"
-            v-model="selectedRooms"
-            :options="agencyStore.roomOptionsByAgencyIds(selectedAgencies)"
-            :placeholder="$t('selectroom')"
-            :title="$t('room')"
-          />
-          <SelectFilter
-            v-if="filter === 'customer'"
-            v-model="selectedCustomers"
-            :options="customerStore.customerOptions ?? []"
-            :placeholder="$t('selectcustomer')"
-            :title="$t('hourlive_account')"
-          />
-          <SelectFilter
-            v-if="filter === 'content'"
-            v-model="selectedContents"
-            :options="customerStore.contentOptions ?? []"
-            :placeholder="$t('selectcontent')"
-            :title="$t('content')"
-          />
+        <div class="flex w-[full] flex-wrap">
+          <AccessControl :codes="['super', 'customer']">
+            <SelectFilter
+              v-model="selectedAgencies"
+              :options="agencyStore.agencyOptions"
+              :placeholder="$t('selectagency')"
+              :title="$t('agency')"
+            />
+          </AccessControl>
+          <AccessControl :codes="['super', 'agency']">
+            <SelectFilter
+              v-model="selectedRooms"
+              :options="agencyStore.roomOptionsByAgencyIds(selectedAgencies)"
+              :placeholder="$t('selectroom')"
+              :title="$t('room')"
+            />
+            <SelectFilter
+              v-model="selectedCustomers"
+              :options="customerStore.customerOptions ?? []"
+              :placeholder="$t('selectcustomer')"
+              :title="$t('hourlive_account')"
+            />
+            <SelectFilter
+              v-model="selectedContents"
+              :options="customerStore.contentOptions ?? []"
+              :placeholder="$t('selectcontent')"
+              :title="$t('content')"
+            />
+          </AccessControl>
         </div>
       </template>
 
       <template #content>
         <div class="flex h-full flex-1 flex-row space-x-4">
-          <div class="flex h-full flex-1 flex-col">
+          <div
+            v-if="orderStore.timeslotOrderList.length > 0"
+            class="flex h-full flex-1 flex-col"
+          >
             <VueCal
               v-model:active-view="activeView"
               :disable-dates="disablePastDates"
@@ -346,6 +333,13 @@ function disablePastDates(date: Date): boolean {
               @event-click="handleEventClick"
             />
           </div>
+
+          <Empty
+            v-else
+            :loading="orderStore.timeslotOrderLoading"
+            class="flex-1"
+            description="暂无订单信息"
+          />
 
           <div
             v-if="orderStore.isEditing"
@@ -460,6 +454,13 @@ function disablePastDates(date: Date): boolean {
               <SampleCard :sample="item" />
             </RecycleScroller>
           </div>
+
+          <Empty
+            v-else
+            :loading="sampleStore.sampleQueryLoading"
+            class="flex-1"
+            description="暂无商品信息"
+          />
         </div>
 
         <template #footer>
@@ -474,15 +475,16 @@ function disablePastDates(date: Date): boolean {
           >
             {{ $t('download') }}
           </Button>
-          <Button
-            v-if="isSuper"
-            key="submit"
-            :loading="loading"
-            type="primary"
-            @click="handleDeleteOrder"
-          >
-            {{ $t('delete') }}
-          </Button>
+          <AccessControl :codes="['super']">
+            <Button
+              key="submit"
+              :loading="loading"
+              type="primary"
+              @click="handleDeleteOrder"
+            >
+              {{ $t('delete') }}
+            </Button>
+          </AccessControl>
         </template>
       </Modal>
     </div>
