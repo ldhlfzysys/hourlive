@@ -121,27 +121,26 @@ const viewMap = {
     name: 'Sampleshipping',
     path: '/sampleshipping',
   },
+  // schedule1: {
+  //   component: () => import('#/views/common/schedule1.vue'),
+  //   meta: {
+  //     affixTab: false,
+  //     icon: 'lucide:calendar',
+  //     // title: $t('schedule'),
+  //     title: 'schedule-x',
+  //   },
+  //   name: 'Schedule',
+  //   path: '/schedule',
+  // },
   schedule: {
     component: () => import('#/views/common/schedule.vue'),
     meta: {
       affixTab: false,
       icon: 'lucide:calendar',
-      // title: $t('schedule'),
-      title: 'schedule-x',
+      title: $t('schedule'),
     },
     name: 'Schedule',
     path: '/schedule',
-  },
-  schedule1: {
-    component: () => import('#/views/common/schedule1.vue'),
-    meta: {
-      affixTab: false,
-      icon: 'lucide:calendar',
-      // title: $t('schedule'),
-      title: 'vue-cal',
-    },
-    name: 'Schedule1',
-    path: '/schedule1',
   },
 
   shippingaddress: {

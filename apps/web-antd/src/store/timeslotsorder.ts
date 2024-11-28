@@ -81,8 +81,40 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     return (id: number) => timeslotOrders.value.get(id);
   });
 
+  const orderFilters = ref<{ key: string; value: number[] }[]>([]);
+
   const timeslotOrderList = computed(() => {
-    return [...timeslotOrders.value.entries()]
+    let orders = [...timeslotOrders.value.entries()];
+    if (orderFilters.value.length > 0) {
+      for (const filter of orderFilters.value) {
+        if (filter.key === 'agency') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.agency_id);
+          });
+        }
+        if (filter.key === 'room') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.room_id!);
+          });
+        }
+
+        if (filter.key === 'customer') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.customer_id);
+          });
+        }
+
+        if (filter.key === 'content') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return timeslotOrder.contents.some((content) => {
+              return filter.value.includes(content.id!);
+            });
+          });
+        }
+      }
+    }
+
+    return orders
       .sort(([keyA], [keyB]) => keyB - keyA)
       .map(([_, timeslotOrder]) => timeslotOrder);
   });
@@ -454,6 +486,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     makeOrders,
     modifyTimeslotOrder,
     orderById,
+    orderFilters,
     queryTimeslotOrder,
     showEventDetails,
     showModal,

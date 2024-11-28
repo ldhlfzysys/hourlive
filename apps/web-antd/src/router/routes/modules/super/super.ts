@@ -42,10 +42,10 @@ const routes: RouteRecordRaw[] = [
       order: -1,
       title: $t('schedule'),
     },
-    name: 'SuperSchedule1',
+    name: 'SuperSchedule',
     path: '/super',
 
-    children: [config.schedule1],
+    children: [config.schedule],
   },
 ];
 
