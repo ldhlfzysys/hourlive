@@ -16,11 +16,9 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 const streamerStore = useStreamerStore();
 
 onMounted(() => {
-  console.log('=====mounted=====');
   streamerStore.queryStreamer();
 });
 
-function onTop() {}
 function onBottom() {
   streamerStore.queryStreamer();
 }
@@ -51,9 +49,9 @@ function onUpdate(
       <Button
         style="margin-top: 10px; margin-bottom: 10px"
         type="primary"
-        @click="streamerStore.showModal = true"
+        @click="streamerStore.makeCreate()"
       >
-        新增
+        {{ $t('add_streamer') }}
       </Button>
     </template>
 
@@ -65,21 +63,23 @@ function onUpdate(
           :min-item-size="210"
           class="scroller"
           key-field="id"
+          @scroll-end="onBottom"
           @update="onUpdate"
         >
-          <DynamicScrollerItem
-            v-for="item in streamerStore.streamerList"
-            :key="item.id"
-            :index="item.id"
-            :item="item"
-          >
-            <div class="streamer-card-container">
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :active="active"
+              :data-index="index"
+              :item="item"
+              class="p-4 first:pt-4"
+            >
               <StreamerCard :streamer="item" />
-            </div>
-          </DynamicScrollerItem>
+            </DynamicScrollerItem>
+          </template>
         </DynamicScroller>
         <Empty
           v-else
+          :loading="streamerStore.streamerLoading"
           class="flex-1"
           description="暂无主播数据，点击上方按钮添加"
         />

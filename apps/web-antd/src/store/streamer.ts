@@ -1,9 +1,4 @@
-import type {
-  StanderResult,
-  Streamer,
-  StreamerCreate,
-  StreamerQuery,
-} from '#/types';
+import type { StanderResult, Streamer, StreamerQuery, Tag } from '#/types';
 
 import { computed, ref } from 'vue';
 
@@ -15,25 +10,30 @@ import { $t } from '#/locales';
 
 enum StreamerApi {
   CreateStreamer = 'streamer/create',
+  GetTags = 'streamer/gettags',
   QueryStreamer = 'streamer/query',
   UpdateStreamer = 'streamer/update',
 }
 
-function getAllStreamer(params?: StreamerQuery) {
+function _getAllStreamer(params?: StreamerQuery) {
   return requestClient.post<StanderResult<Streamer[]>>(
     StreamerApi.QueryStreamer,
     params,
   );
 }
 
-function newStreamer(params: StreamerCreate) {
+function _getAllTags() {
+  return requestClient.get<StanderResult<Tag[]>>(StreamerApi.GetTags);
+}
+
+function _newStreamer(params: Streamer) {
   return requestClient.post<StanderResult<Streamer>>(
     StreamerApi.CreateStreamer,
     params,
   );
 }
 
-function updateStreamer(params: Streamer) {
+function _updateStreamer(params: Streamer) {
   return requestClient.post<StanderResult<Streamer>>(
     StreamerApi.UpdateStreamer,
     params,
@@ -43,15 +43,12 @@ function updateStreamer(params: Streamer) {
 export const useStreamerStore = defineStore('streamer-store', () => {
   const streamerLoading = ref(false);
   const streamerCreateLoading = ref(false);
-  const streamerCreate = ref<StreamerCreate>({
-    account: '',
-    name: '',
-    password: '',
-  });
+  const streamerCreate = ref<Streamer>({});
 
   const isEditing = ref(false);
 
   const streamers = ref<Map<number, Streamer>>(new Map());
+  const tags = ref<Tag[]>([]);
 
   const streamerList = computed(() => {
     return [...streamers.value.entries()]
@@ -84,23 +81,38 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     streamers.value = new Map();
   }
 
+  function makeCreate() {
+    showModal.value = true;
+    if (streamerCreate.value.id) {
+      streamerCreate.value = {};
+    }
+  }
+
   async function queryStreamer() {
     try {
       streamerLoading.value = true;
-      const res = await getAllStreamer(streamerQuery.value);
+      const res = await _getAllStreamer(streamerQuery.value);
       if (res && res.success) {
-        if (res.data.length > 0) {
-          const lastStreamer = res.data.at(-1);
-          if (lastStreamer) {
-            streamerQuery.value.q_id = lastStreamer.id;
-          }
-        }
         res.data.forEach((streamer) => {
-          streamers.value.set(streamer.id, streamer);
+          if (streamer.id) {
+            streamers.value.set(streamer.id, streamer);
+          }
         });
       }
+      queryTags();
     } finally {
       streamerLoading.value = false;
+    }
+  }
+
+  async function queryTags() {
+    try {
+      const res = await _getAllTags();
+      if (res && res.success) {
+        tags.value = res.data;
+      }
+    } finally {
+      // streamerLoading.value = false;
     }
   }
 
@@ -115,15 +127,17 @@ export const useStreamerStore = defineStore('streamer-store', () => {
       }
       streamerCreateLoading.value = true;
 
-      const res = await newStreamer(streamerCreate.value);
-      if (res && res.success) {
+      if (Array.isArray(streamerCreate.value.tags)) {
+        // @ts-ignore 接口tags是number[]
+        streamerCreate.value.tags = streamerCreate.value.tags.map(
+          (tag) => tag.id,
+        );
+      }
+
+      const res = await _newStreamer(streamerCreate.value);
+      if (res && res.success && res.data.id) {
         streamers.value.set(res.data.id, res.data);
         showModal.value = false;
-        streamerCreate.value = {
-          account: '',
-          name: '',
-          password: '',
-        };
         notification.success({
           description: $t('新增主播成功'),
           message: $t('操作成功'),
@@ -139,11 +153,17 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     }
   }
 
-  async function modifyStreamer(updatedStreamer: Streamer) {
+  async function updateStreamer() {
     try {
       streamerLoading.value = true;
-      const res = await updateStreamer(updatedStreamer);
-      if (res && res.success) {
+      if (Array.isArray(streamerCreate.value.tags)) {
+        // @ts-ignore 接口tags是number[]
+        streamerCreate.value.tags = streamerCreate.value.tags.map(
+          (tag) => tag.id,
+        );
+      }
+      const res = await _updateStreamer(streamerCreate.value);
+      if (res && res.success && res.data.id) {
         if (res.data.hide === 1) {
           streamers.value.delete(res.data.id);
         } else {
@@ -165,8 +185,9 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     $reset,
     createStreamer,
     isEditing,
-    modifyStreamer,
+    makeCreate,
     queryStreamer,
+    queryTags,
     showModal,
     streamerCreate,
     streamerCreateLoading,
@@ -174,5 +195,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     streamerLoading,
     streamerQuery,
     streamers,
+    tags,
+    updateStreamer,
   };
 });

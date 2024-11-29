@@ -69,8 +69,8 @@ const handleAvatarChange = async (info) => {
   // 手动上传头像
   try {
     const result = await ossFileStore.uploadAvatar(info.file);
-    if (result && result.success) {
-      userInfo.value.avatar = result.data.avatar; // 假设后端返回新的头像URL
+    if (result && result.success && userInfo.value) {
+      userInfo.value.avatar = result.data; // 假设后端返回新的头像URL
     }
   } catch (error) {
     console.error('Avatar upload failed:', error);

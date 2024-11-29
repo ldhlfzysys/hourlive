@@ -152,6 +152,7 @@
   "submit": "提交",
   "createroom": "新增直播间",
   "createmember": "新增成员",
+  "editmember": "编辑成员",
   "fetch": "自动抓取",
   "update": "自动更新",
   "fetchMoreSample": "获取更多样品",
@@ -313,5 +314,6 @@
   "empty_sample_tip": "暂无样品数据，点击上方按钮添加",
   "empty_liveaccount_tip": "暂无直播账号数据，点击添加",
   "empty_content_tip": "暂无内容数据，点击上方按钮添加",
-  "empty_shipping_tip": "暂无物流数据"
+  "empty_shipping_tip": "暂无物流数据",
+  "add_streamer": "新增主播"
 }
