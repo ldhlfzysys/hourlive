@@ -84,14 +84,24 @@ const events = computed(() => {
 
       const agencyName = agencyStore.agencyById(order.agency_id)?.name;
 
-      allEvents.push({
-        background: true,
-        content: `
+      let content = '';
+      content =
+        selectedAgencies.value.length === 1
+          ? `
+         <div class="event-content">
+            <div>${$t('customer')}:${order.customer?.code}</div>
+          </div>
+        `
+          : `
          <div class="event-content">
             <div>${$t('agency')}:${agencyName}</div>
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
-        `,
+        `;
+
+      allEvents.push({
+        background: true,
+        content,
         deletable: false,
         draggable: false,
         end: `${timeslot.date} ${timeslot.end_time}`,
