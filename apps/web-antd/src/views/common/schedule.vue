@@ -4,18 +4,16 @@ import type { SlotEvent, TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
 import VueCal from 'vue-cal';
-import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { AccessControl, useAccess } from '@vben/access';
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { useElementBounding } from '@vueuse/core';
-import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
+import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import Empty from '#/components/empty.vue';
-import SampleCard from '#/components/samplecard.vue';
+import OrderDetailModal from '#/components/orderDeatailModal.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
 import {
@@ -55,16 +53,6 @@ const userStore = useUserStore();
 const customerStore = useCustomerStore();
 const sampleStore = useSampleStore();
 const contentStore = useContentStore();
-
-const itemWidth = ref(300);
-const scroller = ref();
-
-const updateParts = ref({
-  viewEndIdx: 0,
-  viewStartIdx: 0,
-  visibleEndIdx: 0,
-  visibleStartIdx: 0,
-});
 
 const events = computed(() => {
   const allEvents: Event[] = [];
@@ -127,7 +115,6 @@ const events = computed(() => {
   });
 });
 const selectedDate = ref('');
-const loading = ref(false);
 const activeView = ref('month');
 const selectedAgencies = ref([]);
 const selectedCustomers = ref([]);
@@ -160,34 +147,6 @@ const localeStr = computed(() => {
   return i18n.global.locale.value.toLowerCase();
 });
 
-const contentInfo = computed(() => {
-  const content = selectedEvent.value?.contents[0];
-  return {
-    content_desc: content?.content_desc,
-    content_link: content?.content_link,
-    content_text: content?.content_text,
-    create_time: content?.create_time,
-    customer_id: content?.customer_id,
-    update_time: content?.update_time,
-  };
-});
-
-const liveAccountInfo = computed(() => {
-  const liveAccount = selectedEvent.value?.contents[0]?.liveaccount;
-  return {
-    code: liveAccount?.code,
-    create_time: liveAccount?.create_time,
-    customer_id: liveAccount?.customer_id,
-    live_account: liveAccount?.live_account,
-    live_uid: liveAccount?.live_uid,
-    liveaccount_id: liveAccount?.id,
-    mobile: liveAccount?.mobile,
-    name: liveAccount?.name,
-    platform: liveAccount?.platform,
-    update_time: liveAccount?.update_time,
-  };
-});
-
 // Life Time
 onMounted(() => {
   useAgencyStore().fetchAgency();
@@ -201,23 +160,6 @@ function fetchCustomerData() {
   } else if (hasAccessByRoles(['agency'])) {
     useCustomerStore().getAgencyCustomers();
   }
-}
-
-function onResize() {
-  const width = useElementBounding(scroller).width.value;
-  itemWidth.value = width / 2;
-}
-
-function onUpdate(
-  viewStartIndex: number,
-  viewEndIndex: number,
-  visibleStartIndex: number,
-  visibleEndIndex: number,
-) {
-  updateParts.value.viewStartIdx = viewStartIndex;
-  updateParts.value.viewEndIdx = viewEndIndex;
-  updateParts.value.visibleStartIdx = visibleStartIndex;
-  updateParts.value.visibleEndIdx = visibleEndIndex;
 }
 
 // CalendarEvent
@@ -263,20 +205,6 @@ function handleEventClick(event: Event, e: MouseEvent) {
     };
     orderStore.showEventDetails = true;
   }
-}
-
-async function handleDeleteOrder() {
-  Modal.confirm({
-    onOk: async () => {
-      loading.value = true;
-      await orderStore.deleteOrders({
-        timeslot_ids: [selectedEvent.value!.slotId],
-        timeslotorder_id: selectedEvent.value!.id,
-      });
-      loading.value = false;
-    },
-    title: $t('confirmdelete'),
-  });
 }
 
 function disablePastDates(date: Date): boolean {
@@ -387,116 +315,7 @@ function disablePastDates(date: Date): boolean {
     </HourLivePage>
 
     <div v-if="selectedEvent">
-      <Modal
-        v-model:open="orderStore.showEventDetails"
-        :body-style="{ overflowY: 'auto', maxHeight: '500px' }"
-        :title="$t('orderdetail')"
-        style="top: 10px; width: 85%"
-        @cancel="orderStore.showEventDetails = false"
-      >
-        <div class="flex h-full flex-1 flex-col">
-          <Descriptions :column="3" bordered>
-            <DescriptionsItem :label="$t('id')">
-              {{ selectedEvent!.id }}
-            </DescriptionsItem>
-            <DescriptionsItem :label="$t('timeslot')">
-              {{ selectedEvent!.start }} - {{ selectedEvent!.end }}
-            </DescriptionsItem>
-            <DescriptionsItem :label="$t('agency')">
-              {{ agencyStore.agencyById(selectedEvent!.agency_id)?.name }}
-            </DescriptionsItem>
-            <DescriptionsItem :label="$t('customer')">
-              {{ selectedEvent!.customer?.code }}
-            </DescriptionsItem>
-
-            <DescriptionsItem :label="$t('content')" :span="3">
-              {{ selectedEvent!.contents[0].id }}
-            </DescriptionsItem>
-
-            <DescriptionsItem :label="$t('content_text')" :span="3">
-              <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
-                <div
-                  v-for="[key, value] in Object.entries(contentInfo)"
-                  :key="key"
-                  class="flex items-center"
-                >
-                  <strong>{{ $t(key) }}: </strong>
-                  <div class="ml-2" v-html="value"></div>
-                </div>
-              </div>
-            </DescriptionsItem>
-
-            <DescriptionsItem :label="$t('liveaccount')" :span="3">
-              <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
-                <div
-                  v-for="[key, value] in Object.entries(liveAccountInfo)"
-                  :key="key"
-                  class="flex items-center"
-                >
-                  <strong>{{ $t(key) }}: </strong>
-                  <div class="ml-2" v-html="value"></div>
-                </div>
-              </div>
-            </DescriptionsItem>
-          </Descriptions>
-
-          <div
-            v-if="sampleStore.sampleList.length > 0"
-            class="flex h-full flex-1 flex-col"
-          >
-            <br />
-            <h1>{{ $t('sample') }}</h1>
-            <RecycleScroller
-              ref="scroller"
-              v-slot="{ item }"
-              :emit-update="true"
-              :grid-items="2"
-              :item-secondary-size="itemWidth"
-              :item-size="240"
-              :items="sampleStore.sampleList"
-              :loading="sampleStore.sampleQueryLoading"
-              :page-mode="true"
-              class="scroller"
-              key-field="id"
-              @resize="onResize"
-              @update="onUpdate"
-            >
-              <SampleCard :sample="item" />
-            </RecycleScroller>
-          </div>
-
-          <Empty
-            v-else
-            :loading="sampleStore.sampleQueryLoading"
-            class="flex-1"
-            description="暂无商品信息"
-          />
-        </div>
-
-        <template #footer>
-          <Button
-            key="download"
-            :disabled="
-              sampleStore.sampleQueryLoading || orderStore.downloadLoading
-            "
-            :loading="orderStore.downloadLoading"
-            type="primary"
-            @click="orderStore.downloadTimeslotOrder(selectedEvent)"
-          >
-            {{ $t('download') }}
-          </Button>
-          <AccessControl :codes="['super']">
-            <Button
-              key="submit"
-              :loading="loading"
-              type="primary"
-              @click="handleDeleteOrder"
-            >
-              {{ $t('delete') }}
-            </Button>
-          </AccessControl>
-        </template>
-      </Modal>
+      <OrderDetailModal :event="selectedEvent" />
     </div>
   </div>
 </template>
