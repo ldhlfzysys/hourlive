@@ -1,5 +1,7 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
+import type { TimeslotModel } from '#/types';
+
 import { computed, onMounted, ref } from 'vue';
 
 import { $t } from '@vben/locales';
@@ -14,6 +16,8 @@ import {
   RangePicker,
   Select,
   Tag,
+  Timeline,
+  TimelineItem,
   TimeRangePicker,
 } from 'ant-design-vue';
 
@@ -77,6 +81,10 @@ function addTimeslot() {
 
 function deleteTimeslot(index: number) {
   orderStore.formState.timeslots!.splice(index, 1);
+}
+
+function generateTimelineText(timeslot: TimeslotModel) {
+  return `${timeslot.date.format('YYYY-MM-DD')}  ${timeslot.slot[0].format('HH:mm')} - ${timeslot.slot[1].format('HH:mm')}`;
 }
 </script>
 
@@ -161,11 +169,14 @@ function deleteTimeslot(index: number) {
             <br />
 
             <div>
-              <!-- <Timeline>
-                  <TimelineItem v-for="timeslot in orderStore.formState.timeslots">
-                    {{ timeslot.date.format('YYYY-MM-DD') }}  {{ timeslot.slot[0].format('HH:mm') }} - {{ timeslot.slot[1].format('HH:mm') }}
-                  </TimelineItem>
-                </Timeline> -->
+              <Timeline>
+                <TimelineItem
+                  v-for="(timeslot, index) in orderStore.formState.timeslots"
+                  :key="index"
+                >
+                  {{ generateTimelineText(timeslot) }}
+                </TimelineItem>
+              </Timeline>
             </div>
           </div>
 
