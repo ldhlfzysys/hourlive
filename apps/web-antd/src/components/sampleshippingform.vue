@@ -1,6 +1,7 @@
 <script setup>
 import { computed, defineProps, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+
+import { $t } from '@vben/locales';
 
 import {
   Col,
@@ -49,14 +50,14 @@ const shippingAddress = computed(() => {
 
 const formRef = ref();
 
-const { t } = useI18n();
-
 const rules = {
-  agency_id: [{ message: t('selectagency'), required: true }],
-  express_company: [{ message: t('selectexpress'), required: true }],
-  receiver_address: [{ message: t('select_shipping_address'), required: true }],
-  sender_name: [{ message: t('inputsendername'), required: true }],
-  tracking_number: [{ message: t('inputtracking'), required: true }],
+  agency_id: [{ message: $t('selectagency'), required: true }],
+  express_company: [{ message: $t('selectexpress'), required: true }],
+  receiver_address: [
+    { message: $t('select_shipping_address'), required: true },
+  ],
+  sender_name: [{ message: $t('inputsendername'), required: true }],
+  tracking_number: [{ message: $t('inputtracking'), required: true }],
 };
 
 const handleOk = async () => {
