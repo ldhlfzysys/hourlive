@@ -5,12 +5,20 @@ import { computed, ref } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { AccessControl } from '@vben/access';
+import { SvgShopeeIcon, SvgTiktokIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { useElementBounding } from '@vueuse/core';
-import { Button, Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
+import {
+  Button,
+  Descriptions,
+  DescriptionsItem,
+  Modal,
+  Tag,
+} from 'ant-design-vue';
 
 import Empty from '#/components/empty.vue';
+import OrderApendModal from '#/components/orderApendModal.vue';
 import SampleCard from '#/components/samplecard.vue';
 import { useAgencyStore, useSampleStore, useTimeslotOrderStore } from '#/store';
 
@@ -28,11 +36,14 @@ const agencyStore = useAgencyStore();
 const itemWidth = ref(300);
 const loading = ref(false);
 
+const maxHeight = computed(() => {
+  return window.innerHeight * 0.8;
+});
+
 const liveAccountInfo = computed(() => {
   const liveAccount = props.event.contents[0]?.liveaccount;
   return {
     code: liveAccount?.code,
-    create_time: liveAccount?.create_time,
     customer_id: liveAccount?.customer_id,
     live_account: liveAccount?.live_account,
     live_uid: liveAccount?.live_uid,
@@ -40,7 +51,6 @@ const liveAccountInfo = computed(() => {
     mobile: liveAccount?.mobile,
     name: liveAccount?.name,
     platform: liveAccount?.platform,
-    update_time: liveAccount?.update_time,
   };
 });
 
@@ -50,9 +60,7 @@ const contentInfo = computed(() => {
     content_desc: content?.content_desc,
     content_link: content?.content_link,
     content_text: content?.content_text,
-    create_time: content?.create_time,
     customer_id: content?.customer_id,
-    update_time: content?.update_time,
   };
 });
 
@@ -100,7 +108,7 @@ async function handleDeleteOrder() {
 <template>
   <Modal
     v-model:open="orderStore.showEventDetails"
-    :body-style="{ overflowY: 'auto', maxHeight: '500px' }"
+    :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
     :title="$t('orderdetail')"
     style="top: 10px; width: 85%"
     @cancel="orderStore.showEventDetails = false"
@@ -145,7 +153,20 @@ async function handleDeleteOrder() {
               class="flex items-center"
             >
               <strong>{{ $t(key) }}: </strong>
-              <div class="ml-2" v-html="value"></div>
+              <div v-if="key === 'platform'" class="ml-2">
+                <SvgTiktokIcon
+                  v-if="value?.toString().toLowerCase() === 'tiktok'"
+                  class="size-8"
+                />
+                <SvgShopeeIcon
+                  v-else-if="value?.toString().toLowerCase() === 'shopee'"
+                  class="size-8"
+                />
+                <Tag v-else>
+                  {{ value }}
+                </Tag>
+              </div>
+              <div v-else class="ml-2" v-html="value"></div>
             </div>
           </div>
         </DescriptionsItem>
@@ -195,6 +216,14 @@ async function handleDeleteOrder() {
         {{ $t('download') }}
       </Button>
       <AccessControl :codes="['super']">
+        <!-- <Button
+          key="submit"
+          type="primary"
+          @click="orderStore.showApendModal = true"
+        >
+          追加订单
+
+        </Button> -->
         <Button
           key="submit"
           :loading="loading"
@@ -206,4 +235,5 @@ async function handleDeleteOrder() {
       </AccessControl>
     </template>
   </Modal>
+  <OrderApendModal />
 </template>

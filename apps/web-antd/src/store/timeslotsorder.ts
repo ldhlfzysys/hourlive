@@ -122,6 +122,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const showModal = ref(false);
   const confirmLoading = ref(false);
   const showEventDetails = ref(false);
+  const showApendModal = ref(false);
   // const formRef = ref<FormInstance>();
 
   const formState = ref<TimeslotOrderFormState>({});
@@ -488,6 +489,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     orderById,
     orderFilters,
     queryTimeslotOrder,
+    showApendModal,
     showEventDetails,
     showModal,
     timeslotOrderCreate,

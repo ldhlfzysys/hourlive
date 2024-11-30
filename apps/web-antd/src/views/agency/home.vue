@@ -76,7 +76,7 @@ const agencyGuide = computed(() => [
               <div class="flex flex-col items-center py-4">
                 <span
                   class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
-                  @click="$router.push('/schedule1')"
+                  @click="$router.push('/schedule')"
                 >
                   {{ agencyStore.agencyHomeInfo?.today_content }}
                 </span>
