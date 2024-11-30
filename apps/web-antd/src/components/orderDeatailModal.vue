@@ -19,7 +19,9 @@ import {
 
 import Empty from '#/components/empty.vue';
 import OrderApendModal from '#/components/orderApendModal.vue';
+import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
+import SampleKspForm from '#/components/samplekspform.vue';
 import { useAgencyStore, useSampleStore, useTimeslotOrderStore } from '#/store';
 
 defineOptions({
@@ -195,6 +197,8 @@ async function handleDeleteOrder() {
         >
           <SampleCard :sample="item" />
         </RecycleScroller>
+        <OSSFileForm />
+        <SampleKspForm />
       </div>
 
       <Empty
