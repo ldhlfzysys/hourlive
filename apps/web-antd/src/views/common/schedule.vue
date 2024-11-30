@@ -73,16 +73,18 @@ const events = computed(() => {
 
       const agencyName = agencyStore.agencyById(order.agency_id)?.name;
 
+      const color = orderStore.getColor(order.id);
+
       let content = '';
       content =
         selectedAgencies.value.length === 1
           ? `
-         <div class="event-content">
+         <div class="event-content" style="background-color: ${color}">
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
         `
           : `
-         <div class="event-content">
+         <div class="event-content" style="background-color: ${color}">
             <div>${$t('agency')}:${agencyName}</div>
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
@@ -100,7 +102,7 @@ const events = computed(() => {
         start: `${timeslot.date} ${timeslot.start_time}`,
         title: `
           <div class="event-container">
-            <div class="flex justify-between items-center text-sm">
+            <div class="flex justify-between items-center text-sm" style="background-color: ${color}">
               <span style="font-size: 12px;margin-left: 10px;font-weight: 500;">${timeslot.start_time}-${timeslot.end_time}</span>
               <span style="font-size: 11px;margin-right: 10px;">ID:${order.id}</span>
             </div>

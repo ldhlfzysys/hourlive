@@ -63,6 +63,38 @@ function updateTimeslotOrder(params: TimeslotOrder) {
   );
 }
 
+const colorList = [
+  '#FDE6E0',
+  '#C7EDCC',
+  '#FAF9DE',
+  '#DCE2F1',
+  '#C7EDCC',
+  '#FFF2E2',
+  '#E0FFFF',
+  '#F0E68C',
+  '#AFEEEE',
+  '#88ADA6',
+  '#A1AFC9',
+  '#E4C6D0',
+  '#EEDEB0',
+  'FCEFE8',
+  '#D6ECF0',
+  '#E9E7EF',
+  '#EACD76',
+  '#F4A460',
+  '#D3D3D3',
+  '#D1C4CA',
+  '#CBB1AB',
+  '#B7D2BE',
+  '#E7DFEC',
+  '#EEE791',
+  '#E0FFFF',
+  '#CCCC99',
+  '#3399CC',
+  '#FF99CC',
+  'FFCC99',
+];
+
 // 定义Pinia store
 export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const timeslotOrderLoading = ref(false);
@@ -133,6 +165,18 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const showEventDetails = ref(false);
   const showApendModal = ref(false);
   // const formRef = ref<FormInstance>();
+
+  const colorMap = ref<Map<number, string>>(new Map());
+
+  const colorIndex = ref(0);
+
+  function getColor(id: number) {
+    if (!colorMap.value.has(id)) {
+      colorMap.value.set(id, colorList[colorIndex.value]!);
+      colorIndex.value = (colorIndex.value + 1) % colorList.length;
+    }
+    return colorMap.value.get(id)!;
+  }
 
   const canAppendOrder = computed(() => {
     return (
@@ -504,6 +548,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     downloadTimeslotOrder,
     formState,
     generateTimeslots,
+    getColor,
     isEditing,
     makeOrders,
     modifyTimeslotOrder,
