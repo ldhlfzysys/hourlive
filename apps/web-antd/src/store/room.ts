@@ -1,4 +1,12 @@
-import type { Room, RoomCreate, RoomQuery, StanderResult } from '#/types';
+import type {
+  CreateHardwareToRoom,
+  Hardware,
+  IdQuery,
+  Room,
+  RoomCreate,
+  RoomQuery,
+  StanderResult,
+} from '#/types';
 
 import { computed, ref } from 'vue';
 
@@ -10,40 +18,73 @@ import { $t } from '#/locales';
 
 // 定义API端点的枚举
 enum RoomApi {
+  CreateHardwareToRoom = 'room/create_hardware_to_room', // 创建硬件到直播间
   CreateRoom = 'room/create', // 创建直播间
+  DeleteHardwareFromRoom = 'room/delete_hardware', // 删除硬件从直播间
   DeleteRoom = 'room/delete', // 删除直播间
+  QueryHardware = 'room/query_hardware', // 查询硬件
+  QueryHardwareIds = 'room/query_hardware_ids', // 查询硬件ID
   QueryRoom = 'room/query', // 查询直播间
+  UpdateHardware = 'room/update_hardware', // 更新硬件
   UpdateRoom = 'room/update', // 更新直播间
 }
 
-// 获取所有直播间
-function getAllRooms(params?: RoomQuery) {
+// 将所有网络请求方法改为私有方法（添加下划线前缀）
+function _getAllRooms(params?: RoomQuery) {
   return requestClient.post<StanderResult<Room[]>>(RoomApi.QueryRoom, params);
 }
 
-// 创建新的直播间
-function newRoom(params: RoomCreate) {
+function _newRoom(params: RoomCreate) {
   return requestClient.post<StanderResult<Room>>(RoomApi.CreateRoom, params);
 }
 
-// 更新现有的直播间
-function updateRoom(params: Room) {
+function _updateRoom(params: Room) {
   return requestClient.post<StanderResult<Room>>(RoomApi.UpdateRoom, params);
 }
 
-// 删除直播间
-function deleteRoom(roomId: number) {
+function _deleteRoom(roomId: number) {
   return requestClient.post<StanderResult<null>>(RoomApi.DeleteRoom, {
     id: roomId,
   });
+}
+
+function _addHardwareToRoom(params: CreateHardwareToRoom) {
+  return requestClient.post<StanderResult<null>>(
+    RoomApi.CreateHardwareToRoom,
+    params,
+  );
+}
+
+function _deleteHardwareFromRoom(params: IdQuery) {
+  return requestClient.post<StanderResult<null>>(
+    RoomApi.DeleteHardwareFromRoom,
+    params,
+  );
+}
+
+function _queryHardware(roomId: number) {
+  return requestClient.post<StanderResult<Hardware[]>>(RoomApi.QueryHardware, {
+    room_id: roomId,
+  });
+}
+
+function _updateHardware(hardware: Hardware) {
+  return requestClient.post<StanderResult<Hardware>>(
+    RoomApi.UpdateHardware,
+    hardware,
+  );
 }
 
 // 定义Pinia store
 export const useRoomStore = defineStore('room-store', () => {
   const roomLoading = ref(false); // 加载状态
   const roomCreateLoading = ref(false); // 创建加载状态
+
   const roomCreate = ref<RoomCreate>({
     agency_id: -1,
+    name: '',
+  });
+  const hardwareCreate = ref<Hardware>({
     name: '',
   });
 
@@ -73,7 +114,6 @@ export const useRoomStore = defineStore('room-store', () => {
     roomLoading.value = false;
     roomCreateLoading.value = false;
     roomQuery.value.q_id = -1;
-
     roomQuery.value = {
       agency_id: -1,
       ids: [],
@@ -88,7 +128,7 @@ export const useRoomStore = defineStore('room-store', () => {
   async function queryRoom() {
     try {
       roomLoading.value = true;
-      const res = await getAllRooms(roomQuery.value);
+      const res = await _getAllRooms(roomQuery.value);
       if (res && res.success) {
         if (res.data.length > 0) {
           const lastRoom = res.data.at(-1);
@@ -117,7 +157,7 @@ export const useRoomStore = defineStore('room-store', () => {
       }
       roomCreateLoading.value = true;
 
-      const res = await newRoom(roomCreate.value);
+      const res = await _newRoom(roomCreate.value);
       if (res && res.success) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
@@ -145,7 +185,7 @@ export const useRoomStore = defineStore('room-store', () => {
   async function modifyRoom(updatedRoom: Room) {
     try {
       roomLoading.value = true;
-      const res = await updateRoom(updatedRoom);
+      const res = await _updateRoom(updatedRoom);
       if (res && res.success) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
@@ -164,7 +204,7 @@ export const useRoomStore = defineStore('room-store', () => {
   async function removeRoom(roomId: number) {
     try {
       roomLoading.value = true;
-      const res = await deleteRoom(roomId);
+      const res = await _deleteRoom(roomId);
       if (res && res.success) {
         rooms.value.delete(roomId);
         notification.success({
@@ -182,10 +222,70 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
+  // 删除硬件从房间
+  async function deleteHardwareFromRoom(params: IdQuery, roomId: number) {
+    try {
+      const res = await _deleteHardwareFromRoom(params);
+      if (res && res.success) {
+        const room = rooms.value.get(roomId);
+        if (room) {
+          // 创建新的硬件数组并重新赋值以确保响应式更新
+          const updatedHardwares = room.hardwares.filter(
+            (hardware) => hardware.id !== params.id,
+          );
+          // 创建新的room对象
+          const updatedRoom = {
+            ...room,
+            hardwares: updatedHardwares,
+          };
+          // 更新Map中的room
+          rooms.value.set(roomId, updatedRoom);
+        }
+      }
+    } catch (error) {
+      console.error('删除硬件从房间失败:', error);
+      notification.error({
+        description: '删除硬件从房间失败',
+        message: $t('删除失败'),
+      });
+    }
+  }
+  // 添加硬件到房间
+  async function createHardwareToRoom(params: CreateHardwareToRoom) {
+    try {
+      const res = await _addHardwareToRoom(params);
+      if (res && res.success && res.data) {
+        rooms.value.get(params.room_id)?.hardwares.push(res.data);
+        notification.success({
+          description: $t('添加硬件成功'),
+          message: $t('操作成功'),
+        });
+      } else {
+        notification.error({
+          description: res.message,
+          message: $t('添加失败'),
+        });
+      }
+    } catch (error) {
+      console.error('添加硬件到房间失败:', error);
+      notification.error({
+        description: '添加硬件到房间失败',
+        message: $t('添加失败'),
+      });
+    }
+  }
+
   // 返回store中的状态和方法
   return {
     $reset,
+    _addHardwareToRoom,
+    _queryHardware,
+    _updateHardware,
+    createHardwareToRoom,
     createRoom,
+    deleteHardwareFromRoom,
+
+    hardwareCreate,
     isEditing, // 确保在返回对象中包含 isEditing
     modifyRoom,
     queryRoom,
@@ -196,6 +296,7 @@ export const useRoomStore = defineStore('room-store', () => {
     roomLoading,
     roomQuery,
     rooms,
+
     showModal,
   };
 });

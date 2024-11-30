@@ -118,15 +118,20 @@ export const useCustomerStore = defineStore('customer-store', () => {
 
   const contentOptions = computed(() => {
     return agencyCustomers.value?.data
-      .flatMap((item: Customer) => item.contents)
+      .flatMap((item: Customer) => item?.contents || [])
+      .filter((item): item is Content => !!item)
       .map((item: Content) => {
-        if (item.liveaccount !== undefined) {
+        if (
+          item.liveaccount?.name &&
+          item.liveaccount?.live_account &&
+          item.id
+        ) {
           return {
             label: `${item.liveaccount.name} - ${item.liveaccount.live_account}`,
             value: item.id,
           };
         }
-        return { label: item.id.toString(), value: item.id };
+        return { label: String(item.id), value: item.id };
       });
   });
 

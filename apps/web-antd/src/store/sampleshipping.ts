@@ -86,7 +86,15 @@ export const useSampleShippingStore = defineStore(
         sampleShippingUpdateLoading.value = true;
         const res = await _agencyUpdate(sampleShipping);
         if (res && res.success && res.data.id) {
-          sampleShippings.value.set(res.data.id, res.data);
+          const existingShipping = sampleShippings.value.get(res.data.id);
+          if (existingShipping) {
+            Object.assign(existingShipping, {
+              delivery_approval: res.data.delivery_approval,
+              receiver_name: res.data.receiver_name,
+              receiver_time: res.data.receiver_time,
+              status: res.data.status,
+            });
+          }
           sampleShippingUpdateLoading.value = false;
         }
       } finally {
@@ -198,6 +206,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingLoading,
       sampleShippingQuery,
       sampleShippings,
+      sampleShippingUpdateLoading,
       showModal,
       showSampleShippingForm,
     };

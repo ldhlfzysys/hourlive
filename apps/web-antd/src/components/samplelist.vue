@@ -6,7 +6,6 @@ import { $t } from '@vben/locales';
 import { Modal } from 'ant-design-vue';
 
 import SampleCard from '#/components/samplecard.vue';
-import { useSampleStore } from '#/store/sample';
 
 defineOptions({
   name: 'SampleList',
@@ -14,6 +13,7 @@ defineOptions({
 
 // 定义props
 const props = defineProps<{
+  open: boolean;
   samples: Sample[];
 }>();
 
@@ -21,8 +21,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void;
 }>();
-
-const store = useSampleStore();
 
 // 处理Modal关闭
 function handleCancel() {
@@ -32,8 +30,8 @@ function handleCancel() {
 
 <template>
   <Modal
-    v-model:open="store.showSampleList"
     :footer="null"
+    :open="props.open"
     :title="$t('samplelist')"
     centered
     width="90%"

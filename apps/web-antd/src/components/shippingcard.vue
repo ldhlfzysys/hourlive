@@ -3,16 +3,14 @@ import type { Sample, SampleShipping } from '#/types';
 
 import { computed, ref } from 'vue';
 
+import { AccessControl, useAccess } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
 
+import ConfirmShippingForm from '#/components/confirmshippingform.vue';
 import SampleList from '#/components/samplelist.vue';
-import {
-  useAgencyStore,
-  useSampleShippingStore,
-  useSampleStore,
-} from '#/store';
+import { useAgencyStore, useSampleShippingStore } from '#/store';
 
 defineOptions({
   name: 'ShippingCard',
@@ -28,9 +26,18 @@ const agency = computed(() => {
   return agencyStore.agencyById(props.sampleshipping.agency_id!);
 });
 
-const sampleStore = useSampleStore();
-
 const sampleArray = ref<Sample[]>(props.sampleshipping.samples || []);
+
+// 添加本地状态来控制弹窗
+const showSampleList = ref(false);
+
+// 修改点击事件处理
+const handleShowSampleList = () => {
+  showSampleList.value = true;
+};
+
+const { hasAccessByRoles } = useAccess();
+const isAgency = computed(() => hasAccessByRoles(['agency']));
 </script>
 
 <template>
@@ -65,17 +72,20 @@ const sampleArray = ref<Sample[]>(props.sampleshipping.samples || []);
       <div class="flex items-center gap-3">
         <a
           class="cursor-pointer text-blue-600 hover:text-blue-800"
-          @click="sampleStore.showSampleList = true"
+          @click="handleShowSampleList"
         >
           {{ $t('checksample') }}
         </a>
-        <Button
-          class="min-w-[80px]"
-          type="primary"
-          @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
-        >
-          {{ $t('edit') }}
-        </Button>
+        <AccessControl :codes="['super', 'agency']">
+          <Button
+            :disabled="props.sampleshipping.delivery_approval === '1'"
+            class="min-w-[80px]"
+            type="primary"
+            @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
+          >
+            {{ isAgency ? $t('confirm_receipt') : $t('edit') }}
+          </Button>
+        </AccessControl>
       </div>
     </div>
 
@@ -150,7 +160,10 @@ const sampleArray = ref<Sample[]>(props.sampleshipping.samples || []);
       </div>
     </div>
 
-    <!-- 添加 SampleList 组件 -->
-    <SampleList :samples="sampleArray" />
+    <!-- 修改 SampleList 组件的使用 -->
+    <SampleList v-model:open="showSampleList" :samples="sampleArray" />
+
+    <!-- 添加 ConfirmShippingForm 组件 -->
+    <ConfirmShippingForm />
   </div>
 </template>

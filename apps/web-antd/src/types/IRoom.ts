@@ -8,6 +8,7 @@ export interface Room {
   name: string;
   agency_id: number;
   timeslots: Timeslot[];
+  hardwares: Hardware[];
 }
 
 export interface RoomCreate {
@@ -33,4 +34,22 @@ export interface RoomList {
 export interface RoomQuery extends BaseQuery {
   agency_id: number;
   ids: number[];
+}
+
+export interface Hardware {
+  id?: number;
+  name?: string;
+  image?: string;
+  room_id?: number;
+}
+
+export interface HardwareQuery extends BaseQuery {
+  agency_id: number;
+  room_id?: number;
+  ids?: number[];
+}
+
+export interface CreateHardwareToRoom {
+  room_id: number;
+  hardware: Hardware;
 }

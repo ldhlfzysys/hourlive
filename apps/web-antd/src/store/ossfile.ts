@@ -60,6 +60,21 @@ function _uploadAvatar(file: File) {
     },
   );
 }
+// 新增的 API 方法
+function _uploadHardware(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return requestClient.post<StanderResult<string>>(
+    'oss/uploadhardware',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+}
 
 // store
 export const useOSSFileStore = defineStore('file-store', () => {
@@ -138,6 +153,17 @@ export const useOSSFileStore = defineStore('file-store', () => {
     uploading.value = false;
     return result;
   }
+  async function uploadHardware(file: File) {
+    uploading.value = true;
+    const result = await _uploadHardware(file);
+    if (result && result.success) {
+      message.success($t('success'));
+    } else {
+      message.error($t('upload_faild'));
+    }
+    uploading.value = false;
+    return result;
+  }
 
   return {
     $reset,
@@ -152,6 +178,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     showOSSFileModal,
     uploadAvatar,
     uploadFile,
+    uploadHardware,
     uploading,
   };
 });

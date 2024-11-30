@@ -315,5 +315,8 @@
   "empty_liveaccount_tip": "暂无直播账号数据，点击添加",
   "empty_content_tip": "暂无内容数据，点击上方按钮添加",
   "empty_shipping_tip": "暂无物流数据",
-  "add_streamer": "新增主播"
+  "add_streamer": "新增主播",
+  "confirm_receipt": "确认收货",
+  "confirm_receipt_desc": "确认收货后，样品将进入在库状态",
+  "receiver": "收件人"
 }

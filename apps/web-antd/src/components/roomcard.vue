@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import type { Room } from '#/types';
+import type { CreateHardwareToRoom, Room } from '#/types';
 
 import { $t } from '@vben/locales';
 
-import { Button } from 'ant-design-vue';
+import { Button, message, Upload } from 'ant-design-vue';
+import { Plus, Trash2 } from 'lucide-vue-next';
 
-import { useRoomStore } from '#/store';
+import { useOSSFileStore, useRoomStore } from '#/store';
 
 defineOptions({
   name: 'RoomCard',
@@ -17,6 +18,8 @@ const props = defineProps<{
 
 const roomStore = useRoomStore();
 
+const ossFileStore = useOSSFileStore();
+
 function editRoom(id: number) {
   roomStore.showModal = true;
   roomStore.isEditing = true;
@@ -26,6 +29,52 @@ function editRoom(id: number) {
 function deleteRoom(id: number) {
   roomStore.removeRoom(id);
 }
+
+function deleteHardware(hardwareId: number) {
+  roomStore.deleteHardwareFromRoom(
+    {
+      id: hardwareId,
+    },
+    props.room.id,
+  );
+}
+
+const handleHardwareImageChange = async (info) => {
+  const isImage = info.file.type.startsWith('image/');
+  const isLt10M = info.file.size / 1024 / 1024 < 10;
+
+  if (!isImage) {
+    message.error('文件格式不正确，请上传图片文件');
+    return;
+  }
+
+  if (!isLt10M) {
+    message.error('图片大小不能超过10MB');
+    return;
+  }
+
+  try {
+    const result = await ossFileStore.uploadHardware(info.file);
+    if (result && result.success) {
+      // 创建新的硬件记录
+      const newHardware: CreateHardwareToRoom = {
+        hardware: {
+          image: result.data,
+          name: '新硬件',
+          room_id: props.room.id,
+        },
+        room_id: props.room.id,
+      };
+
+      await roomStore.createHardwareToRoom(newHardware);
+      // 重新获取该房间的硬件列表
+      // await roomStore.queryHardware(props.room.id);
+    }
+  } catch (error) {
+    console.error('图片上传失败:', error);
+    message.error('图片上传失败');
+  }
+};
 </script>
 
 <template>
@@ -62,26 +111,72 @@ function deleteRoom(id: number) {
     </div>
 
     <div class="p-6">
-      <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-gray-500">{{
-              $t('create_time')
-            }}</span>
-            <span class="text-sm text-gray-900">{{
-              props.room.create_time
-            }}</span>
+      <div class="overflow-x-auto">
+        <div class="flex gap-4 pb-2">
+          <div
+            v-for="hardware in props.room.hardwares"
+            :key="hardware.id"
+            class="group relative h-[120px] w-[120px] flex-shrink-0"
+          >
+            <div
+              class="absolute right-2 top-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            >
+              <div
+                class="cursor-pointer rounded-lg bg-white/90 p-1.5 shadow-sm hover:bg-red-50"
+                @click="deleteHardware(hardware.id)"
+              >
+                <Trash2 class="h-4 w-4 text-red-500" />
+              </div>
+            </div>
+            <img
+              v-if="hardware.image"
+              :alt="hardware.name"
+              :src="hardware.image"
+              class="h-full w-full rounded-lg object-cover"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center rounded-lg bg-gray-100"
+            >
+              <span class="text-sm text-gray-500">{{ hardware.name }}</span>
+            </div>
           </div>
-          <div class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-gray-500">{{
-              $t('update_time')
-            }}</span>
-            <span class="text-sm text-gray-900">{{
-              props.room.update_time
-            }}</span>
-          </div>
+
+          <Upload
+            :before-upload="() => false"
+            :show-upload-list="false"
+            accept=".jpg, .jpeg, .png"
+            @change="handleHardwareImageChange"
+          >
+            <div
+              class="flex h-[120px] w-[120px] flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 hover:border-blue-400"
+            >
+              <Plus class="h-6 w-6 text-gray-400" />
+              <div class="mt-2 text-sm text-gray-500">添加硬件</div>
+            </div>
+          </Upload>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.overflow-x-auto {
+  scrollbar-color: #d1d5db transparent;
+  scrollbar-width: thin;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
+}
+</style>
