@@ -220,14 +220,13 @@ async function handleDeleteOrder() {
         {{ $t('download') }}
       </Button>
       <AccessControl :codes="['super']">
-        <!-- <Button
+        <Button
           key="submit"
           type="primary"
           @click="orderStore.showApendModal = true"
         >
-          追加订单
-
-        </Button> -->
+          {{ $t('apendorder') }}
+        </Button>
         <Button
           key="submit"
           :loading="loading"
@@ -239,5 +238,5 @@ async function handleDeleteOrder() {
       </AccessControl>
     </template>
   </Modal>
-  <OrderApendModal />
+  <OrderApendModal v-if="orderStore.showApendModal" :order="props.event" />
 </template>

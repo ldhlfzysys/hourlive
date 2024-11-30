@@ -8,6 +8,7 @@ import type { Timeslot, TimeslotCreateInMany } from './ITimeslot';
 import type { Agency, Customer } from './IUser';
 
 export interface TimeslotModel {
+  id?: number;
   date: [Dayjs, Dayjs] | Dayjs;
   slot: [Dayjs, Dayjs];
   canEdit: boolean;
@@ -17,7 +18,7 @@ export interface TimeslotOrderFormState {
   liveTime?: [Dayjs, Dayjs]; // 直播时段
   timeslot?: [Dayjs, Dayjs]; // 时间段
   timeslots?: TimeslotModel[]; // 时间段数组
-  agency?: string; // 机构id
+  agency?: number; // 机构id
   roomId?: number; // 直播间id
   contentId?: number | undefined; // 直播内容
   cost?: number; // 花费
@@ -26,6 +27,7 @@ export interface TimeslotOrderFormState {
   status?: number; // 订单状态
   customer?: string; // 客户
   enableEdit?: boolean; // 是否可编辑
+  formType?: 'add' | 'apend'; // 表单类型
 }
 
 export interface TimeslotOrder {

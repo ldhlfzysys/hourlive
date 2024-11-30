@@ -13,6 +13,7 @@ import { Button } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import Empty from '#/components/empty.vue';
+import OrderApendModal from '#/components/orderApendModal.vue';
 import OrderDetailModal from '#/components/orderDeatailModal.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
@@ -179,6 +180,7 @@ function handleCellClick(event: any) {
       };
       orderStore.formState = {
         enableEdit: true,
+        formType: 'add',
         liveTime: [dayjs(selectedDate.value), dayjs(selectedDate.value)],
         timeslot: [startTime, endTime],
         timeslots: [initTiMeModel],
@@ -192,6 +194,7 @@ function handleEventClick(event: Event, e: MouseEvent) {
 
   if (order) {
     sampleStore.clearSamples();
+    orderStore.isEditing = false;
     sampleStore.sampleQuery.content_ids = order.contents.map(
       (content) => content.id,
     );
@@ -209,6 +212,11 @@ function handleEventClick(event: Event, e: MouseEvent) {
 
 function disablePastDates(date: Date): boolean {
   return dayjs(date).isBefore(dayjs(), 'day');
+}
+
+function handleApendOrder() {
+  orderStore.isEditing = false;
+  orderStore.showApendModal = true;
 }
 </script>
 
@@ -279,10 +287,7 @@ function disablePastDates(date: Date): boolean {
             description="暂无订单信息"
           />
 
-          <div
-            v-if="orderStore.isEditing"
-            class="flex h-full w-[500px] flex-col"
-          >
+          <div v-if="orderStore.isEditing" class="flex h-full w-[40%] flex-col">
             <div class="mb-2 flex items-center justify-between">
               <button
                 class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
@@ -302,20 +307,30 @@ function disablePastDates(date: Date): boolean {
                   />
                 </svg>
               </button>
-              <Button type="primary" @click="orderStore.makeOrders">
-                {{ $t('makeorder') }}
-              </Button>
+
+              <div class="flex space-x-2">
+                <Button type="primary" @click="handleApendOrder">
+                  {{ $t('apendorder') }}
+                </Button>
+                <Button type="primary" @click="orderStore.makeOrders">
+                  {{ $t('makeorder') }}
+                </Button>
+              </div>
             </div>
-            <TimeslotOrderForm />
+            <TimeslotOrderForm v-if="orderStore.isEditing" />
           </div>
         </div>
+        <OrderApendModal v-if="orderStore.showApendModal" />
       </template>
 
       <template #footer></template>
     </HourLivePage>
 
     <div v-if="selectedEvent">
-      <OrderDetailModal :event="selectedEvent" />
+      <OrderDetailModal
+        v-if="orderStore.showEventDetails"
+        :event="selectedEvent"
+      />
     </div>
   </div>
 </template>

@@ -1,43 +1,122 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import type { SlotEvent, TimeslotModel, TimeslotOrder } from '#/types';
+
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { AccessControl } from '@vben/access';
 
 import { Button, Modal } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
+import SelectFilter from '#/components/selectfilter.vue';
+import TimeslotOrderForm from '#/components/timeslotorderform.vue';
 import { useTimeslotOrderStore } from '#/store';
 
 defineOptions({
   name: 'OrderDetailModal',
 });
 
-const props = defineProps<{}>();
+const props = defineProps<{
+  order?: SlotEvent;
+}>();
 const orderStore = useTimeslotOrderStore();
 
 const maxHeight = computed(() => {
   return window.innerHeight * 0.7;
 });
 
+const selectedOrder = ref<number | undefined>(undefined);
+
 // Define a method to handle the button click
 const handleConfirmAppend = () => {
   // Add your logic here
-  console.log('Confirm append clicked');
+  orderStore.makeOrders();
 };
+
+orderStore.$subscribe((_, state) => {
+  if (!state.showApendModal) {
+    selectedOrder.value = undefined;
+  }
+});
+
+onMounted(() => {
+  if (props.order) {
+    selectedOrder.value = props.order.id;
+  } else {
+    selectedOrder.value = undefined;
+    orderStore.formState = {
+      enableEdit: true,
+    };
+  }
+});
+
+watch(selectedOrder, (newVal) => {
+  let order: TimeslotOrder | undefined;
+
+  if (newVal) {
+    const findOrder = orderStore.orderById(newVal);
+    if (findOrder) {
+      order = findOrder;
+    }
+  }
+
+  if (order) {
+    const timeslots: TimeslotModel[] = order.timeslots.map((timeslot) => {
+      return {
+        canEdit: false,
+        date: dayjs(timeslot.date),
+        id: timeslot.id,
+        slot: [
+          dayjs(`${timeslot.date} ${timeslot.start_time}`),
+          dayjs(`${timeslot.date} ${timeslot.end_time}`),
+        ],
+      };
+    });
+    orderStore.formState = {
+      agency: order.agency_id,
+      contentId: order.contents[0]?.id,
+      enableEdit: false,
+      formType: 'apend',
+      orderId: order.id,
+      roomId: order.room_id,
+      timeslots,
+    };
+  }
+});
+
+function onModalCancel() {
+  selectedOrder.value = undefined;
+}
 </script>
 
 <template>
   <Modal
     v-model:open="orderStore.showApendModal"
     :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
-    style="top: 10px; width: 60%"
-    title="追加订单"
+    :title="$t('apendorder')"
+    style="top: 10px; width: 50%"
     @cancel="orderStore.showApendModal = false"
+    @on-cancel="onModalCancel"
   >
-    <div class="flex h-full flex-1 flex-col"></div>
+    <div class="flex h-full flex-1 flex-col">
+      <SelectFilter
+        v-if="props.order === undefined"
+        v-model="selectedOrder"
+        :options="orderStore.orderOptions"
+        :title="$t('selectorder')"
+        mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+      />
+      <TimeslotOrderForm v-if="selectedOrder !== undefined" />
+    </div>
 
     <template #footer>
       <AccessControl :codes="['super']">
-        <Button key="submit" type="primary" @click="handleConfirmAppend">
+        <Button
+          key="submit"
+          :disabled="!orderStore.canAppendOrder"
+          type="primary"
+          @click="handleConfirmAppend"
+        >
           确认追加
         </Button>
       </AccessControl>

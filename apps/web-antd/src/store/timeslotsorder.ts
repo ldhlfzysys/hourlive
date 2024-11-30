@@ -83,6 +83,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   const orderFilters = ref<{ key: string; value: number[] }[]>([]);
 
+  const orderOptions = computed(() => {
+    return [...timeslotOrders.value.entries()].map(([_, timeslotOrder]) => {
+      return {
+        label: timeslotOrder.id,
+        value: timeslotOrder.id,
+      };
+    });
+  });
+
   const timeslotOrderList = computed(() => {
     let orders = [...timeslotOrders.value.entries()];
     if (orderFilters.value.length > 0) {
@@ -124,6 +133,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const showEventDetails = ref(false);
   const showApendModal = ref(false);
   // const formRef = ref<FormInstance>();
+
+  const canAppendOrder = computed(() => {
+    return (
+      formState.value.timeslots !== undefined &&
+      formState.value.timeslots!.some(
+        (timeslot) => timeslot.canEdit && timeslot.id === undefined,
+      )
+    );
+  });
 
   const formState = ref<TimeslotOrderFormState>({});
 
@@ -255,6 +273,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
     timeslotOrderCreate.value = params;
     createTimeslotOrder();
+    showApendModal.value = false;
+    isEditing.value = false;
   }
 
   async function createTimeslotOrder() {
@@ -475,6 +495,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   return {
     $reset,
+    canAppendOrder,
     confirmLoading,
     createTimeslotOrder,
     deleteOrders,
@@ -488,6 +509,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     modifyTimeslotOrder,
     orderById,
     orderFilters,
+    orderOptions,
     queryTimeslotOrder,
     showApendModal,
     showEventDetails,
