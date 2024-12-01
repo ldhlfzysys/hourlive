@@ -93,7 +93,7 @@ const handleAgencyChange = (value) => {
     :confirm-loading="sampleShippingStore.sampleShippingCreateLoading"
     :open="sampleShippingStore.showSampleShippingForm"
     :style="{ top: '20px' }"
-    :title="t('createshipping')"
+    :title="$t('createshipping')"
     width="90%"
     @cancel="handleCancel"
     @ok="handleOk"
@@ -105,7 +105,7 @@ const handleAgencyChange = (value) => {
     >
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item :label="t('selectagency')" name="agency_id" required>
+          <Form.Item :label="$t('selectagency')" name="agency_id" required>
             <Select
               v-model:value="sampleShippingStore.sampleShippingCreate.agency_id"
               @change="handleAgencyChange"
@@ -123,7 +123,7 @@ const handleAgencyChange = (value) => {
         </Col>
         <Col :span="12">
           <Form.Item
-            :label="t('shipping_address')"
+            :label="$t('shipping_address')"
             name="receiver_address"
             required
           >
@@ -151,7 +151,7 @@ const handleAgencyChange = (value) => {
       <Row :gutter="16">
         <Col :span="12">
           <Form.Item
-            :label="t('express_company')"
+            :label="$t('express_company')"
             name="express_company"
             required
           >
@@ -164,7 +164,7 @@ const handleAgencyChange = (value) => {
         </Col>
         <Col :span="12">
           <Form.Item
-            :label="t('tracking_number')"
+            :label="$t('tracking_number')"
             name="tracking_number"
             required
           >
@@ -179,7 +179,7 @@ const handleAgencyChange = (value) => {
 
       <Row :gutter="16">
         <Col :span="12">
-          <Form.Item :label="t('sender_name')" name="sender_name" required>
+          <Form.Item :label="$t('sender_name')" name="sender_name" required>
             <Input
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.sender_name
@@ -188,7 +188,7 @@ const handleAgencyChange = (value) => {
           </Form.Item>
         </Col>
         <Col :span="12">
-          <Form.Item :label="t('sender_time')" name="sendDate">
+          <Form.Item :label="$t('sender_time')" name="sendDate">
             <DatePicker
               v-model:value="
                 sampleShippingStore.sampleShippingCreate.shipping_time
@@ -202,10 +202,10 @@ const handleAgencyChange = (value) => {
 
       <div class="sample-list">
         <h3>
-          {{ t('sampleinshipping') }}
+          {{ $t('sampleinshipping') }}
           <span class="sample-summary">
-            ({{ sampleList.length }}{{ t('sample') }}，{{ t('total')
-            }}{{ getTotalSamples() }}{{ t('piece') }})
+            ({{ sampleList.length }}{{ $t('sample') }}，{{ $t('total')
+            }}{{ getTotalSamples() }}{{ $t('piece') }})
           </span>
         </h3>
         <div class="sample-scroll">
