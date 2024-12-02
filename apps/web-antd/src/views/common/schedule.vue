@@ -54,6 +54,7 @@ const userStore = useUserStore();
 const customerStore = useCustomerStore();
 const sampleStore = useSampleStore();
 const contentStore = useContentStore();
+const selectDate = dayjs();
 
 const events = computed(() => {
   const allEvents: Event[] = [];
@@ -124,6 +125,7 @@ const selectedCustomers = ref([]);
 const selectedContents = ref([]);
 const selectedRooms = ref([]);
 const selectedEvent = ref<null | SlotEvent>(null);
+const disablePastDates = ref<string[]>([]);
 
 watch(
   [selectedAgencies, selectedCustomers, selectedContents, selectedRooms],
@@ -189,8 +191,6 @@ function handleEventChange(event: any) {
       timeslots: [initTimeModel],
     };
   }
-
-  console.log(orderStore.formState);
 }
 
 function handleCellClick(event: any) {
@@ -220,13 +220,26 @@ function handleEventClick(event: Event, e: MouseEvent) {
   }
 }
 
-function disablePastDates(date: Date): boolean {
-  return dayjs(date).isBefore(dayjs(), 'day');
-}
-
 function handleApendOrder() {
   orderStore.isEditing = false;
   orderStore.showApendModal = true;
+}
+
+function handleViewChange(event: any) {
+  let currentDate = event.startDate;
+  const endDate = event.endDate;
+  const dates: string[] = [];
+  const previousDate = dayjs(selectDate).subtract(1, 'day');
+
+  while (dayjs(currentDate).isBefore(dayjs(endDate))) {
+    if (dayjs(currentDate).isBefore(previousDate)) {
+      dates.push(currentDate.format('YYYY-MM-DD'));
+    } else {
+      break;
+    }
+    currentDate = dayjs(currentDate).add(1, 'day');
+  }
+  disablePastDates.value = dates;
 }
 </script>
 
@@ -274,7 +287,7 @@ function handleApendOrder() {
           >
             <VueCal
               v-model:active-view="activeView"
-              :disable-dates="disablePastDates"
+              :disable-days="disablePastDates"
               :disable-views="['years', 'year']"
               :drag-to-create-threshold="0"
               :editable-events="{
@@ -287,7 +300,7 @@ function handleApendOrder() {
               :events="events"
               :events-on-month-view="true"
               :locale="localeStr"
-              :selected-date="dayjs().format('YYYY-MM-DD')"
+              :selected-date="selectDate.format('YYYY-MM-DD')"
               :snap-to-time="15"
               :time-from="0"
               :time-step="120"
@@ -298,6 +311,8 @@ function handleApendOrder() {
               @event-click="handleEventClick"
               @event-drag-create="handleEventChange"
               @event-duration-change="handleEventChange"
+              @ready="handleViewChange"
+              @view-change="handleViewChange"
             />
           </div>
 
@@ -381,12 +396,6 @@ function handleApendOrder() {
   word-break: break-all;
 }
 
-:deep(.vuecal__cell--disabled) {
-  color: #a0a0a0 !important; /* Gray text */
-  pointer-events: none; /* Disable click events */
-  background-color: #f0f0f0 !important; /* Light gray background */
-}
-
 :deep(.vuecal__event) {
   max-width: 500px !important;
   overflow: hidden;
@@ -397,6 +406,13 @@ function handleApendOrder() {
 
 :deep(.color-event-0) {
   background-color: #fde6e0;
+}
+
+:deep(.vuecal__cell--disabled) {
+  pointer-events: all;
+  background-color: rgb(
+    191 191 191 / 50%
+  ) !important; /* Light gray background */
 }
 
 :deep(.color-event-1) {
