@@ -73,18 +73,18 @@ const events = computed(() => {
 
       const agencyName = agencyStore.agencyById(order.agency_id)?.name;
 
-      const color = orderStore.getColor(order.id);
+      const eventClass = orderStore.getEventClass(order.id);
 
       let content = '';
       content =
         selectedAgencies.value.length === 1
           ? `
-         <div class="event-content" style="background-color: ${color}">
+         <div class="event-content">
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
         `
           : `
-         <div class="event-content" style="background-color: ${color}">
+         <div class="event-content">
             <div>${$t('agency')}:${agencyName}</div>
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
@@ -92,6 +92,7 @@ const events = computed(() => {
 
       allEvents.push({
         background: true,
+        class: eventClass,
         content,
         deletable: false,
         draggable: false,
@@ -102,7 +103,7 @@ const events = computed(() => {
         start: `${timeslot.date} ${timeslot.start_time}`,
         title: `
           <div class="event-container">
-            <div class="flex justify-between items-center text-sm" style="background-color: ${color}">
+            <div class="flex justify-between items-center text-sm" >
               <span style="font-size: 12px;margin-left: 10px;font-weight: 500;">${timeslot.start_time}-${timeslot.end_time}</span>
               <span style="font-size: 11px;margin-right: 10px;">ID:${order.id}</span>
             </div>
@@ -117,7 +118,6 @@ const events = computed(() => {
     return dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1;
   });
 });
-const selectedDate = ref('');
 const activeView = ref('month');
 const selectedAgencies = ref([]);
 const selectedCustomers = ref([]);
@@ -166,28 +166,36 @@ function fetchCustomerData() {
 }
 
 // CalendarEvent
+function handleEventChange(event: any) {
+  if (hasAccessByRoles(['super'])) {
+    let actualEvent = event;
+    if (Object.hasOwn(actualEvent, 'event')) {
+      actualEvent = actualEvent.event;
+    }
+
+    const startTime = dayjs(actualEvent.start);
+    const endTime = dayjs(actualEvent.end);
+    orderStore.isEditing = true;
+    const initTimeModel: TimeslotModel = {
+      canEdit: true,
+      date: startTime,
+      slot: [startTime, endTime],
+    };
+    orderStore.formState = {
+      enableEdit: true,
+      formType: 'add',
+      liveTime: [startTime, endTime],
+      timeslot: [startTime, endTime],
+      timeslots: [initTimeModel],
+    };
+  }
+
+  console.log(orderStore.formState);
+}
+
 function handleCellClick(event: any) {
-  selectedDate.value = event.format('YYYY-MM-DD HH:00');
-  const startTime = dayjs(event.format('YYYY-MM-DD HH:00'));
-  const endTime = startTime.add(2, 'hour');
   if (activeView.value === 'month') {
     activeView.value = 'day';
-  } else {
-    if (hasAccessByRoles(['super'])) {
-      orderStore.isEditing = true;
-      const initTiMeModel: TimeslotModel = {
-        canEdit: true,
-        date: startTime.clone(),
-        slot: [startTime.clone(), endTime.clone()],
-      };
-      orderStore.formState = {
-        enableEdit: true,
-        formType: 'add',
-        liveTime: [dayjs(selectedDate.value), dayjs(selectedDate.value)],
-        timeslot: [startTime, endTime],
-        timeslots: [initTiMeModel],
-      };
-    }
   }
 }
 
@@ -268,17 +276,28 @@ function handleApendOrder() {
               v-model:active-view="activeView"
               :disable-dates="disablePastDates"
               :disable-views="['years', 'year']"
-              :drag-to-create-event="false"
+              :drag-to-create-threshold="0"
+              :editable-events="{
+                title: false,
+                drag: false,
+                resize: true,
+                delete: true,
+                create: true,
+              }"
               :events="events"
               :events-on-month-view="true"
               :locale="localeStr"
               :selected-date="dayjs().format('YYYY-MM-DD')"
+              :snap-to-time="15"
               :time-from="0"
               :time-step="120"
               :time-to="24 * 60"
+              class="vuecal--full-height-delete"
               watch-real-time
               @cell-click="handleCellClick"
               @event-click="handleEventClick"
+              @event-drag-create="handleEventChange"
+              @event-duration-change="handleEventChange"
             />
           </div>
 
@@ -350,12 +369,6 @@ function handleApendOrder() {
   align-items: center;
 }
 
-:deep(.vuecal__event) {
-  overflow: hidden;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 4px;
-}
-
 :deep(.event-container) {
   height: 100%;
   border-radius: 1px;
@@ -368,13 +381,137 @@ function handleApendOrder() {
   word-break: break-all;
 }
 
-:deep(.vuecal__event-time) {
-  display: none;
-}
-
 :deep(.vuecal__cell--disabled) {
   color: #a0a0a0 !important; /* Gray text */
   pointer-events: none; /* Disable click events */
   background-color: #f0f0f0 !important; /* Light gray background */
+}
+
+:deep(.vuecal__event) {
+  max-width: 500px !important;
+  overflow: hidden;
+  background-color: rgb(46 139 168 / 60%);
+  border: 1px solid #e5e7eb !important;
+  border-radius: 4px;
+}
+
+:deep(.color-event-0) {
+  background-color: #fde6e0;
+}
+
+:deep(.color-event-1) {
+  background-color: #c7edcc;
+}
+
+:deep(.color-event-2) {
+  background-color: #faf9de;
+}
+
+:deep(.color-event-3) {
+  background-color: #dce2f1;
+}
+
+:deep(.color-event-4) {
+  background-color: #c7edcc;
+}
+
+:deep(.color-event-5) {
+  background-color: #fff2e2;
+}
+
+:deep(.color-event-6) {
+  background-color: #e0ffff;
+}
+
+:deep(.color-event-7) {
+  background-color: #f0e68c;
+}
+
+:deep(.color-event-8) {
+  background-color: #afeeee;
+}
+
+:deep(.color-event-9) {
+  background-color: #88ada6;
+}
+
+:deep(.color-event-10) {
+  background-color: #a1afc9;
+}
+
+:deep(.color-event-11) {
+  background-color: #e4c6d0;
+}
+
+:deep(.color-event-12) {
+  background-color: #eedeb0;
+}
+
+:deep(.color-event-13) {
+  background-color: #fcefe8;
+}
+
+:deep(.color-event-14) {
+  background-color: #d6ecf0;
+}
+
+:deep(.color-event-15) {
+  background-color: #e9e7ef;
+}
+
+:deep(.color-event-16) {
+  background-color: #eacd76;
+}
+
+:deep(.color-event-17) {
+  background-color: #f4a460;
+}
+
+:deep(.color-event-18) {
+  background-color: #d3d3d3;
+}
+
+:deep(.color-event-19) {
+  background-color: #d1c4ca;
+}
+
+:deep(.color-event-20) {
+  background-color: #cbb1ab;
+}
+
+:deep(.color-event-21) {
+  background-color: #b7d2be;
+}
+
+:deep(.color-event-22) {
+  background-color: #e7dfec;
+}
+
+:deep(.color-event-23) {
+  background-color: #eee791;
+}
+
+:deep(.color-event-24) {
+  background-color: #e0ffff;
+}
+
+:deep(.color-event-25) {
+  background-color: #cc9;
+}
+
+:deep(.color-event-26) {
+  background-color: #39c;
+}
+
+:deep(.color-event-27) {
+  background-color: #f9c;
+}
+
+:deep(.color-event-28) {
+  background-color: #fc9;
+}
+
+:deep(.vuecal__event[class*='color-event-'] .vuecal__event-time) {
+  display: none;
 }
 </style>
