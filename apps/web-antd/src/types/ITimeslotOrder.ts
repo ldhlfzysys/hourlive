@@ -60,13 +60,6 @@ export interface SlotEvent extends TimeslotOrder {
   end: string;
 }
 
-export interface TimeslotOrderCreate {
-  id?: number;
-  room_id: number;
-  content_id: number;
-  timeslots: TimeslotCreateInMany[];
-}
-
 export interface TimeslotTimeslotOrder {
   timeslot_id: number;
   timeslotorder_id: number;
@@ -123,4 +116,16 @@ export interface TimeslotCreate {
   start_time: string; // Format: HH:MM
   end_time: string; // Format: HH:MM
   hourlive_money_cost: number; // 消耗，这个时段如果要定，需要多少平台币
+}
+
+export interface TimeslotOrderCreateWithContent {
+  timeslotorder_id: number;
+  content_id: number;
+}
+
+export interface TimeslotOrderCreate {
+  id?: number;
+  room_id?: number; // 必填，直播间ID
+  content_id?: number;
+  timeslots?: TimeslotCreateInMany[];
 }

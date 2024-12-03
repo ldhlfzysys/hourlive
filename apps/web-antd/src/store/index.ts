@@ -4,6 +4,7 @@ export * from './content';
 export * from './customer';
 export * from './downloader';
 export * from './feishu';
+export * from './hourlivepackage';
 export * from './liveaccount';
 export * from './ossfile';
 export * from './room';

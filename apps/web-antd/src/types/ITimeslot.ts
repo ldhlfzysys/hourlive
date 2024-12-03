@@ -2,14 +2,6 @@ import type { Room } from './IRoom';
 import type { Streamer } from './IStreamer';
 import type { TimeslotOrder } from './ITimeslotOrder';
 
-export interface TimeslotCreateInMany {
-  date: string;
-  end_date?: string;
-  start_time: string;
-  end_time: string;
-  hourlive_money_cost?: number;
-}
-
 export interface Timeslot {
   id: number;
   create_time: string; // DateTime in ISO format
@@ -44,6 +36,7 @@ export interface TimeslotCreate {
   start_time: string; // Format: HH:MM
   end_time: string; // Format: HH:MM
   hourlive_money_cost: number; // 消耗，这个时段如果要定，需要多少平台币
+  streamers?: number[];
 }
 
 export interface TimeslotCreateInMany {
@@ -52,4 +45,5 @@ export interface TimeslotCreateInMany {
   start_time: string;
   end_time: string;
   hourlive_money_cost?: number;
+  streamers?: number[];
 }
