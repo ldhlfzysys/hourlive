@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import type { UserInfo } from '@vben/types';
+import type { User } from '#/types';
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
 import { Button, Input, message, Modal, Upload } from 'ant-design-vue';
-import { Check, Mail, Pencil, Phone, QrCode, User, X } from 'lucide-vue-next';
+import { Check, Mail, Pencil, Phone, QrCode, X } from 'lucide-vue-next';
 
 import { useAuthStore } from '#/store';
 import { useFeishuStore } from '#/store/feishu';
@@ -27,7 +27,7 @@ const accountBindList = ref([
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const userInfo = ref<UserInfo>();
+const userInfo = ref<User>();
 
 const ossFileStore = useOSSFileStore();
 const feishuStore = useFeishuStore();
@@ -35,7 +35,7 @@ const feishuStore = useFeishuStore();
 // 计算属性：头像URL
 const avatarSrc = computed(() => {
   return (
-    userInfo.value?.avatar ||
+    authStore.userInfo?.avatar ||
     'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png'
   );
 });
@@ -44,7 +44,12 @@ const avatarSrc = computed(() => {
 onMounted(() => {
   console.log('onMounted');
   initScripot();
-  userInfo.value = userStore.getUserInfo() || {};
+  userInfo.value = authStore.fetchUserInfo();
+  // userForm.value = {
+  //   email: authStore.userInfo?.email || '',
+  //   phone: authStore.userInfo?.mobile || '',
+  //   username: authStore.userInfo?.name || '',
+  // };
   console.log(` onMounted userInfo : ${JSON.stringify(userInfo.value)}`);
 
   // 查询绑定的飞书用户信息
@@ -71,6 +76,7 @@ const handleAvatarChange = async (info) => {
     const result = await ossFileStore.uploadAvatar(info.file);
     if (result && result.success && userInfo.value) {
       userInfo.value.avatar = result.data; // 假设后端返回新的头像URL
+      authStore.userInfo.avatar = result.data;
     }
   } catch (error) {
     console.error('Avatar upload failed:', error);
@@ -179,17 +185,12 @@ const initScripot = () => {
 // 处理模态框打开
 const handleModalOpen = () => {
   modalOpen.value = true;
-  // setTimeout(() => {
-  //   const modalElement = document.querySelector('.modal-focus-element');
-  //   if (modalElement) {
-  //     (modalElement as HTMLElement).focus();
-  //   }
-  // }, 0);
-
-  // const modalElement = document.querySelector('.modal-focus-element');
-  // if (modalElement) {
-  //   (modalElement as HTMLElement).focus();
-  // }
+  nextTick(() => {
+    const focusableElement = document.querySelector('#login_container button');
+    if (focusableElement) {
+      focusableElement.focus();
+    }
+  });
 };
 
 const isEditModalOpen = ref(false);
@@ -212,26 +213,28 @@ const saveUsername = () => {
 
 // 表单验证
 const validateEmail = (email: string) => {
+  // 正则表达式解释：以非空格非@字符开头，后跟@符号，接着是非空格非@字符，后跟点号，最后是非空格字符
   const regex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
   return regex.test(email);
 };
 
-const validatePhone = (phone: string) => {
+const validatePhone = (mobile: string) => {
+  // 正则表达式解释：以1开头，第二位是3到9中的任意一个数字，然后是9个任意数字
   const regex = /^1[3-9]\d{9}$/;
-  return regex.test(phone);
+  return regex.test(mobile);
 };
 
 // 保存个人信息
 const saveUserInfo = async (field: string) => {
   try {
-    const value = userForm.value[field];
+    const value = authStore.userInfo[field];
 
     // 表单验证
     if (field === 'email' && !validateEmail(value)) {
       message.error('请输入有效的邮箱地址');
       return;
     }
-    if (field === 'phone' && !validatePhone(value)) {
+    if (field === 'mobile' && !validatePhone(value)) {
       message.error('请输入有效的手机号');
       return;
     }
@@ -246,13 +249,13 @@ const saveUserInfo = async (field: string) => {
 
 const userForm = ref({
   email: '',
-  phone: '',
+  mobile: '',
   username: '',
 });
 
 const editState = ref({
   email: false,
-  phone: false,
+  mobile: false,
   username: false,
 });
 </script>
@@ -297,7 +300,9 @@ const editState = ref({
               </div>
               <div class="flex items-center">
                 <template v-if="!editState.username">
-                  <span class="mr-3">{{ userForm.username }}</span>
+                  <span class="mr-3">{{
+                    authStore.userInfo?.name || '未设置'
+                  }}</span>
                   <Pencil
                     class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
                     @click="editState.username = true"
@@ -306,7 +311,7 @@ const editState = ref({
                 <template v-else>
                   <div class="flex items-center space-x-2">
                     <Input
-                      v-model:value="userForm.username"
+                      v-model:value="authStore.userInfo.name"
                       class="w-48"
                       @press-enter="saveUserInfo('username')"
                     />
@@ -332,27 +337,29 @@ const editState = ref({
                 <span>手机号</span>
               </div>
               <div class="flex items-center">
-                <template v-if="!editState.phone">
-                  <span class="mr-3">{{ userForm.phone || '未设置' }}</span>
+                <template v-if="!editState.mobile">
+                  <span class="mr-3">{{
+                    authStore.userInfo?.mobile || '未设置'
+                  }}</span>
                   <Pencil
                     class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
-                    @click="editState.phone = true"
+                    @click="editState.mobile = true"
                   />
                 </template>
                 <template v-else>
                   <div class="flex items-center space-x-2">
                     <Input
-                      v-model:value="userForm.phone"
+                      v-model:value="authStore.userInfo.mobile"
                       class="w-48"
-                      @press-enter="saveUserInfo('phone')"
+                      @press-enter="saveUserInfo('mobile')"
                     />
                     <Check
                       class="h-5 w-5 cursor-pointer text-green-500"
-                      @click="saveUserInfo('phone')"
+                      @click="saveUserInfo('mobile')"
                     />
                     <X
                       class="h-5 w-5 cursor-pointer text-red-500"
-                      @click="editState.phone = false"
+                      @click="editState.mobile = false"
                     />
                   </div>
                 </template>
@@ -369,7 +376,9 @@ const editState = ref({
               </div>
               <div class="flex items-center">
                 <template v-if="!editState.email">
-                  <span class="mr-3">{{ userForm.email || '未设置' }}</span>
+                  <span class="mr-3">{{
+                    authStore.userInfo?.email || '未设置'
+                  }}</span>
                   <Pencil
                     class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
                     @click="editState.email = true"
@@ -378,7 +387,7 @@ const editState = ref({
                 <template v-else>
                   <div class="flex items-center space-x-2">
                     <Input
-                      v-model:value="userForm.email"
+                      v-model:value="authStore.userInfo.email"
                       class="w-48"
                       @press-enter="saveUserInfo('email')"
                     />
@@ -453,7 +462,14 @@ const editState = ref({
         <div
           id="login_container"
           class="flex min-h-[300px] items-center justify-center"
-        ></div>
+          inert
+          tabindex="-1"
+        >
+          <button
+            aria-hidden="true"
+            style="position: absolute; opacity: 0"
+          ></button>
+        </div>
       </Modal>
     </template>
   </HourLivePage>

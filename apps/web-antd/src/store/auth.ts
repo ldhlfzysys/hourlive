@@ -1,7 +1,7 @@
 import type { LoginAndRegisterParams } from '@vben/common-ui';
 import type { UserInfo } from '@vben/types';
 
-import type { RegisterParams, UserUpdate } from '#/types';
+import type { RegisterParams, User, UserUpdate } from '#/types';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -23,6 +23,8 @@ export const useAuthStore = defineStore('auth', () => {
   const loginLoading = ref(false);
 
   const registerLoading = ref(false);
+
+  const userInfo = ref<User>();
 
   /**
    * 异步处理登录操作
@@ -178,21 +180,24 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUserInfo() {
-    const user = await getUserInfoApi();
-    const userInfo: UserInfo = {
-      avatar: user.data.avatar ?? '',
-      desc: '',
-      homePath: user.data.home ?? '',
-      realName: user.data.account,
-      roles: user.data.role.auths.map((item) => item.code),
-      token: '',
-      userId: user.data.id.toString(),
-      username: user.data.name ?? user.data.account,
-    };
-    userStore.setUserInfo(userInfo);
-    return userInfo;
+    const result = await getUserInfoApi();
+    console.log(` fetchUserInfo userInfo.value : ${JSON.stringify(result)}`);
+    if (result.success) {
+      userInfo.value = result.data;
+      const userInfo2: UserInfo = {
+        avatar: result.data.avatar ?? '',
+        desc: '',
+        homePath: result.data.home ?? '',
+        realName: result.data.account,
+        roles: result.data.role.auths.map((item) => item.code),
+        token: '',
+        userId: result.data.id.toString(),
+        username: result.data.name ?? result.data.account,
+      };
+      userStore.setUserInfo(userInfo2);
+      return userInfo2;
+    }
   }
-
   async function updateUser(userData: Partial<UserUpdate>) {
     try {
       const result = await updateUserApi(userData);
@@ -234,5 +239,6 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     registerLoading,
     updateUser,
+    userInfo,
   };
 });
