@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { SlotEvent, TimeslotModel, TimeslotOrder } from '#/types';
+import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -13,12 +13,9 @@ import TimeslotOrderForm from '#/components/timeslotorderform.vue';
 import { useTimeslotOrderStore } from '#/store';
 
 defineOptions({
-  name: 'OrderDetailModal',
+  name: 'OrderApendModal',
 });
 
-const props = defineProps<{
-  order?: SlotEvent;
-}>();
 const orderStore = useTimeslotOrderStore();
 
 const maxHeight = computed(() => {
@@ -40,8 +37,8 @@ orderStore.$subscribe((_, state) => {
 });
 
 onMounted(() => {
-  if (props.order) {
-    selectedOrder.value = props.order.id;
+  if (orderStore.currentSelectedOrder) {
+    selectedOrder.value = orderStore.currentSelectedOrder.id;
   } else {
     selectedOrder.value = undefined;
     orderStore.formState = {
@@ -100,7 +97,7 @@ function onModalCancel() {
   >
     <div class="flex h-full flex-1 flex-col">
       <SelectFilter
-        v-if="props.order === undefined"
+        v-if="orderStore.currentSelectedOrder === undefined"
         v-model="selectedOrder"
         :options="orderStore.orderOptions"
         :title="$t('selectorder')"

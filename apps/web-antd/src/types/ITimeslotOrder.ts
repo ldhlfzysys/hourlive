@@ -52,12 +52,11 @@ export interface TimeslotOrder {
   ads_subsidy: number;
   ads_subsidy_remark: string;
   subsidy_type: string;
-}
 
-export interface SlotEvent extends TimeslotOrder {
-  slotId: number;
-  start: string;
-  end: string;
+  // 前端使用的字段
+  start?: string;
+  end?: string;
+  slotId?: number;
 }
 
 export interface TimeslotTimeslotOrder {

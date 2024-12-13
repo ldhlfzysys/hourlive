@@ -1,6 +1,6 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import type { SlotEvent, TimeslotModel, TimeslotOrder } from '#/types';
+import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
 import VueCal from 'vue-cal';
@@ -124,7 +124,6 @@ const selectedAgencies = ref([]);
 const selectedCustomers = ref([]);
 const selectedContents = ref([]);
 const selectedRooms = ref([]);
-const selectedEvent = ref<null | SlotEvent>(null);
 const disablePastDates = ref<string[]>([]);
 
 watch(
@@ -201,21 +200,22 @@ function handleCellClick(event: any) {
 
 function handleEventClick(event: Event, e: MouseEvent) {
   const order = orderStore.orderById(event.id);
-
   if (order) {
+    orderStore.setCurrentSelectedOrder(event.id);
     sampleStore.clearSamples();
     orderStore.isEditing = false;
     sampleStore.sampleQuery.content_ids = order.contents.map(
-      (content) => content.id,
+      (content) => content.id!,
     );
     sampleStore.sampleQuery.q_size = 100;
     sampleStore.querySample();
-    selectedEvent.value = {
-      ...order,
-      end: dayjs(event.end).format('MM/DD HH:mm'),
-      slotId: event.slotId,
-      start: dayjs(event.start).format('MM/DD HH:mm'),
-    };
+    orderStore.currentSelectedOrder!.end = dayjs(event.end).format(
+      'MM/DD HH:mm',
+    );
+    orderStore.currentSelectedOrder!.start = dayjs(event.start).format(
+      'MM/DD HH:mm',
+    );
+    orderStore.currentSelectedOrder!.slotId = event.slotId;
     orderStore.showEventDetails = true;
   }
 }
@@ -362,12 +362,7 @@ function handleViewChange(event: any) {
       <template #footer></template>
     </HourLivePage>
 
-    <div v-if="selectedEvent">
-      <OrderDetailModal
-        v-if="orderStore.showEventDetails"
-        :event="selectedEvent"
-      />
-    </div>
+    <OrderDetailModal />
   </div>
 </template>
 

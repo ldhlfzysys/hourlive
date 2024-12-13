@@ -52,20 +52,6 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['super'],
       hideChildrenInMenu: true,
-      icon: 'lucide:circle-dollar-sign',
-      order: 2,
-      title: $t('subsidy'),
-    },
-    name: 'Subsidy',
-    path: '/subsidy',
-
-    children: [config.supersubsidy],
-  },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['super'],
-      hideChildrenInMenu: true,
       icon: 'lucide:user-round-search',
       order: 4,
       title: $t('customer_contents'),

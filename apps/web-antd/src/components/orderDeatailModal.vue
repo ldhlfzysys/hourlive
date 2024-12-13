@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { SlotEvent } from '#/types';
-
 import { computed, ref } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
@@ -22,15 +20,13 @@ import OrderApendModal from '#/components/orderApendModal.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
+import SubsidyForm from '#/components/subsidyform.vue';
 import { useAgencyStore, useSampleStore, useTimeslotOrderStore } from '#/store';
 
 defineOptions({
   name: 'OrderDetailModal',
 });
 
-const props = defineProps<{
-  event: SlotEvent;
-}>();
 const orderStore = useTimeslotOrderStore();
 const sampleStore = useSampleStore();
 const agencyStore = useAgencyStore();
@@ -43,7 +39,7 @@ const maxHeight = computed(() => {
 });
 
 const liveAccountInfo = computed(() => {
-  const liveAccount = props.event.contents[0]?.liveaccount;
+  const liveAccount = orderStore.currentSelectedOrder?.contents[0]?.liveaccount;
   return {
     code: liveAccount?.code,
     customer_id: liveAccount?.customer_id,
@@ -57,7 +53,7 @@ const liveAccountInfo = computed(() => {
 });
 
 const contentInfo = computed(() => {
-  const content = props.event.contents[0];
+  const content = orderStore.currentSelectedOrder?.contents[0];
   return {
     content_desc: content?.content_desc,
     content_link: content?.content_link,
@@ -97,8 +93,8 @@ async function handleDeleteOrder() {
     onOk: async () => {
       loading.value = true;
       await orderStore.deleteOrders({
-        timeslot_ids: [props.event.slotId],
-        timeslotorder_id: props.event.id,
+        timeslot_ids: [orderStore.currentSelectedOrder!.slotId!],
+        timeslotorder_id: orderStore.currentSelectedOrder!.id!,
       });
       loading.value = false;
     },
@@ -118,20 +114,24 @@ async function handleDeleteOrder() {
     <div class="flex h-full flex-1 flex-col">
       <Descriptions :column="3" bordered>
         <DescriptionsItem :label="$t('id')">
-          {{ props.event.id }}
+          {{ orderStore.currentSelectedOrder!.id }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('timeslot')">
-          {{ props.event.start }} - {{ props.event.end }}
+          {{ orderStore.currentSelectedOrder!.start }} -
+          {{ orderStore.currentSelectedOrder!.end }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('agency')">
-          {{ agencyStore.agencyById(props.event.agency_id)?.name }}
+          {{
+            agencyStore.agencyById(orderStore.currentSelectedOrder!.agency_id)
+              ?.name
+          }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('customer')">
-          {{ props.event.customer?.code }}
+          {{ orderStore.currentSelectedOrder!.customer?.code }}
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('content')" :span="3">
-          {{ props.event.contents[0]?.id }}
+          {{ orderStore.currentSelectedOrder!.contents[0]?.id }}
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('content_text')" :span="3">
@@ -212,10 +212,20 @@ async function handleDeleteOrder() {
     <template #footer>
       <Button
         key="download"
+        :loading="orderStore.timeslotOrderSubsidyLoading"
+        type="primary"
+        @click="orderStore.showSubsidyModal = true"
+      >
+        {{ $t('subsidy') }}
+      </Button>
+      <Button
+        key="download"
         :disabled="sampleStore.sampleQueryLoading || orderStore.downloadLoading"
         :loading="orderStore.downloadLoading"
         type="primary"
-        @click="orderStore.downloadTimeslotOrder(props.event)"
+        @click="
+          orderStore.downloadTimeslotOrder(orderStore.currentSelectedOrder!)
+        "
       >
         {{ $t('download') }}
       </Button>
@@ -238,5 +248,6 @@ async function handleDeleteOrder() {
       </AccessControl>
     </template>
   </Modal>
-  <OrderApendModal v-if="orderStore.showApendModal" :order="props.event" />
+  <OrderApendModal v-if="orderStore.showApendModal" />
+  <SubsidyForm />
 </template>

@@ -4,7 +4,6 @@ import type {
   CancelTimeSlot,
   Content,
   OrderQuery,
-  SlotEvent,
   StanderResult,
   TableInfo,
   TimeslotCreateInMany,
@@ -77,6 +76,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     timeslots: [],
   });
 
+  const currentSelectedOrder = ref<TimeslotOrder | undefined>();
+
   const isEditing = ref(false);
   const downloadLoading = ref(false);
   const timeslotOrders = ref<Map<number, TimeslotOrder>>(new Map());
@@ -142,6 +143,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const colorMap = ref<Map<number, string>>(new Map());
 
   const colorIndex = ref(0);
+
+  function setCurrentSelectedOrder(id: number) {
+    currentSelectedOrder.value = orderById.value(id);
+  }
 
   function getEventClass(id: number) {
     const colorLength = 29;
@@ -389,7 +394,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
   }
 
-  async function downloadTimeslotOrder(slot: SlotEvent) {
+  async function downloadTimeslotOrder(slot: TimeslotOrder) {
     downloadLoading.value = true;
     const order = slot;
     const tableInfoList: TableInfo[] = [];
@@ -547,6 +552,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     canAppendOrder,
     confirmLoading,
     createTimeslotOrder,
+    currentSelectedOrder,
     deleteOrders,
     deleteTimeslotOrders,
     downloadLoading,
@@ -561,6 +567,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     orderFilters,
     orderOptions,
     queryTimeslotOrder,
+    setCurrentSelectedOrder,
     showApendModal,
     showEventDetails,
     showModal,
