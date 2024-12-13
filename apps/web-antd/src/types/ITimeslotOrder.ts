@@ -130,6 +130,7 @@ export interface TimeslotOrderCreate {
 }
 
 export interface TimeslotOrderSubsidy {
+  ids: number[];
   timeslotorder_id: number;
   subsidy_type?: string;
   tts_subsidy?: number;

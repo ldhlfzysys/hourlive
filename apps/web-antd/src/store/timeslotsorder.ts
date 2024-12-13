@@ -68,6 +68,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const timeslotOrderCreateLoading = ref(false);
   const timeslotOrderSubsidyLoading = ref(false);
   const timeslotOrderSubsidyForm = ref<TimeslotOrderSubsidy>({
+    ids: [],
     timeslotorder_id: -1,
   });
   const timeslotOrderCreate = ref<TimeslotOrderCreate>({
@@ -208,6 +209,11 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   }
 
   async function subsidyTimeslotOrder() {
+    if (currentSelectedOrder.value) {
+      timeslotOrderSubsidyForm.value.timeslotorder_id =
+        currentSelectedOrder.value.id;
+      timeslotOrderSubsidyForm.value.ids = [currentSelectedOrder.value.id];
+    }
     if (timeslotOrderSubsidyForm.value.timeslotorder_id === -1) {
       notification.error({
         description: $t('请选择时段订单'),
@@ -216,26 +222,32 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       return;
     }
     timeslotOrderSubsidyLoading.value = true;
-    const res = await _subsidyTimeslotOrder(timeslotOrderSubsidyForm.value);
-    if (res.success) {
-      const timeslotOrder = timeslotOrders.value.get(
-        timeslotOrderSubsidyForm.value.timeslotorder_id,
-      );
-      timeslotOrder!.ads_subsidy = timeslotOrderSubsidyForm.value.ads_subsidy!;
-      timeslotOrder!.tts_subsidy = timeslotOrderSubsidyForm.value.tts_subsidy!;
-      timeslotOrder!.ads_subsidy_remark =
-        timeslotOrderSubsidyForm.value.ads_subsidy_remark!;
-      timeslotOrder!.tts_subsidy_remark =
-        timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
-      timeslotOrder!.subsidy_type =
-        timeslotOrderSubsidyForm.value.subsidy_type!;
+    try {
+      const res = await _subsidyTimeslotOrder(timeslotOrderSubsidyForm.value);
+      if (res.success) {
+        const timeslotOrder = timeslotOrders.value.get(
+          timeslotOrderSubsidyForm.value.timeslotorder_id,
+        );
+        timeslotOrder!.ads_subsidy =
+          timeslotOrderSubsidyForm.value.ads_subsidy!;
+        timeslotOrder!.tts_subsidy =
+          timeslotOrderSubsidyForm.value.tts_subsidy!;
+        timeslotOrder!.ads_subsidy_remark =
+          timeslotOrderSubsidyForm.value.ads_subsidy_remark!;
+        timeslotOrder!.tts_subsidy_remark =
+          timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
+        timeslotOrder!.subsidy_type =
+          timeslotOrderSubsidyForm.value.subsidy_type!;
 
-      notification.success({
-        description: $t('操作成功'),
-        message: $t('操作成功'),
-      });
+        notification.success({
+          description: $t('操作成功'),
+          message: $t('操作成功'),
+        });
+      }
+    } finally {
+      timeslotOrderSubsidyLoading.value = false;
     }
-    timeslotOrderSubsidyLoading.value = false;
+    showSubsidyModal.value = false;
   }
 
   function generateTimeslots() {

@@ -9,6 +9,8 @@ defineOptions({
   name: 'SubsidyForm',
 });
 
+const { TextArea } = Input;
+
 const timeslotOrderStore = useTimeslotOrderStore();
 
 function handleOk() {
@@ -18,13 +20,14 @@ function handleOk() {
 function handleCancel() {
   timeslotOrderStore.showSubsidyModal = false;
   timeslotOrderStore.timeslotOrderSubsidyForm = {
+    ids: [],
     timeslotorder_id: -1,
   };
 }
 
 const subsidyTypeOptions = [
-  { label: '广告补贴', value: 1 },
-  { label: '达人补贴', value: 2 },
+  { label: '广告补贴', value: '1' },
+  { label: '达人补贴', value: '2' },
 ];
 </script>
 
@@ -40,46 +43,64 @@ const subsidyTypeOptions = [
   >
     <div class="modal-content">
       <div class="input-container">
-        <Select
-          v-model:value="
-            timeslotOrderStore.timeslotOrderSubsidyForm.subsidy_type
-          "
-          :options="subsidyTypeOptions"
-          :placeholder="$t('请选择补贴类型')"
-          class="subsidy-input"
-        />
+        <div class="form-item horizontal">
+          <div class="label">补贴类型</div>
+          <Select
+            v-model:value="
+              timeslotOrderStore.timeslotOrderSubsidyForm.subsidy_type
+            "
+            :field-names="{ label: 'label', value: 'value' }"
+            :options="subsidyTypeOptions"
+            :placeholder="$t('请选择补贴类型')"
+            class="subsidy-input"
+          />
+        </div>
 
-        <InputNumber
-          v-model:value="
-            timeslotOrderStore.timeslotOrderSubsidyForm.ads_subsidy
-          "
-          :placeholder="$t('广告补贴金额')"
-          class="subsidy-input"
-        />
+        <div class="form-item horizontal">
+          <div class="label">广告补贴金额</div>
+          <InputNumber
+            v-model:value="
+              timeslotOrderStore.timeslotOrderSubsidyForm.ads_subsidy
+            "
+            :placeholder="$t('请输入广告补贴金额')"
+            class="subsidy-input number-input"
+          />
+        </div>
 
-        <Input
-          v-model:value="
-            timeslotOrderStore.timeslotOrderSubsidyForm.ads_subsidy_remark
-          "
-          :placeholder="$t('广告补贴备注')"
-          class="subsidy-input"
-        />
+        <div class="form-item">
+          <div class="label">广告补贴备注</div>
+          <TextArea
+            v-model:value="
+              timeslotOrderStore.timeslotOrderSubsidyForm.ads_subsidy_remark
+            "
+            :placeholder="$t('请输入广告补贴备注')"
+            :rows="3"
+            class="subsidy-input"
+          />
+        </div>
 
-        <InputNumber
-          v-model:value="
-            timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy
-          "
-          :placeholder="$t('达人补贴金额')"
-          class="subsidy-input"
-        />
+        <div class="form-item horizontal">
+          <div class="label">达人补贴金额</div>
+          <InputNumber
+            v-model:value="
+              timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy
+            "
+            :placeholder="$t('请输入达人补贴金额')"
+            class="subsidy-input number-input"
+          />
+        </div>
 
-        <Input
-          v-model:value="
-            timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy_remark
-          "
-          :placeholder="$t('达人补贴备注')"
-          class="subsidy-input"
-        />
+        <div class="form-item">
+          <div class="label">达人补贴备注</div>
+          <TextArea
+            v-model:value="
+              timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy_remark
+            "
+            :placeholder="$t('请输入达人补贴备注')"
+            :rows="3"
+            class="subsidy-input"
+          />
+        </div>
       </div>
     </div>
   </Modal>
@@ -100,9 +121,39 @@ const subsidyTypeOptions = [
   padding: 1.25rem 1.5rem;
 }
 
+.form-item {
+  margin-bottom: 1rem;
+}
+
+.label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #606266;
+}
+
 .subsidy-input {
-  margin-bottom: 0.75rem;
-  font-size: 1.125rem;
+  width: 100%;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.number-input {
+  width: 400px !important;
+}
+
+.form-item.horizontal {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.horizontal .label {
+  min-width: 80px;
+  margin-bottom: 0;
+}
+
+.subsidy-type-text {
+  font-size: 14px;
   color: #1f2937;
 }
 </style>

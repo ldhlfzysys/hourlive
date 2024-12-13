@@ -101,6 +101,40 @@ async function handleDeleteOrder() {
     title: $t('confirmdelete'),
   });
 }
+
+function handleSubsidy() {
+  orderStore.showSubsidyModal = true;
+  orderStore.timeslotOrderSubsidyForm.ids = [
+    orderStore.currentSelectedOrder!.id!,
+  ];
+  orderStore.timeslotOrderSubsidyForm.timeslotorder_id =
+    orderStore.currentSelectedOrder!.id!;
+  orderStore.timeslotOrderSubsidyForm.subsidy_type =
+    orderStore.currentSelectedOrder!.subsidy_type;
+  orderStore.timeslotOrderSubsidyForm.ads_subsidy =
+    orderStore.currentSelectedOrder!.ads_subsidy;
+  orderStore.timeslotOrderSubsidyForm.tts_subsidy =
+    orderStore.currentSelectedOrder!.tts_subsidy;
+  orderStore.timeslotOrderSubsidyForm.ads_subsidy_remark =
+    orderStore.currentSelectedOrder!.ads_subsidy_remark;
+  orderStore.timeslotOrderSubsidyForm.tts_subsidy_remark =
+    orderStore.currentSelectedOrder!.tts_subsidy_remark;
+}
+
+const subsidyTypeText = computed(() => {
+  const type = Number(orderStore.currentSelectedOrder?.subsidy_type);
+  switch (type) {
+    case 1: {
+      return $t('ads_subsidy');
+    }
+    case 2: {
+      return $t('tts_subsidy');
+    }
+    default: {
+      return $t('subsidy_type');
+    }
+  }
+});
 </script>
 
 <template>
@@ -132,6 +166,39 @@ async function handleDeleteOrder() {
 
         <DescriptionsItem :label="$t('content')" :span="3">
           {{ orderStore.currentSelectedOrder!.contents[0]?.id }}
+        </DescriptionsItem>
+
+        <DescriptionsItem :label="$t('subsidy')" :span="3">
+          <div class="grid grid-cols-[180px_1fr] gap-4">
+            <div class="row-span-2 flex items-center rounded bg-gray-50 p-2">
+              <strong>{{ $t('subsidy_type') }}: </strong>
+              <div class="ml-2">
+                {{ subsidyTypeText }}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex items-center">
+                <strong>{{ $t('tts_subsidy') }}: </strong
+                >{{ orderStore.currentSelectedOrder!.tts_subsidy }}
+              </div>
+              <div class="flex items-center">
+                <strong>{{ $t('ads_subsidy') }}: </strong
+                >{{ orderStore.currentSelectedOrder!.ads_subsidy }}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex items-center">
+                <strong>{{ $t('tts_subsidy_remark') }}: </strong
+                >{{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
+              </div>
+              <div class="flex items-center">
+                <strong>{{ $t('ads_subsidy_remark') }}: </strong
+                >{{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
+              </div>
+            </div>
+          </div>
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('content_text')" :span="3">
@@ -176,12 +243,12 @@ async function handleDeleteOrder() {
 
       <div
         v-if="sampleStore.sampleList.length > 0"
+        ref="scroller"
         class="flex h-full flex-1 flex-col"
       >
         <br />
         <h1>{{ $t('sample') }}</h1>
         <RecycleScroller
-          ref="scroller"
           v-slot="{ item }"
           :emit-update="true"
           :grid-items="2"
@@ -214,7 +281,7 @@ async function handleDeleteOrder() {
         key="download"
         :loading="orderStore.timeslotOrderSubsidyLoading"
         type="primary"
-        @click="orderStore.showSubsidyModal = true"
+        @click="handleSubsidy"
       >
         {{ $t('subsidy') }}
       </Button>
