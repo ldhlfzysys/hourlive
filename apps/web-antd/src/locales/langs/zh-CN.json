@@ -5,7 +5,6 @@
   "content": "场次",
   "sample": "商品",
   "url": "商品链接",
-
   "username": "用户名",
   "password": "密码",
   "account": "账户",
@@ -320,5 +319,16 @@
   "add_streamer": "新增主播",
   "confirm_receipt": "确认收货",
   "confirm_receipt_desc": "确认收货后，样品将进入在库状态",
-  "receiver": "收件人"
+  "receiver": "收件人",
+  "user_manager": "用户管理",
+  "customer_contents": "商家内容管理",
+  "subsidy_desc": "管理补贴政策和申请审核",
+  "user_manager_desc": "管理系统用户及权限设置",
+  "customer_contents_desc": "查看和管理客户相关内容",
+  "shippingAddresses": "收货地址",
+  "noShippingAddress": "暂无收货地址",
+  "balance": "余额",
+  "source": "来源",
+  "contents": "内容",
+  "select_customer": "请选择商家"
 }

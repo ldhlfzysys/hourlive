@@ -5,6 +5,8 @@ import { useSampleStore } from '#/store';
 // @ts-ignore
 import { RecycleScroller } from 'vue-virtual-scroller';
 
+import { AccessControl } from '@vben/access';
+
 import { useElementBounding } from '@vueuse/core';
 import { Button } from 'ant-design-vue';
 
@@ -77,9 +79,11 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="sampleStore.makeCreate()">
-        {{ $t('createsample') }}
-      </Button>
+      <AccessControl :codes="['customer']">
+        <Button type="primary" @click="sampleStore.makeCreate()">
+          {{ $t('createsample') }}
+        </Button>
+      </AccessControl>
     </template>
 
     <template #content>

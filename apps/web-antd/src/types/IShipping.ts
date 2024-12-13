@@ -6,8 +6,10 @@ export interface AgencyShippingQuery {
   customer_id: number;
   delivery_approval: string;
 }
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface SampleShippingQuery extends BaseQuery {}
+
+export interface SampleShippingQuery extends BaseQuery {
+  customer_id?: number;
+}
 
 export interface SampleShipping {
   id?: number;

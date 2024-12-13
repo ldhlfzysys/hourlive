@@ -12,6 +12,7 @@ import type {
   TimeslotOrder,
   TimeslotOrderCreate,
   TimeslotOrderFormState,
+  TimeslotOrderSubsidy,
 } from '#/types';
 
 import { computed, ref } from 'vue';
@@ -23,18 +24,17 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 import { useDownloaderStore, useOSSFileStore, useSampleStore } from '#/store';
 
-// 定义API端点的枚举
-enum TimeslotOrderApi {
-  CancelTimeslotOrder = 'timeslotorder/cancel',
-  CreateTimeslotOrder = 'timeslotorder/create',
-  QueryTimeslotOrder = 'timeslotorder/query',
-  UpdateTimeslotOrder = 'timeslotorder/update',
+function _subsidyTimeslotOrder(params: TimeslotOrderSubsidy) {
+  return requestClient.post<StanderResult<TimeslotOrder>>(
+    'super/subsidy',
+    params,
+  );
 }
 
 // 获取所有时段订单
 function getAllTimeslotOrders(params?: OrderQuery) {
   return requestClient.post<StanderResult<TimeslotOrder[]>>(
-    TimeslotOrderApi.QueryTimeslotOrder,
+    'timeslotorder/query',
     params,
   );
 }
@@ -42,7 +42,7 @@ function getAllTimeslotOrders(params?: OrderQuery) {
 // 取消时段订单
 function cancelTimeslotOrder(params: CancelTimeSlot) {
   return requestClient.post<StanderResult<TimeslotOrder>>(
-    TimeslotOrderApi.CancelTimeslotOrder,
+    'timeslotorder/cancel',
     params,
   );
 }
@@ -50,7 +50,7 @@ function cancelTimeslotOrder(params: CancelTimeSlot) {
 // 创建新的时段订单
 function newTimeslotOrder(params: TimeslotOrderCreate) {
   return requestClient.post<StanderResult<TimeslotOrder>>(
-    TimeslotOrderApi.CreateTimeslotOrder,
+    'timeslotorder/create',
     params,
   );
 }
@@ -58,7 +58,7 @@ function newTimeslotOrder(params: TimeslotOrderCreate) {
 // 更新现有的时段订单
 function updateTimeslotOrder(params: TimeslotOrder) {
   return requestClient.post<StanderResult<TimeslotOrder>>(
-    TimeslotOrderApi.UpdateTimeslotOrder,
+    'timeslotorder/update',
     params,
   );
 }
@@ -67,6 +67,10 @@ function updateTimeslotOrder(params: TimeslotOrder) {
 export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const timeslotOrderLoading = ref(false);
   const timeslotOrderCreateLoading = ref(false);
+  const timeslotOrderSubsidyLoading = ref(false);
+  const timeslotOrderSubsidyForm = ref<TimeslotOrderSubsidy>({
+    timeslotorder_id: -1,
+  });
   const timeslotOrderCreate = ref<TimeslotOrderCreate>({
     content_id: 0,
     room_id: 0,
@@ -132,6 +136,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const confirmLoading = ref(false);
   const showEventDetails = ref(false);
   const showApendModal = ref(false);
+  const showSubsidyModal = ref(false);
   // const formRef = ref<FormInstance>();
 
   const colorMap = ref<Map<number, string>>(new Map());
@@ -195,6 +200,37 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     } finally {
       timeslotOrderLoading.value = false;
     }
+  }
+
+  async function subsidyTimeslotOrder() {
+    if (timeslotOrderSubsidyForm.value.timeslotorder_id === -1) {
+      notification.error({
+        description: $t('请选择时段订单'),
+        message: $t('error'),
+      });
+      return;
+    }
+    timeslotOrderSubsidyLoading.value = true;
+    const res = await _subsidyTimeslotOrder(timeslotOrderSubsidyForm.value);
+    if (res.success) {
+      const timeslotOrder = timeslotOrders.value.get(
+        timeslotOrderSubsidyForm.value.timeslotorder_id,
+      );
+      timeslotOrder!.ads_subsidy = timeslotOrderSubsidyForm.value.ads_subsidy!;
+      timeslotOrder!.tts_subsidy = timeslotOrderSubsidyForm.value.tts_subsidy!;
+      timeslotOrder!.ads_subsidy_remark =
+        timeslotOrderSubsidyForm.value.ads_subsidy_remark!;
+      timeslotOrder!.tts_subsidy_remark =
+        timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
+      timeslotOrder!.subsidy_type =
+        timeslotOrderSubsidyForm.value.subsidy_type!;
+
+      notification.success({
+        description: $t('操作成功'),
+        message: $t('操作成功'),
+      });
+    }
+    timeslotOrderSubsidyLoading.value = false;
   }
 
   function generateTimeslots() {
@@ -528,11 +564,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     showApendModal,
     showEventDetails,
     showModal,
+    showSubsidyModal,
+    subsidyTimeslotOrder,
     timeslotOrderCreate,
     timeslotOrderCreateLoading,
     timeslotOrderList,
     timeslotOrderLoading,
     timeslotOrderQuery,
     timeslotOrders,
+    timeslotOrderSubsidyForm,
+    timeslotOrderSubsidyLoading,
   };
 });

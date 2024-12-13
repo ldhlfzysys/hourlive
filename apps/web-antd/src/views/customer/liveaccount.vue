@@ -5,6 +5,8 @@ import { useLiveAccountStore } from '#/store';
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
+import { AccessControl } from '@vben/access';
+
 import { Button } from 'ant-design-vue';
 
 import Empty from '#/components/empty.vue';
@@ -49,9 +51,11 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="liveaccountStore.showModal = true">
-        {{ $t('createliveaccount') }}
-      </Button>
+      <AccessControl :codes="['customer']">
+        <Button type="primary" @click="liveaccountStore.showModal = true">
+          {{ $t('createliveaccount') }}
+        </Button>
+      </AccessControl>
     </template>
 
     <template #content>

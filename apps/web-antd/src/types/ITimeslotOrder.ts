@@ -129,3 +129,12 @@ export interface TimeslotOrderCreate {
   content_id?: number;
   timeslots?: TimeslotCreateInMany[];
 }
+
+export interface TimeslotOrderSubsidy {
+  timeslotorder_id: number;
+  subsidy_type?: string;
+  tts_subsidy?: number;
+  tts_subsidy_remark?: string;
+  ads_subsidy?: number;
+  ads_subsidy_remark?: string;
+}

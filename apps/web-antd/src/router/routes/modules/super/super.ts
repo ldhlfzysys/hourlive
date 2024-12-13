@@ -39,13 +39,55 @@ const routes: RouteRecordRaw[] = [
       authority: ['super'],
       hideChildrenInMenu: true,
       icon: 'lucide:calendar',
-      order: -1,
+      order: 2,
       title: $t('schedule'),
     },
     name: 'SuperSchedule',
-    path: '/super',
+    path: '/schedule',
 
     children: [config.schedule],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:circle-dollar-sign',
+      order: 2,
+      title: $t('subsidy'),
+    },
+    name: 'Subsidy',
+    path: '/subsidy',
+
+    children: [config.supersubsidy],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:user-round-search',
+      order: 4,
+      title: $t('customer_contents'),
+    },
+    name: 'CustomerContents',
+    path: '/customerContents',
+
+    children: [config.supercustomercontents],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:users',
+      order: 3,
+      title: $t('user_manager'),
+    },
+    name: 'SuperUsers',
+    path: '/superUsers',
+
+    children: [config.superusers],
   },
 ];
 

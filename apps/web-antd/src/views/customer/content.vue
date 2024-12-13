@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
+import { AccessControl } from '@vben/access';
+
 import { Button } from 'ant-design-vue';
 
 import ContentCard from '#/components/contentcard.vue';
@@ -49,9 +51,11 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <Button type="primary" @click="contentStore.makeCreate()">
-        {{ $t('createcontent') }}
-      </Button>
+      <AccessControl :codes="['customer']">
+        <Button type="primary" @click="contentStore.makeCreate()">
+          {{ $t('createcontent') }}
+        </Button>
+      </AccessControl>
     </template>
 
     <template #content>

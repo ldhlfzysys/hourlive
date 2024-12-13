@@ -174,6 +174,16 @@ const viewMap = {
     name: 'Streamer',
     path: '/streamer',
   },
+  supercustomercontents: {
+    component: () => import('#/views/super/customerContents.vue'),
+    meta: {
+      affixTab: false,
+      icon: 'lucide:user-round-search',
+      title: $t('customer_contents'),
+    },
+    name: 'CustomerContents',
+    path: '/customerContents',
+  },
   superhome: {
     component: () => import('#/views/super/home.vue'),
     meta: {
@@ -183,6 +193,16 @@ const viewMap = {
     },
     name: 'Home',
     path: '/home',
+  },
+  superusers: {
+    component: () => import('#/views/super/users.vue'),
+    meta: {
+      affixTab: false,
+      icon: 'lucide:users',
+      title: $t('user_manager'),
+    },
+    name: 'SuperUsers',
+    path: '/superUsers',
   },
 };
 

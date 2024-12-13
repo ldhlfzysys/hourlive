@@ -94,14 +94,14 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['customer'],
       hideChildrenInMenu: true,
-      icon: 'lucide:calendar-days',
+      icon: 'lucide:calendar',
       order: 6,
-      title: $t('myorder'),
+      title: $t('schedule'),
     },
-    name: 'CustomerOrders',
-    path: '/orders',
+    name: 'CustomerSchedule',
+    path: '/customershcedule',
 
-    children: [config.orders],
+    children: [config.schedule],
   },
   {
     component: BasicLayout,

@@ -1,7 +1,9 @@
 import type { BaseQuery } from './ISystem';
 import type { Customer } from './IUser';
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface LiveAccountQuery extends BaseQuery {}
+
+export interface LiveAccountQuery extends BaseQuery {
+  customer_id?: number;
+}
 
 export interface LiveAccount {
   id?: number;

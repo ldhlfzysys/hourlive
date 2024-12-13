@@ -23,6 +23,7 @@ import type { Customer } from '#/types/ICustomer';
 enum CustomerApi {
   // 查询机构往来的小时播账户
   AgencyGetCustomer = '/agency/getallcustomers',
+
   AllCustomers = '/super/allcustomers',
   CreateLiveAccount = 'createliveaccount',
   DeleteFile = 'deletefile',

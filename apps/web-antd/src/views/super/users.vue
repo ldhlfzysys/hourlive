@@ -1,0 +1,225 @@
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue';
+
+import { $t } from '@vben/locales';
+
+import { Card, Collapse, Input } from 'ant-design-vue';
+import { Building2, MapPin, Search, UserRound } from 'lucide-vue-next';
+
+import { useAgencyStore } from '#/store/agency';
+import { useCustomerStore } from '#/store/customer';
+import HourLivePage from '#/views/template/common.vue';
+
+const activeTab = ref('customers');
+const customerStore = useCustomerStore();
+const agencyStore = useAgencyStore();
+const searchText = ref('');
+
+// 过滤用户列表
+const filteredCustomers = computed(() => {
+  if (!searchText.value) {
+    return customerStore.agencyCustomers?.data || [];
+  }
+  return (customerStore.agencyCustomers?.data || []).filter((customer) =>
+    customer.code?.toLowerCase().includes(searchText.value.toLowerCase()),
+  );
+});
+
+// 过滤机构列表
+const filteredAgencies = computed(() => {
+  if (!searchText.value) {
+    return agencyStore.allAgency;
+  }
+  return agencyStore.allAgency.filter((agency) =>
+    agency.name.toLowerCase().includes(searchText.value.toLowerCase()),
+  );
+});
+
+onMounted(async () => {
+  await customerStore.fetchAllCustomers();
+  await agencyStore.fetchAgency();
+});
+</script>
+
+<template>
+  <HourLivePage :content-overflow="true">
+    <template #content>
+      <div class="p-4">
+        <!-- 顶部标签栏和搜索框 -->
+        <div class="mb-6 flex justify-between">
+          <div class="flex gap-4">
+            <div
+              :class="[
+                activeTab === 'customers'
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 dark:bg-neutral-800',
+              ]"
+              class="flex cursor-pointer items-center gap-2 rounded px-4 py-2 transition-colors"
+              @click="activeTab = 'customers'"
+            >
+              <UserRound class="size-4" />
+              {{ $t('customers') }}
+            </div>
+            <div
+              :class="[
+                activeTab === 'agencies'
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 dark:bg-neutral-800',
+              ]"
+              class="flex cursor-pointer items-center gap-2 rounded px-4 py-2 transition-colors"
+              @click="activeTab = 'agencies'"
+            >
+              <Building2 class="size-4" />
+              {{ $t('agencies') }}
+            </div>
+          </div>
+
+          <!-- 搜索框 -->
+          <div class="w-64">
+            <Input
+              v-model:value="searchText"
+              :placeholder="
+                activeTab === 'customers'
+                  ? $t('searchCustomers')
+                  : $t('searchAgencies')
+              "
+              class="!bg-gray-100 dark:!bg-neutral-800"
+            >
+              <template #prefix>
+                <Search class="size-4 text-gray-400" />
+              </template>
+            </Input>
+          </div>
+        </div>
+
+        <!-- 用户列表 -->
+        <div v-if="activeTab === 'customers'" class="grid grid-cols-3 gap-4">
+          <Card
+            v-for="customer in filteredCustomers"
+            :key="customer.id"
+            :bordered="false"
+            class="transition-shadow hover:shadow-md"
+          >
+            <template #title>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UserRound class="size-4" />
+                  {{ customer.code }}
+                </div>
+                <span class="text-sm text-gray-500">{{ customer.source }}</span>
+              </div>
+            </template>
+            <div class="space-y-3">
+              <!-- 基本信息行 -->
+              <div class="flex items-center gap-4">
+                <span class="text-gray-500">ID: {{ customer.id }}</span>
+                <span class="text-gray-500">
+                  {{ $t('balance') }}: {{ customer.hourlive_money }}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <span class="text-gray-500">
+                  {{ $t('contents') }}: {{ customer.contents?.length || 0 }}
+                </span>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <!-- 机构列表 -->
+        <div v-if="activeTab === 'agencies'" class="grid grid-cols-3 gap-4">
+          <Card
+            v-for="agency in filteredAgencies"
+            :key="agency.id"
+            :bordered="false"
+            class="transition-shadow hover:shadow-md"
+          >
+            <template #title>
+              <div class="flex items-center gap-2">
+                <Building2 class="size-4" />
+                {{ agency.name }}
+              </div>
+            </template>
+            <div class="space-y-2">
+              <p>ID: {{ agency.id }}</p>
+              <p>{{ $t('rooms') }}: {{ agency.rooms?.length || 0 }}</p>
+
+              <!-- 收货地址折叠面板 -->
+              <Collapse v-if="agency.shippingaddress?.length">
+                <CollapsePanel :key="1">
+                  <template #header>
+                    <div class="flex items-center gap-2 text-gray-600">
+                      <MapPin class="size-4" />
+                      {{ $t('shippingAddresses') }}
+                      <span class="text-sm text-gray-400">
+                        ({{ agency.shippingaddress.length }})
+                      </span>
+                    </div>
+                  </template>
+                  <div class="space-y-2">
+                    <div
+                      v-for="(address, index) in agency.shippingaddress"
+                      :key="index"
+                      class="rounded bg-gray-50 p-2 dark:bg-neutral-700"
+                    >
+                      <p class="font-medium">{{ address.contact_name }}</p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300">
+                        {{ address.phone }}
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300">
+                        {{ address.province }}{{ address.city
+                        }}{{ address.district }}
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300">
+                        {{ address.address }}
+                      </p>
+                    </div>
+                  </div>
+                </CollapsePanel>
+              </Collapse>
+
+              <!-- 无地址提示 -->
+              <p v-else class="text-sm text-gray-400">
+                {{ $t('noShippingAddress') }}
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        <!-- 无搜索结果提示 -->
+        <div
+          v-if="
+            (activeTab === 'customers' && filteredCustomers.length === 0) ||
+            (activeTab === 'agencies' && filteredAgencies.length === 0)
+          "
+          class="mt-8 text-center text-gray-500"
+        >
+          {{ $t('noSearchResults') }}
+        </div>
+      </div>
+    </template>
+  </HourLivePage>
+</template>
+
+<style scoped>
+.ant-card {
+  @apply bg-white dark:bg-neutral-800;
+}
+
+:deep(.ant-collapse) {
+  @apply border-none bg-transparent;
+}
+
+:deep(.ant-collapse-header) {
+  @apply px-0 py-2;
+}
+
+:deep(.ant-collapse-content) {
+  @apply bg-transparent;
+}
+
+:deep(.ant-collapse-content-box) {
+  @apply p-0;
+}
+</style>

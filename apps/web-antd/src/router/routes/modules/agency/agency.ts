@@ -110,7 +110,7 @@ const routes: RouteRecordRaw[] = [
       title: $t('schedule'),
     },
     name: 'AgencySchedule',
-    path: '/agency',
+    path: '/agencyschedule',
 
     children: [config.schedule],
   },
