@@ -58,7 +58,7 @@ function handleSetTimeslot() {
     const endTime = dayjs(`${slot.date} ${slot.end_time}`);
 
     const timeModel: TimeslotModel = {
-      canEdit: true,
+      canEdit: false,
       date: [startTime, endTime],
       id: slot.id,
       slot: [startTime, endTime],
@@ -66,7 +66,6 @@ function handleSetTimeslot() {
     return timeModel;
   });
 
-  console.log('timeslots', timeslots);
   useHourLivePackageStore().formState = {
     cost: props.item.order_price,
     roomId: props.item.room_id,

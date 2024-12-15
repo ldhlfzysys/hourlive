@@ -14,6 +14,7 @@ import type {
 import { computed, ref, watch } from 'vue';
 
 import { notification } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -337,6 +338,21 @@ export const useHourLivePackageStore = defineStore(
       }
     }
 
+    function is_time_overlap(
+      modify: [dayjs.Dayjs, dayjs.Dayjs],
+      range: [dayjs.Dayjs, dayjs.Dayjs],
+    ) {
+      return (
+        (modify[0].isAfter(range[0]) && modify[0].isBefore(range[1])) ||
+        modify[0].isSame(range[0]) ||
+        modify[0].isSame(range[1]) ||
+        (modify[1].isAfter(range[0]) && modify[1].isBefore(range[1])) ||
+        modify[1].isSame(range[0]) ||
+        modify[1].isSame(range[1]) ||
+        (modify[0].isBefore(range[0]) && modify[1].isAfter(range[1]))
+      );
+    }
+
     // 查询指定日期的时段
     async function queryTimeslots() {
       if (
@@ -352,6 +368,8 @@ export const useHourLivePackageStore = defineStore(
 
       dateTimeslots.value = new Map();
 
+      const modifyTimeslots: Map<string, DateTimeslot[]> = new Map();
+
       formState.value.timeslots?.forEach((slot) => {
         const startDate = slot.slot![0].format('YYYY-MM-DD');
         if (!dates.includes(startDate)) {
@@ -361,16 +379,20 @@ export const useHourLivePackageStore = defineStore(
         if (!dates.includes(endDate)) {
           dates.push(endDate);
         }
-        const timeslots = dateTimeslots.value.get(startDate) ?? [];
-        timeslots.push({
-          date: startDate,
-          end_time: slot.slot![1].format('HH:mm'),
-          is_create: true,
-          room_id,
-          start_time: slot.slot![0].format('HH:mm'),
-        });
 
-        dateTimeslots.value.set(startDate, timeslots);
+        if (slot.canEdit) {
+          const timeslots = modifyTimeslots.get(startDate) ?? [];
+          timeslots.push({
+            date: startDate,
+            end_time: slot.slot![1].format('HH:mm'),
+            is_conflict: false,
+            is_create: true,
+            room_id,
+            start_time: slot.slot![0].format('HH:mm'),
+          });
+
+          modifyTimeslots.set(startDate, timeslots);
+        }
       });
       try {
         const params: DateTimeslotQuery = {
@@ -379,32 +401,74 @@ export const useHourLivePackageStore = defineStore(
         };
 
         const res = await _queryTimeslot(params);
+
+        const existTimeslots: Map<string, DateTimeslot[]> = new Map();
         if (res.success) {
           const result = res.data;
 
           result.forEach((timeslot) => {
             const date = timeslot.date;
-            if (!dateTimeslots.value.has(date)) {
-              dateTimeslots.value.set(date, []);
-            }
-            dateTimeslots.value.get(date)?.push({
+
+            const timeslots = existTimeslots.get(date) ?? [];
+
+            timeslots.push({
               date: timeslot.date,
               end_time: timeslot.end_time,
+              is_conflict: false,
               is_create: false,
               room_id: timeslot.room_id,
               start_time: timeslot.start_time,
             });
+
+            existTimeslots.set(date, timeslots);
           });
         }
 
+        existTimeslots.forEach((timeslots, date) => {
+          timeslots.forEach((slot) => {
+            const start = dayjs(`${date} ${slot.start_time}`);
+            const end = dayjs(`${date} ${slot.end_time}`);
+
+            modifyTimeslots.get(date)?.forEach((modifySlot) => {
+              const modifyStart = dayjs(`${date} ${modifySlot.start_time}`);
+              const modifyEnd = dayjs(`${date} ${modifySlot.end_time}`);
+
+              if (is_time_overlap([modifyStart, modifyEnd], [start, end])) {
+                slot.is_conflict = true;
+                modifySlot.is_conflict = true;
+              }
+            });
+          });
+        });
+
+        const mergedMap = new Map<string, DateTimeslot[]>();
+
+        // 处理第一个 Map
+        modifyTimeslots.forEach((slots, date) => {
+          mergedMap.set(date, slots);
+        });
+
+        // 处理第二个 Map，合并相同日期的时间槽
+        existTimeslots.forEach((slots, date) => {
+          if (mergedMap.has(date)) {
+            // 如果日期已存在，则合并数组
+            mergedMap.set(date, [...mergedMap.get(date)!, ...slots]);
+          } else {
+            // 如果日期不存在，则直接设置
+            mergedMap.set(date, slots);
+          }
+        });
+
         dateTimeslots.value = new Map(
-          [...dateTimeslots.value.entries()]
+          [...mergedMap.entries()]
             .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
             .map(([date, slots]) => [
               date,
               slots.sort((a, b) => a.start_time.localeCompare(b.start_time)),
             ]),
         );
+
+        console.log(dateTimeslots.value);
       } catch (error) {
         console.error(error);
         return null;

@@ -17,6 +17,7 @@ export interface Timeslot {
 }
 
 export type DateTimeslot = {
+  is_conflict: boolean;
   is_create: boolean;
 } & Pick<Timeslot, 'date' | 'end_time' | 'room_id' | 'start_time'>;
 

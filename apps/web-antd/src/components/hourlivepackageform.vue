@@ -184,6 +184,7 @@ function handleCalendarFocus(index: number) {
                   <RangePicker
                     v-model:value="item.slot"
                     :allow-clear="true"
+                    :disabled="!item.canEdit"
                     format="YYYY/MM/DD HH:mm"
                     show-time
                     @change="handleCalendarChange"
@@ -225,7 +226,13 @@ function handleCalendarFocus(index: number) {
                   timeslot, index
                 ) in hourLivePackageStore.dateTimeslots.get(date)"
                 :key="index"
-                :color="timeslot.is_create ? 'green' : 'blue'"
+                :color="
+                  timeslot.is_conflict
+                    ? 'red'
+                    : timeslot.is_create
+                      ? 'green'
+                      : 'blue'
+                "
               >
                 {{ timeslot.start_time }} - {{ timeslot.end_time }}
                 {{ timeslot.is_create ? '(新增)' : '' }}
