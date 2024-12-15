@@ -10,7 +10,7 @@ import type { Agency, Customer } from './IUser';
 export interface TimeslotModel {
   id?: number;
   date: [Dayjs, Dayjs] | Dayjs;
-  slot: [Dayjs, Dayjs];
+  slot: [Dayjs, Dayjs] | undefined;
   canEdit: boolean;
 }
 
@@ -28,6 +28,8 @@ export interface TimeslotOrderFormState {
   customer?: string; // 客户
   enableEdit?: boolean; // 是否可编辑
   formType?: 'add' | 'apend'; // 表单类型
+  streamerId?: number; // 主播id
+  price?: number; // 价格
 }
 
 export interface TimeslotOrder {

@@ -16,10 +16,19 @@ export interface Timeslot {
   streamers?: Streamer[];
 }
 
+export type DateTimeslot = {
+  is_create: boolean;
+} & Pick<Timeslot, 'date' | 'end_time' | 'room_id' | 'start_time'>;
+
 export interface TimeslotQuery {
   roomID: number;
   start_date: string; // Format: YYYY-MM-DD
   end_date: string; // Format: YYYY-MM-DD
+}
+
+export interface DateTimeslotQuery {
+  roomID: number;
+  dates: string[];
 }
 
 export interface TimeslotSave {

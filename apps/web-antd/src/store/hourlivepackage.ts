@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type {
+  DateTimeslot,
+  DateTimeslotQuery,
   OrderQuery,
   StanderResult,
+  Timeslot,
   TimeslotCreateInMany,
   TimeslotOrder,
   TimeslotOrderCreate,
   TimeslotOrderFormState,
 } from '#/types';
 
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
@@ -20,6 +24,7 @@ enum HourLivePackageApi {
   ConfirmPackage = 'hourlive_package/confirmtimeslotorder',
   CreatePackage = 'hourlive_package/create',
   DownPackage = 'hourlive_package/downtimeslotorder',
+  QueryDateTimeslot = 'timeslotorder/querydatelots',
   QueryPackage = 'hourlive_package/query',
   RemoveContent = 'hourlive_package/removecontent',
   UpPackage = 'hourlive_package/uptimeslotorder',
@@ -75,6 +80,13 @@ function _addContent(content_id: number, timeslotorder_id: number) {
   );
 }
 
+function _queryTimeslot(params: DateTimeslotQuery) {
+  return requestClient.post<StanderResult<Timeslot[]>>(
+    HourLivePackageApi.QueryDateTimeslot,
+    params,
+  );
+}
+
 // 定义store
 // #1下单 2退单 3已完成 4时间包未上架 5时间包已上架 6时间包被下单但机构未确认 7机构确认时间包已接收 8机构拒绝时间包
 export const useHourLivePackageStore = defineStore(
@@ -84,6 +96,7 @@ export const useHourLivePackageStore = defineStore(
     const packageCreateLoading = ref(false);
     const packages = ref<Map<number, TimeslotOrder>>(new Map());
     const orderQuery = ref<OrderQuery>({});
+    const dateTimeslots = ref<Map<string, DateTimeslot[]>>(new Map());
     // computed
     const unlistedPackages = computed(() =>
       packageList.value.filter((pkg) => pkg.status === 4),
@@ -113,6 +126,14 @@ export const useHourLivePackageStore = defineStore(
 
     // 状态
     const showModal = ref(false);
+    watch(showModal, (newVal) => {
+      if (newVal) {
+        formState.value.timeslots = undefined;
+      } else {
+        formState.value = {};
+        dateTimeslots.value = new Map();
+      }
+    });
 
     const timeslotOrderCreate = ref<TimeslotOrderCreate>({
       content_id: 0,
@@ -148,7 +169,10 @@ export const useHourLivePackageStore = defineStore(
     }
 
     async function makeOrders() {
-      if (formState.value.timeslots === undefined) {
+      if (
+        formState.value.timeslots === undefined ||
+        formState.value.timeslots.length === 0
+      ) {
         return;
       }
 
@@ -311,12 +335,87 @@ export const useHourLivePackageStore = defineStore(
       }
     }
 
+    // 查询指定日期的时段
+    async function queryTimeslots() {
+      if (
+        !formState.value.roomId ||
+        !formState.value.timeslots ||
+        formState.value.timeslots.length === 0 ||
+        formState.value.timeslots[0] === undefined
+      ) {
+        return;
+      }
+      const dates: string[] = [];
+      const room_id = formState.value.roomId;
+
+      dateTimeslots.value = new Map();
+
+      formState.value.timeslots?.forEach((slot) => {
+        const startDate = slot.slot![0].format('YYYY-MM-DD');
+        if (!dates.includes(startDate)) {
+          dates.push(startDate);
+        }
+        const endDate = slot.slot![1].format('YYYY-MM-DD');
+        if (!dates.includes(endDate)) {
+          dates.push(endDate);
+        }
+        const timeslots = dateTimeslots.value.get(startDate) ?? [];
+        timeslots.push({
+          date: startDate,
+          end_time: slot.slot![1].format('HH:mm'),
+          is_create: true,
+          room_id,
+          start_time: slot.slot![0].format('HH:mm'),
+        });
+
+        dateTimeslots.value.set(startDate, timeslots);
+      });
+      try {
+        const params: DateTimeslotQuery = {
+          dates,
+          roomID: room_id,
+        };
+
+        const res = await _queryTimeslot(params);
+        if (res.success) {
+          const result = res.data;
+
+          result.forEach((timeslot) => {
+            const date = timeslot.date;
+            if (!dateTimeslots.value.has(date)) {
+              dateTimeslots.value.set(date, []);
+            }
+            dateTimeslots.value.get(date)?.push({
+              date: timeslot.date,
+              end_time: timeslot.end_time,
+              is_create: false,
+              room_id: timeslot.room_id,
+              start_time: timeslot.start_time,
+            });
+          });
+        }
+
+        dateTimeslots.value = new Map(
+          [...dateTimeslots.value.entries()]
+            .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+            .map(([date, slots]) => [
+              date,
+              slots.sort((a, b) => a.start_time.localeCompare(b.start_time)),
+            ]),
+        );
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+
     return {
       $reset,
       addContent,
       confirmedPackages,
       confirmTimePackage,
       createTimePackage,
+      dateTimeslots,
       downTimePackage,
       formState,
       listedPackages,
@@ -327,6 +426,7 @@ export const useHourLivePackageStore = defineStore(
       packages,
       pendingPackages,
       queryPackages,
+      queryTimeslots,
       rejectedPackages,
       removeContent,
       showModal,

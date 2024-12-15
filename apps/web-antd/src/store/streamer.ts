@@ -66,6 +66,10 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     q_size: 30,
   });
 
+  function getStreamerById(id: number) {
+    return streamers.value.get(id);
+  }
+
   function $reset() {
     streamerLoading.value = false;
     streamerCreateLoading.value = false;
@@ -184,6 +188,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
   return {
     $reset,
     createStreamer,
+    getStreamerById,
     isEditing,
     makeCreate,
     queryStreamer,

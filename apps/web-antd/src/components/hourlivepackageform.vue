@@ -1,16 +1,19 @@
 <script lang="ts" setup>
-import type { TimeslotModel } from '#/types';
+import { computed, ref } from 'vue';
 
 import {
-  Button,
-  DatePicker,
+  Collapse,
+  CollapsePanel,
   InputNumber,
+  List,
+  ListItem,
   Modal,
+  RangePicker,
   Select,
-  TimePicker,
+  Timeline,
+  TimelineItem,
 } from 'ant-design-vue';
-import dayjs from 'dayjs';
-import { MinusCircle, Plus } from 'lucide-vue-next';
+import dayjs, { Dayjs } from 'dayjs';
 
 import { useHourLivePackageStore } from '#/store';
 import { useRoomStore } from '#/store/room';
@@ -23,30 +26,57 @@ defineOptions({
 const hourLivePackageStore = useHourLivePackageStore();
 const roomStore = useRoomStore();
 const streamerStore = useStreamerStore();
+const focusDate = ref<string>('');
 
-// 添加时间段
-const addTimeSlot = () => {
-  if (!hourLivePackageStore.formState.timeslots) {
-    hourLivePackageStore.formState.timeslots = [];
+const streamerAvatar = computed(() => {
+  let avatarStr =
+    'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png';
+  if (hourLivePackageStore.formState.streamerId) {
+    const streamer = streamerStore.getStreamerById(
+      hourLivePackageStore.formState.streamerId,
+    );
+    if (streamer) {
+      avatarStr = streamer.avatar || avatarStr;
+    }
   }
 
-  hourLivePackageStore.formState.timeslots.push({
+  return avatarStr;
+});
+
+// 添加时间段
+function addTimeslot() {
+  if (hourLivePackageStore.formState.timeslots === undefined) {
+    hourLivePackageStore.formState.timeslots = [];
+  }
+  hourLivePackageStore.formState.timeslots!.push({
     canEdit: true,
     date: dayjs(),
-    slot: [dayjs().hour(0).minute(0), dayjs().hour(1).minute(0)],
-    streamerId: hourLivePackageStore.formState.defaultStreamerId,
-  } as TimeslotModel);
-};
+    slot: undefined,
+  });
+}
 
-// 删除时间段
-const removeTimeSlot = (index: number) => {
-  hourLivePackageStore.formState.timeslots?.splice(index, 1);
-};
+function deleteTimeslot(index: number) {
+  hourLivePackageStore.formState.timeslots!.splice(index, 1);
+  hourLivePackageStore.queryTimeslots();
+}
 
 // 提交表单
 const handleOk = () => {
   hourLivePackageStore.makeOrders();
 };
+
+// 处理日期选择
+function handleCalendarChange(dates: [Dayjs, Dayjs]) {
+  hourLivePackageStore.queryTimeslots();
+  focusDate.value = dates[0].format('YYYY-MM-DD');
+}
+
+function handleCalendarFocus(index: number) {
+  const timeslot = hourLivePackageStore.formState.timeslots![index]!;
+  if (timeslot.slot) {
+    focusDate.value = timeslot.slot[0].format('YYYY-MM-DD');
+  }
+}
 </script>
 
 <template>
@@ -55,11 +85,13 @@ const handleOk = () => {
     :confirm-loading="hourLivePackageStore.packageCreateLoading"
     centered
     title="创建时间包"
-    width="800px"
+    width="60%"
     @ok="handleOk"
   >
-    <div class="overflow-hidden rounded-lg border bg-white shadow">
-      <div class="flex flex-col gap-4 p-6">
+    <div
+      class="flex h-full flex-row space-x-2 overflow-hidden rounded-lg border bg-white shadow"
+    >
+      <div class="flex flex-1 flex-col gap-4 p-6">
         <!-- 房间选择 -->
         <div class="flex flex-row items-center">
           <span class="mr-2 w-24 text-sm font-medium text-gray-500">
@@ -67,7 +99,7 @@ const handleOk = () => {
           </span>
           <Select
             v-model:value="hourLivePackageStore.formState.roomId"
-            class="flex-1"
+            class="max-w-[500px] flex-1"
             placeholder="请选择直播间"
           >
             <Select.Option
@@ -80,28 +112,14 @@ const handleOk = () => {
           </Select>
         </div>
 
-        <!-- 价格设置 -->
-        <div class="flex flex-row items-center">
-          <span class="mr-2 w-24 text-sm font-medium text-gray-500">
-            价格设置
-          </span>
-          <InputNumber
-            v-model:value="hourLivePackageStore.formState.orderPrice"
-            :min="0"
-            :precision="2"
-            class="flex-1"
-            placeholder="请输入价格"
-          />
-        </div>
-
         <!-- 默认主播 -->
         <div class="flex flex-row items-center">
           <span class="mr-2 w-24 text-sm font-medium text-gray-500">
             默认主播
           </span>
           <Select
-            v-model:value="hourLivePackageStore.formState.defaultStreamerId"
-            class="flex-1"
+            v-model:value="hourLivePackageStore.formState.streamerId"
+            class="max-w-[500px] flex-1"
             placeholder="请选择默认主播"
           >
             <Select.Option
@@ -114,54 +132,107 @@ const handleOk = () => {
           </Select>
         </div>
 
-        <!-- 时间段列表 -->
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-500">时间段列表</span>
-            <Button size="small" type="primary" @click="addTimeSlot">
-              <Plus class="h-4 w-4" />
-              添加时间段
-            </Button>
-          </div>
-
-          <div
-            v-for="(slot, index) in hourLivePackageStore.formState.timeslots"
-            :key="index"
-            class="flex items-center gap-4"
-          >
-            <DatePicker
-              v-model:value="slot.date"
-              :disabled="!slot.canEdit"
-              class="flex-1"
-            />
-            <TimePicker
-              v-model:value="slot.slot"
-              :disabled="!slot.canEdit"
-              :range-picker="true"
-              class="flex-1"
-              format="HH:mm"
-            />
-            <Select
-              v-model:value="slot.streamerId"
-              :disabled="!slot.canEdit"
-              class="flex-1"
-              placeholder="选择主播"
-            >
-              <Select.Option
-                v-for="streamer in streamerStore.streamerList"
-                :key="streamer.id"
-                :value="streamer.id"
-              >
-                {{ streamer.name }}
-              </Select.Option>
-            </Select>
-            <MinusCircle
-              v-if="slot.canEdit"
-              class="h-5 w-5 cursor-pointer text-red-500"
-              @click="removeTimeSlot(index)"
-            />
-          </div>
+        <!-- 价格设置 -->
+        <div class="flex flex-row items-center">
+          <span class="mr-2 w-24 text-sm font-medium text-gray-500">
+            价格设置
+          </span>
+          <InputNumber
+            v-model:value="hourLivePackageStore.formState.price"
+            :min="0"
+            :precision="2"
+            class="max-w-[500px] flex-1"
+            placeholder="请输入价格"
+          />
         </div>
+
+        <!-- 时间段列表 -->
+        <div
+          v-if="hourLivePackageStore.formState.roomId"
+          class="flex flex-row items-center"
+        >
+          <span class="mr-2 w-24 text-sm font-medium text-gray-500"
+            >时间段</span
+          >
+          <div
+            v-if="
+              hourLivePackageStore.formState.timeslots === undefined ||
+              hourLivePackageStore.formState.timeslots!.length === 0
+            "
+            class="flex w-[500px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-4 transition-colors hover:border-blue-500"
+            @click="addTimeslot"
+          >
+            <div
+              class="flex h-full w-full items-center justify-center gap-2 text-gray-500 hover:text-blue-500"
+            >
+              <span class="icon-[mdi--plus] size-6"></span>
+              <span>请添加时间段</span>
+            </div>
+          </div>
+          <List
+            v-else
+            :bordered="true"
+            :data-source="hourLivePackageStore.formState.timeslots"
+            class="max-w-[500px] flex-1"
+            item-layout="horizontal"
+            size="small"
+            style="max-height: 400px; overflow: auto"
+          >
+            <template #renderItem="{ item, index }">
+              <ListItem>
+                <div class="flex gap-2">
+                  <RangePicker
+                    v-model:value="item.slot"
+                    :allow-clear="true"
+                    format="YYYY/MM/DD HH:mm"
+                    show-time
+                    @change="handleCalendarChange"
+                    @focus="handleCalendarFocus(index)"
+                  />
+
+                  <span
+                    class="icon-[mdi--minus] size-6"
+                    @click="deleteTimeslot(index)"
+                  ></span>
+                  <span
+                    v-if="
+                      index ===
+                      hourLivePackageStore.formState.timeslots!.length - 1
+                    "
+                    class="icon-[mdi--plus] size-6"
+                    @click="addTimeslot"
+                  ></span>
+                </div>
+              </ListItem>
+            </template>
+          </List>
+        </div>
+      </div>
+      <div class="flex max-h-[500px] w-[35%] flex-col overflow-y-auto">
+        <Collapse
+          v-if="hourLivePackageStore.dateTimeslots.size > 0"
+          v-model:active-key="focusDate"
+          :bordered="false"
+        >
+          <CollapsePanel
+            v-for="date in hourLivePackageStore.dateTimeslots.keys()"
+            :key="date"
+            :header="date"
+          >
+            <Timeline class="ml-4">
+              <TimelineItem
+                v-for="(
+                  timeslot, index
+                ) in hourLivePackageStore.dateTimeslots.get(date)"
+                :key="index"
+                :color="timeslot.is_create ? 'green' : 'blue'"
+              >
+                {{ timeslot.start_time }} - {{ timeslot.end_time }}
+                {{ timeslot.is_create ? '(新增)' : '' }}
+              </TimelineItem>
+            </Timeline>
+          </CollapsePanel>
+        </Collapse>
       </div>
     </div>
   </Modal>

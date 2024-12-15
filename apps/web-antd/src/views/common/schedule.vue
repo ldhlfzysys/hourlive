@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 
 import Empty from '#/components/empty.vue';
 import OrderApendModal from '#/components/orderApendModal.vue';
-import OrderDetailModal from '#/components/orderDeatailModal.vue';
+import OrderDetailModal from '#/components/orderDetailModal.vue';
 import SelectFilter from '#/components/selectfilter.vue';
 import TimeslotOrderForm from '#/components/timeslotorderform.vue';
 import {
