@@ -128,7 +128,9 @@ export const useHourLivePackageStore = defineStore(
     const showModal = ref(false);
     watch(showModal, (newVal) => {
       if (newVal) {
-        formState.value.timeslots = undefined;
+        if (formState.value.timeslots) {
+          queryTimeslots();
+        }
       } else {
         formState.value = {};
         dateTimeslots.value = new Map();

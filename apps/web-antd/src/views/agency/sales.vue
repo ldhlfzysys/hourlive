@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 
-import { Button, Checkbox } from 'ant-design-vue';
+import { Button, Checkbox, TabPane, Tabs } from 'ant-design-vue';
 
-import HourLivePackageCard from '#/components/hourlivepackagecard.vue';
 import HourLivePackageForm from '#/components/hourlivepackageform.vue';
+import HourLivePackageList from '#/components/hourlivepackagelist.vue';
 import {
   useHourLivePackageStore,
   useRoomStore,
@@ -49,74 +49,50 @@ onMounted(() => {
 
 <template>
   <HourLivePage :content-overflow="true">
-    <template #header>
-      <div class="flex items-center justify-between">
-        <div></div>
-        <Button type="primary" @click="store.showModal = true">新增包场</Button>
-      </div>
-    </template>
+    <template #header> </template>
 
     <template #content>
       <div class="flex flex-col space-y-6">
-        <!-- 未出售分组 -->
-        <div class="package-group">
-          <div class="mb-4 flex items-center">
-            <h3 class="mr-4">未出售</h3>
-            <Checkbox.Group v-model:value="unsoldStatusChecked">
-              <Checkbox :value="4">未上架</Checkbox>
-              <Checkbox :value="5">已上架</Checkbox>
-            </Checkbox.Group>
-          </div>
-          <div
-            v-if="unsoldPackages.length > 0"
-            class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4"
-          >
-            <HourLivePackageCard
-              v-for="item in unsoldPackages"
-              :key="item.id"
-              :item="item"
-            />
-          </div>
-          <div v-else class="text-gray-500">暂无数据</div>
-        </div>
-
-        <!-- 已售出分组 -->
-        <div class="package-group">
-          <div class="mb-4 flex items-center">
-            <h3 class="mr-4">已售出</h3>
-            <Checkbox.Group v-model:value="soldStatusChecked">
-              <Checkbox :value="6">待确认</Checkbox>
-              <Checkbox :value="7">已确认</Checkbox>
-            </Checkbox.Group>
-          </div>
-          <div
-            v-if="soldPackages.length > 0"
-            class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4"
-          >
-            <HourLivePackageCard
-              v-for="item in soldPackages"
-              :key="item.id"
-              :item="item"
-            />
-          </div>
-          <div v-else class="text-gray-500">暂无数据</div>
-        </div>
-
-        <!-- 已拒绝分组 -->
-        <div class="package-group">
-          <h3 class="mb-4">已拒绝</h3>
-          <div
-            v-if="rejectedPackages.length > 0"
-            class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4"
-          >
-            <HourLivePackageCard
-              v-for="item in rejectedPackages"
-              :key="item.id"
-              :item="item"
-            />
-          </div>
-          <div v-else class="text-gray-500">暂无数据</div>
-        </div>
+        <Tabs :tab-bar-gutter="50" size="large" tab-position="left">
+          <template #leftExtra>
+            <div class="mb-6 flex items-center justify-between">
+              <div></div>
+              <Button type="primary" @click="store.showModal = true">
+                新增包场
+              </Button>
+            </div>
+          </template>
+          <TabPane key="1" tab="未出售">
+            <div v-if="unsoldPackages.length > 0" class="package-group">
+              <div class="mb-4 flex items-center">
+                <Checkbox.Group v-model:value="unsoldStatusChecked">
+                  <Checkbox :value="4">未上架</Checkbox>
+                  <Checkbox :value="5">已上架</Checkbox>
+                </Checkbox.Group>
+              </div>
+              <HourLivePackageList :packages="unsoldPackages" />
+            </div>
+          </TabPane>
+          <TabPane key="2" tab="已售出">
+            <div class="package-group">
+              <div
+                v-if="soldPackages.length > 0"
+                class="mb-4 flex items-center"
+              >
+                <Checkbox.Group v-model:value="soldStatusChecked">
+                  <Checkbox :value="6">待确认</Checkbox>
+                  <Checkbox :value="7">已确认</Checkbox>
+                </Checkbox.Group>
+              </div>
+              <HourLivePackageList :packages="soldPackages" />
+            </div>
+          </TabPane>
+          <TabPane key="3" tab="已拒绝">
+            <div class="package-group">
+              <HourLivePackageList :packages="rejectedPackages" />
+            </div>
+          </TabPane>
+        </Tabs>
       </div>
       <HourLivePackageForm />
     </template>

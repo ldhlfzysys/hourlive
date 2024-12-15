@@ -1,10 +1,15 @@
 <script lang="ts" setup>
-import type { TimeslotOrder } from '#/types';
+import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed } from 'vue';
 
-import { Avatar, Button, Tag } from 'ant-design-vue';
+import { Button, Tag } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { Timer, Users } from 'lucide-vue-next';
+
+import { useHourLivePackageStore } from '#/store';
+
+import HourLiveAvatar from './hourliveavartar.vue';
 
 defineOptions({
   name: 'HourLivePackageCard',
@@ -23,7 +28,7 @@ const totalDuration = computed(() => {
     const hours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     total += hours;
   });
-  return total;
+  return total.toFixed(2);
 });
 
 // 获取主播标签颜色
@@ -46,6 +51,30 @@ const getAllStreamers = computed(() => {
   });
   return [...streamers.values()];
 });
+
+function handleSetTimeslot() {
+  const timeslots = props.item.timeslots.map((slot) => {
+    const startTime = dayjs(`${slot.date} ${slot.start_time}`);
+    const endTime = dayjs(`${slot.date} ${slot.end_time}`);
+
+    const timeModel: TimeslotModel = {
+      canEdit: true,
+      date: [startTime, endTime],
+      id: slot.id,
+      slot: [startTime, endTime],
+    };
+    return timeModel;
+  });
+
+  console.log('timeslots', timeslots);
+  useHourLivePackageStore().formState = {
+    cost: props.item.order_price,
+    roomId: props.item.room_id,
+    timeslots,
+  };
+
+  useHourLivePackageStore().showModal = true;
+}
 </script>
 
 <template>
@@ -74,23 +103,7 @@ const getAllStreamers = computed(() => {
     <!-- 主播信息区域 -->
     <div class="flex items-start space-x-3">
       <div class="relative">
-        <Avatar.Group
-          v-if="getAllStreamers.length > 1"
-          :max-count="2"
-          :size="48"
-        >
-          <Avatar
-            v-for="streamer in getAllStreamers"
-            :key="streamer.id"
-            :size="48"
-            :src="streamer.avatar"
-          />
-        </Avatar.Group>
-        <Avatar
-          v-else-if="getAllStreamers[0]"
-          :size="48"
-          :src="getAllStreamers[0].avatar"
-        />
+        <HourLiveAvatar :avatars="[]" />
       </div>
       <div class="flex-1">
         <div class="flex items-center justify-between">
@@ -122,7 +135,7 @@ const getAllStreamers = computed(() => {
     </p>
 
     <!-- 修改操作按钮区域 -->
-    <div class="mt-4 border-t border-gray-100 pt-4">
+    <div class="mt-4 border-gray-100 pt-4">
       <!-- 套餐信息 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -141,7 +154,13 @@ const getAllStreamers = computed(() => {
         <Button :type="isOnline ? 'default' : 'primary'" size="small">
           {{ isOnline ? '下架' : '上架' }}
         </Button>
-        <Button class="flex items-center" ghost size="small" type="primary">
+        <Button
+          class="flex items-center"
+          ghost
+          size="small"
+          type="primary"
+          @click="handleSetTimeslot"
+        >
           <Timer class="mr-1 h-3 w-3" />
           设置时段
         </Button>
