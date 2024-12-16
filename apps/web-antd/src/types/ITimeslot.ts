@@ -19,9 +19,10 @@ export interface Timeslot {
 export type DateTimeslot = {
   is_conflict: boolean;
   is_create: boolean;
+  key: string;
 } & Pick<
   Timeslot,
-  'date' | 'end_time' | 'room_id' | 'start_time' | 'timeslotorders'
+  'date' | 'end_time' | 'id' | 'room_id' | 'start_time' | 'timeslotorders'
 >;
 
 export interface TimeslotQuery {

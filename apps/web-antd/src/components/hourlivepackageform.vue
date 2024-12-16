@@ -236,6 +236,7 @@ function handleStreamerSelect(value: number) {
                     v-model:value="item.slot"
                     :allow-clear="true"
                     :disabled="!item.canEdit"
+                    :status="item.is_conflict ? 'error' : undefined"
                     format="YYYY/MM/DD HH:mm"
                     show-time
                     @change="handleCalendarChange"

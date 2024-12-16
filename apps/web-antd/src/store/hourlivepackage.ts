@@ -249,6 +249,7 @@ export const useHourLivePackageStore = defineStore(
           showModal.value = false;
           timeslotOrderCreate.value = {
             content_id: -1,
+            order_price: 0,
             room_id: -1,
             timeslots: [],
           };
@@ -389,7 +390,7 @@ export const useHourLivePackageStore = defineStore(
 
       const modifyTimeslots: Map<string, DateTimeslot[]> = new Map();
 
-      formState.value.timeslots?.forEach((slot) => {
+      formState.value.timeslots?.forEach((slot, index) => {
         if (slot === undefined) {
           return;
         }
@@ -407,8 +408,10 @@ export const useHourLivePackageStore = defineStore(
           timeslots.push({
             date: startDate,
             end_time: slot.slot![1].format('HH:mm'),
+            id: -1,
             is_conflict: false,
             is_create: true,
+            key: `N-${index}`,
             room_id,
             start_time: slot.slot![0].format('HH:mm'),
             timeslotorders: [],
@@ -437,8 +440,10 @@ export const useHourLivePackageStore = defineStore(
             timeslots.push({
               date: timeslot.date,
               end_time: timeslot.end_time,
+              id: timeslot.id,
               is_conflict: false,
               is_create: false,
+              key: timeslot.id.toString(),
               room_id: timeslot.room_id,
               start_time: timeslot.start_time,
               timeslotorders: timeslot.timeslotorders,
@@ -460,6 +465,10 @@ export const useHourLivePackageStore = defineStore(
               if (is_time_overlap([modifyStart, modifyEnd], [start, end])) {
                 slot.is_conflict = true;
                 modifySlot.is_conflict = true;
+                const index: number = Number.parseInt(
+                  modifySlot.key.split('-')[1]!,
+                );
+                formState.value.timeslots![index]!.is_conflict = true;
               }
             });
           });
@@ -469,7 +478,8 @@ export const useHourLivePackageStore = defineStore(
 
         // 处理第一个 Map
         modifyTimeslots.forEach((slots, date) => {
-          mergedMap.set(date, slots);
+          const unConflictSlots = slots.filter((slot) => !slot.is_conflict);
+          mergedMap.set(date, unConflictSlots);
         });
 
         // 处理第二个 Map，合并相同日期的时间槽

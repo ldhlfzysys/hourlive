@@ -13,6 +13,7 @@ export interface TimeslotModel {
   slot: [Dayjs, Dayjs] | undefined;
   streamerId?: number;
   canEdit: boolean;
+  is_conflict?: boolean;
 }
 
 export interface TimeslotOrderFormState {

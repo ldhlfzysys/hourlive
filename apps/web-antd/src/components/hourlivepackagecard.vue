@@ -3,7 +3,7 @@ import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed } from 'vue';
 
-import { Button, Tag } from 'ant-design-vue';
+import { Button, Modal, Tag } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { Timer, Users } from 'lucide-vue-next';
 
@@ -82,20 +82,30 @@ function handleSetTimeslot() {
   useHourLivePackageStore().showModal = true;
 }
 
+const hasTimeslot = computed(() => props.item.timeslots.length > 0);
+
 function handleOnlineOrOffline() {
   if (isOnline.value) {
     // 下架
     useHourLivePackageStore().downTimePackage(props.item.id);
   } else {
     // 上架
-    useHourLivePackageStore().upTimePackage(props.item.id);
+    if (hasTimeslot.value) {
+      useHourLivePackageStore().upTimePackage(props.item.id);
+    } else {
+      Modal.error({
+        content: '当前时间包不存在时段，请先设置再上架',
+        title: '无法上架',
+      });
+    }
   }
 }
 </script>
 
 <template>
   <div
-    class="group relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
+    :class="[{ 'bg-white': hasTimeslot, 'bg-gray-100': !hasTimeslot }]"
+    class="group relative rounded-lg border border-gray-200 p-4 shadow-sm transition-all hover:shadow-md"
   >
     <!-- 上架状态标签 -->
     <div class="absolute right-2 top-2">
@@ -112,7 +122,7 @@ function handleOnlineOrOffline() {
       </Tag>
       <Tag v-else class="flex items-center gap-1" color="default">
         <span class="inline-block h-2 w-2 rounded-full bg-gray-300"></span>
-        未上架
+        {{ hasTimeslot ? '未上架' : '未设置时段' }}
       </Tag>
     </div>
 
@@ -124,7 +134,10 @@ function handleOnlineOrOffline() {
       <div class="flex-1">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <h3 class="text-lg font-medium text-gray-900">
+            <h3
+              v-if="getAllStreamers.length === 0"
+              class="text-lg font-medium text-gray-900"
+            >
               {{ getAllStreamers[0]?.name }}
             </h3>
             <Users
@@ -168,6 +181,7 @@ function handleOnlineOrOffline() {
       <!-- 操作按钮 -->
       <div class="mt-3 flex items-center justify-end space-x-2">
         <Button
+          :disabled="!hasTimeslot"
           :type="isOnline ? 'default' : 'primary'"
           size="small"
           @click="handleOnlineOrOffline"
