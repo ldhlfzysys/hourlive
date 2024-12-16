@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { CancelTimeSlot } from '#/types';
+
 import { computed, ref } from 'vue';
 
 import {
@@ -15,7 +17,7 @@ import {
 } from 'ant-design-vue';
 import dayjs, { Dayjs } from 'dayjs';
 
-import { useHourLivePackageStore } from '#/store';
+import { useHourLivePackageStore, useTimeslotOrderStore } from '#/store';
 import { useRoomStore } from '#/store/room';
 import { useStreamerStore } from '#/store/streamer';
 
@@ -57,8 +59,34 @@ function addTimeslot() {
 }
 
 function deleteTimeslot(index: number) {
-  hourLivePackageStore.formState.timeslots!.splice(index, 1);
-  hourLivePackageStore.queryTimeslots();
+  const timeslot = hourLivePackageStore.formState.timeslots![index]!;
+  if (timeslot.id && hourLivePackageStore.formState.orderId) {
+    Modal.confirm({
+      cancelText: '取消',
+      content: '当前这个时间段已经创建订单，确定要删除这个时间段吗？',
+      okText: '确认',
+      async onOk() {
+        const timeslot = hourLivePackageStore.formState.timeslots![index]!;
+        if (timeslot.id && hourLivePackageStore.formState.orderId) {
+          const cancelTimeSlot: CancelTimeSlot = {
+            timeslot_ids: [timeslot.id],
+            timeslotorder_id: hourLivePackageStore.formState.orderId,
+          };
+          const res =
+            await useTimeslotOrderStore().deleteOrders(cancelTimeSlot);
+          if (res !== null) {
+            hourLivePackageStore.packages.set(res.id, res);
+            hourLivePackageStore.formState.timeslots!.splice(index, 1);
+            hourLivePackageStore.queryTimeslots();
+          }
+        }
+      },
+      title: '确认删除',
+    });
+  } else {
+    hourLivePackageStore.formState.timeslots!.splice(index, 1);
+    hourLivePackageStore.queryTimeslots();
+  }
 }
 
 // 提交表单

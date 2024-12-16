@@ -290,7 +290,9 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
         description: $t('deleteorder'),
         message: $t('success'),
       });
+      return res.data;
     }
+    return null;
   }
 
   async function makeOrders() {

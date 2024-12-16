@@ -45,11 +45,15 @@ const getAllStreamers = computed(() => {
   props.item.timeslots.forEach((slot) => {
     slot.streamers?.forEach((streamer) => {
       if (streamer.id) {
-        streamers.set(streamer.id, streamer.avatar);
+        streamers.set(streamer.id, streamer);
       }
     });
   });
   return [...streamers.values()];
+});
+
+const allAvatar = computed(() => {
+  return getAllStreamers.value.map((streamer) => streamer.avatar);
 });
 
 function handleSetTimeslot() {
@@ -115,7 +119,7 @@ function handleOnlineOrOffline() {
     <!-- 主播信息区域 -->
     <div class="flex items-start space-x-3">
       <div class="relative">
-        <HourLiveAvatar :avatars="getAllStreamers" />
+        <HourLiveAvatar :avatars="allAvatar" />
       </div>
       <div class="flex-1">
         <div class="flex items-center justify-between">
