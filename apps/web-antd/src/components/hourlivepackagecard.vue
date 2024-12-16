@@ -171,6 +171,7 @@ function handleOnlineOrOffline() {
           {{ isOnline ? '下架' : '上架' }}
         </Button>
         <Button
+          v-if="!isOnline"
           class="flex items-center"
           ghost
           size="small"
