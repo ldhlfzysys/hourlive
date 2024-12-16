@@ -116,6 +116,10 @@ export interface AgencyHomeInfo {
   new_order: number;
 }
 
+export interface SuperHomeInfo {
+  today_content: number;
+}
+
 export interface AgencyUpdate {
   id: number;
   name: string;

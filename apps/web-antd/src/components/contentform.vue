@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useAccess } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Input, Modal, Select, SelectOption } from 'ant-design-vue';
@@ -8,7 +9,7 @@ import { useContentStore, useLiveAccountStore } from '#/store';
 defineOptions({
   name: 'ContentForm',
 });
-
+const { hasAccessByRoles } = useAccess();
 const contentStore = useContentStore();
 const liveaccountStore = useLiveAccountStore();
 
@@ -25,6 +26,7 @@ function handleOk() {
   <Modal
     v-model:open="contentStore.showModal"
     :confirm-loading="contentStore.contentCreateLoading"
+    :footer="hasAccessByRoles(['customer']) ? undefined : null"
     :title="$t('create')"
     centered
     width="800px"

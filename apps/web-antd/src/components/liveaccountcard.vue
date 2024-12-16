@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { LiveAccount } from '#/types';
 
+import { AccessControl } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
@@ -34,13 +35,15 @@ const liveaccountStore = useLiveAccountStore();
           {{ props.liveaccount.code }}
         </span>
       </div>
-      <Button
-        class="min-w-[80px]"
-        type="primary"
-        @click="liveaccountStore.makeUpdate(props.liveaccount.id!)"
-      >
-        {{ $t('edit') }}
-      </Button>
+      <AccessControl :codes="['customer']">
+        <Button
+          class="min-w-[80px]"
+          type="primary"
+          @click="liveaccountStore.makeUpdate(props.liveaccount.id!)"
+        >
+          {{ $t('edit') }}
+        </Button>
+      </AccessControl>
     </div>
 
     <!-- 内容部分 -->

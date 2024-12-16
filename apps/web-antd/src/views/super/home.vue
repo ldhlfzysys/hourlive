@@ -1,12 +1,46 @@
 <script lang="ts" setup>
+import { computed, onMounted } from 'vue';
+
 import { $t } from '@vben/locales';
 
 import { Card } from 'ant-design-vue';
 import { Calendar, UserRoundSearch, Users } from 'lucide-vue-next';
 
+import GuideCard from '#/components/guidecard.vue';
+import { useSuperStore } from '#/store/super';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
+const superStore = useSuperStore();
+
+onMounted(async () => {
+  await superStore.fetchSuperHomeInfo();
+});
+
+const superGuide = computed(() => [
+  {
+    description: $t('schedule_desc'),
+    icon: Calendar,
+    leftText: $t('schedule'),
+    routerPath: '/super',
+    title: $t('schedule'),
+  },
+  {
+    description: $t('user_manager_desc'),
+    icon: Users,
+    leftText: $t('user_manager'),
+    routerPath: '/superUsers',
+    title: $t('user_manager'),
+  },
+  {
+    description: $t('customer_contents_desc'),
+    icon: UserRoundSearch,
+    leftText: $t('customer_contents'),
+    routerPath: '/customerContents',
+    title: $t('customer_contents'),
+  },
+]);
 </script>
 
 <template>
@@ -15,121 +49,26 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
     <template #content>
       <div class="flex flex-col p-3">
-        <div class="flex flex-row gap-4">
-          <!-- 修改后的引导卡片 -->
-          <Card :title="$t('guide')">
-            <div>
-              <!-- 日程安排 Item -->
-              <div class="flex gap-x-3">
-                <div class="w-20 text-end">
-                  <span class="text-xs text-gray-500 dark:text-neutral-400">{{
-                    $t('schedule')
-                  }}</span>
-                </div>
-                <div
-                  class="relative after:absolute after:bottom-0 after:start-3.5 after:top-7 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 last:after:hidden dark:after:bg-neutral-700"
-                >
-                  <div
-                    class="relative z-10 flex size-7 items-center justify-center"
-                  >
-                    <div
-                      class="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"
-                    ></div>
-                  </div>
-                </div>
-                <div class="grow pb-8 pt-0.5">
-                  <h3
-                    class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white"
-                  >
-                    <Calendar class="size-5" />
-                    <RouterLink to="/super">{{ $t('schedule') }}</RouterLink>
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ $t('schedule_desc') }}
-                  </p>
-                </div>
-              </div>
+        <div class="grid grid-cols-[1fr_2fr] gap-4">
+          <GuideCard :items="superGuide" :title="$t('guide')" />
 
-              <!-- 用户管理 Item -->
-              <div class="flex gap-x-3">
-                <div class="w-20 text-end">
-                  <span class="text-xs text-gray-500 dark:text-neutral-400">{{
-                    $t('user_manager')
-                  }}</span>
-                </div>
-                <div
-                  class="relative after:absolute after:bottom-0 after:start-3.5 after:top-7 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 last:after:hidden dark:after:bg-neutral-700"
+          <div class="grid grid-cols-1 gap-4">
+            <Card :title="$t('today_content')" class="shrink-0">
+              <div class="flex flex-col items-center py-4">
+                <span
+                  class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
                 >
-                  <div
-                    class="relative z-10 flex size-7 items-center justify-center"
-                  >
-                    <div
-                      class="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"
-                    ></div>
-                  </div>
-                </div>
-                <div class="grow pb-8 pt-0.5">
-                  <h3
-                    class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white"
-                  >
-                    <Users class="size-5" />
-                    <RouterLink to="/superUsers">
-                      {{ $t('user_manager') }}
-                    </RouterLink>
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ $t('user_manager_desc') }}
-                  </p>
-                </div>
+                  {{ superStore.superHomeInfo?.today_content }}
+                </span>
+                <span class="mt-2 text-gray-500">{{ $t('one_live') }}</span>
               </div>
-
-              <!-- 客户内容 Item -->
-              <div class="flex gap-x-3">
-                <div class="w-20 text-end">
-                  <span class="text-xs text-gray-500 dark:text-neutral-400">{{
-                    $t('customer_contents')
-                  }}</span>
-                </div>
-                <div
-                  class="relative after:absolute after:bottom-0 after:start-3.5 after:top-7 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 last:after:hidden dark:after:bg-neutral-700"
-                >
-                  <div
-                    class="relative z-10 flex size-7 items-center justify-center"
-                  >
-                    <div
-                      class="size-2 rounded-full bg-gray-400 dark:bg-neutral-600"
-                    ></div>
-                  </div>
-                </div>
-                <div class="grow pb-8 pt-0.5">
-                  <h3
-                    class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white"
-                  >
-                    <UserRoundSearch class="size-5" />
-                    <RouterLink to="/customerContents">
-                      {{ $t('customer_contents') }}
-                    </RouterLink>
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ $t('customer_contents_desc') }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          <!-- 现有的其他卡片 -->
-          <Card title="今日场次">
-            <div></div>
-          </Card>
-          <Card title="进行中物流单">
-            <div></div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </template>
 
-    <template #footer> 123 </template>
+    <template #footer> </template>
   </HourLivePage>
 </template>
 
@@ -139,9 +78,6 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 }
 
 .user {
-  /* height: 32%; */
-
-  /* padding: 0 12px; */
   display: flex;
   align-items: center;
 }

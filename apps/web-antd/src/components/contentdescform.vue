@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, ref } from 'vue';
 
+import { useAccess } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
@@ -13,7 +14,6 @@ import '@wangeditor/editor/dist/css/style.css';
 defineOptions({
   name: 'ContentDescForm',
 });
-
 withDefaults(
   defineProps<{
     allowEdit?: boolean;
@@ -22,7 +22,7 @@ withDefaults(
     allowEdit: false,
   },
 );
-
+const { hasAccessByRoles } = useAccess();
 const editorRef = ref();
 const mode = ref('simple');
 
@@ -50,7 +50,7 @@ const handleOk = () => {
   <Modal
     v-model:open="contentStore.showDescModal"
     :confirm-loading="contentStore.contentCreateLoading"
-    :footer="allowEdit ? undefined : null"
+    :footer="hasAccessByRoles(['customer']) ? undefined : null"
     :title="$t('save')"
     centered
     width="800px"

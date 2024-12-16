@@ -116,9 +116,14 @@ const tabs = [
       <div class="flex items-center gap-4">
         <Select
           v-model:value="selectedCustomer"
+          :filter-option="
+            (input, option) =>
+              option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          "
           :options="customerStore.customerOptions"
           :placeholder="$t('select_customer')"
           class="w-64"
+          show-search
         />
       </div>
     </template>

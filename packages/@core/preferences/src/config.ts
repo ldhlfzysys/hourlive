@@ -48,8 +48,8 @@ const defaultPreferences: Preferences = {
     mode: 'fixed',
   },
   logo: {
-    enable: true,
-    source: 'https://unpkg.com/@vbenjs/static-source@0.1.6/source/logo-v1.webp',
+    enable: false,
+    source: '#/assets/images/logo.png',
   },
   navigation: {
     accordion: true,

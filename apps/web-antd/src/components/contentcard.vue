@@ -3,6 +3,7 @@ import type { Content } from '#/types';
 
 import { computed } from 'vue';
 
+import { AccessControl } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
@@ -48,13 +49,15 @@ const liveaccount = computed(() => {
           {{ $t('content_desc') }}
         </a>
       </div>
-      <Button
-        class="min-w-[80px]"
-        type="primary"
-        @click="contentStore.makeUpdate(props.content.id!)"
-      >
-        {{ $t('edit') }}
-      </Button>
+      <AccessControl :codes="['customer']">
+        <Button
+          class="min-w-[80px]"
+          type="primary"
+          @click="contentStore.makeUpdate(props.content.id!)"
+        >
+          {{ $t('edit') }}
+        </Button>
+      </AccessControl>
     </div>
 
     <!-- 内容部分 -->
