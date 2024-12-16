@@ -19,6 +19,7 @@ import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
+
 // API端点枚举
 enum HourLivePackageApi {
   AddContent = 'hourlive_package/addcontent',
@@ -166,6 +167,7 @@ export const useHourLivePackageStore = defineStore(
       packages.value = new Map();
       timeslotOrderCreate.value = {
         content_id: 0,
+        order_price: 0,
         room_id: 0,
         timeslots: [],
       };
@@ -182,18 +184,19 @@ export const useHourLivePackageStore = defineStore(
       const timeslots: TimeslotCreateInMany[] = [];
 
       formState.value.timeslots.forEach((slot) => {
-        if (slot.canEdit) {
-          const startDate = Array.isArray(slot.date) ? slot.date[0] : slot.date;
-          const endDate = Array.isArray(slot.date) ? slot.date[1] : slot.date;
-          const timeslot: TimeslotCreateInMany = {
-            date: startDate.format('YYYY-MM-DD'),
-            end_date: endDate.format('YYYY-MM-DD'),
-            end_time: slot.slot[1].format('HH:mm'),
-            hourlive_money_cost: 0,
-            start_time: slot.slot[0].format('HH:mm'),
-          };
-          timeslots.push(timeslot);
-        }
+        const startDate = Array.isArray(slot.date) ? slot.date[0] : slot.date;
+        const endDate = Array.isArray(slot.date) ? slot.date[1] : slot.date;
+        const streamers = slot.streamerId ? [slot.streamerId] : [];
+        const timeslot: TimeslotCreateInMany = {
+          date: startDate.format('YYYY-MM-DD'),
+          end_date: endDate.format('YYYY-MM-DD'),
+          end_time: slot.slot![1].format('HH:mm'),
+          hourlive_money_cost: 0,
+          id: slot.id ?? -1,
+          start_time: slot.slot![0].format('HH:mm'),
+          streamers,
+        };
+        timeslots.push(timeslot);
       });
 
       if (timeslots.length === 0) {
@@ -206,6 +209,7 @@ export const useHourLivePackageStore = defineStore(
 
       const params: TimeslotOrderCreate = {
         content_id: formState.value.contentId ?? -1,
+        order_price: formState.value.price ?? 0,
         room_id: formState.value.roomId ?? -1,
         timeslots,
       };
@@ -223,6 +227,17 @@ export const useHourLivePackageStore = defineStore(
           notification.error({
             description: $t('请输入房间ID'),
             message: $t('验证失败'),
+          });
+          return;
+        }
+
+        const hasConflict = [...dateTimeslots.value.values()].some(
+          (timeslots) => timeslots.some((slot) => slot.is_conflict),
+        );
+        if (hasConflict) {
+          notification.error({
+            description: $t('时间冲突'),
+            message: $t('请调整时间'),
           });
           return;
         }
@@ -342,15 +357,19 @@ export const useHourLivePackageStore = defineStore(
       modify: [dayjs.Dayjs, dayjs.Dayjs],
       range: [dayjs.Dayjs, dayjs.Dayjs],
     ) {
-      return (
-        (modify[0].isAfter(range[0]) && modify[0].isBefore(range[1])) ||
-        modify[0].isSame(range[0]) ||
-        modify[0].isSame(range[1]) ||
-        (modify[1].isAfter(range[0]) && modify[1].isBefore(range[1])) ||
-        modify[1].isSame(range[0]) ||
-        modify[1].isSame(range[1]) ||
-        (modify[0].isBefore(range[0]) && modify[1].isAfter(range[1]))
-      );
+      const condition1 =
+        (modify[0].isAfter(range[0]) || modify[0].isSame(range[0])) &&
+        modify[0].isBefore(range[1]); // m0 in  [range）
+      const condition2 =
+        (modify[1].isAfter(range[0]) || modify[1].isSame(range[0])) &&
+        modify[1].isBefore(range[1]); // m1 in [range）
+      const condition3 =
+        (modify[0].isBefore(range[0]) || modify[0].isSame(range[0])) &&
+        (modify[1].isAfter(range[1]) || modify[1].isSame(range[1])); // range in [m0, m1)
+
+      console.log(condition1, condition2, condition3);
+
+      return condition1 || condition2 || condition3;
     }
 
     // 查询指定日期的时段
@@ -371,6 +390,9 @@ export const useHourLivePackageStore = defineStore(
       const modifyTimeslots: Map<string, DateTimeslot[]> = new Map();
 
       formState.value.timeslots?.forEach((slot) => {
+        if (slot === undefined) {
+          return;
+        }
         const startDate = slot.slot![0].format('YYYY-MM-DD');
         if (!dates.includes(startDate)) {
           dates.push(startDate);
@@ -389,6 +411,7 @@ export const useHourLivePackageStore = defineStore(
             is_create: true,
             room_id,
             start_time: slot.slot![0].format('HH:mm'),
+            timeslotorders: [],
           });
 
           modifyTimeslots.set(startDate, timeslots);
@@ -418,6 +441,7 @@ export const useHourLivePackageStore = defineStore(
               is_create: false,
               room_id: timeslot.room_id,
               start_time: timeslot.start_time,
+              timeslotorders: timeslot.timeslotorders,
             });
 
             existTimeslots.set(date, timeslots);

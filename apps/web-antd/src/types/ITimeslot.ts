@@ -19,7 +19,10 @@ export interface Timeslot {
 export type DateTimeslot = {
   is_conflict: boolean;
   is_create: boolean;
-} & Pick<Timeslot, 'date' | 'end_time' | 'room_id' | 'start_time'>;
+} & Pick<
+  Timeslot,
+  'date' | 'end_time' | 'room_id' | 'start_time' | 'timeslotorders'
+>;
 
 export interface TimeslotQuery {
   roomID: number;
@@ -50,6 +53,7 @@ export interface TimeslotCreate {
 }
 
 export interface TimeslotCreateInMany {
+  id?: number;
   date: string;
   end_date?: string;
   start_time: string;

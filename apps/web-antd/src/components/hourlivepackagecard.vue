@@ -45,7 +45,7 @@ const getAllStreamers = computed(() => {
   props.item.timeslots.forEach((slot) => {
     slot.streamers?.forEach((streamer) => {
       if (streamer.id) {
-        streamers.set(streamer.id, streamer);
+        streamers.set(streamer.id, streamer.avatar);
       }
     });
   });
@@ -62,17 +62,30 @@ function handleSetTimeslot() {
       date: [startTime, endTime],
       id: slot.id,
       slot: [startTime, endTime],
+      streamerId: slot.streamers?.[0]?.id,
     };
     return timeModel;
   });
 
   useHourLivePackageStore().formState = {
     cost: props.item.order_price,
+    orderId: props.item.id,
+    price: props.item.order_price,
     roomId: props.item.room_id,
     timeslots,
   };
 
   useHourLivePackageStore().showModal = true;
+}
+
+function handleOnlineOrOffline() {
+  if (isOnline.value) {
+    // 下架
+    useHourLivePackageStore().downTimePackage(props.item.id);
+  } else {
+    // 上架
+    useHourLivePackageStore().upTimePackage(props.item.id);
+  }
 }
 </script>
 
@@ -102,7 +115,7 @@ function handleSetTimeslot() {
     <!-- 主播信息区域 -->
     <div class="flex items-start space-x-3">
       <div class="relative">
-        <HourLiveAvatar :avatars="[]" />
+        <HourLiveAvatar :avatars="getAllStreamers" />
       </div>
       <div class="flex-1">
         <div class="flex items-center justify-between">
@@ -150,7 +163,11 @@ function handleSetTimeslot() {
 
       <!-- 操作按钮 -->
       <div class="mt-3 flex items-center justify-end space-x-2">
-        <Button :type="isOnline ? 'default' : 'primary'" size="small">
+        <Button
+          :type="isOnline ? 'default' : 'primary'"
+          size="small"
+          @click="handleOnlineOrOffline"
+        >
           {{ isOnline ? '下架' : '上架' }}
         </Button>
         <Button

@@ -52,6 +52,7 @@ function addTimeslot() {
     canEdit: true,
     date: dayjs(),
     slot: undefined,
+    streamerId: hourLivePackageStore.formState.streamerId,
   });
 }
 
@@ -77,6 +78,14 @@ function handleCalendarFocus(index: number) {
     focusDate.value = timeslot.slot[0].format('YYYY-MM-DD');
   }
 }
+
+function handleStreamerSelect(value: number) {
+  hourLivePackageStore.formState.timeslots!.forEach((timeslot) => {
+    if (timeslot.streamerId === undefined) {
+      timeslot.streamerId = value;
+    }
+  });
+}
 </script>
 
 <template>
@@ -85,7 +94,7 @@ function handleCalendarFocus(index: number) {
     :confirm-loading="hourLivePackageStore.packageCreateLoading"
     centered
     title="创建时间包"
-    width="60%"
+    width="70%"
     @ok="handleOk"
   >
     <div
@@ -121,6 +130,7 @@ function handleCalendarFocus(index: number) {
             v-model:value="hourLivePackageStore.formState.streamerId"
             class="max-w-[500px] flex-1"
             placeholder="请选择默认主播"
+            @select="handleStreamerSelect"
           >
             <Select.Option
               v-for="streamer in streamerStore.streamerList"
@@ -181,6 +191,19 @@ function handleCalendarFocus(index: number) {
             <template #renderItem="{ item, index }">
               <ListItem>
                 <div class="flex gap-2">
+                  <Select
+                    v-model:value="item.streamerId"
+                    class="max-w-[200px] flex-1"
+                    placeholder="请选择主播"
+                  >
+                    <Select.Option
+                      v-for="streamer in streamerStore.streamerList"
+                      :key="streamer.id"
+                      :value="streamer.id"
+                    >
+                      {{ streamer.name }}
+                    </Select.Option>
+                  </Select>
                   <RangePicker
                     v-model:value="item.slot"
                     :allow-clear="true"
@@ -236,6 +259,11 @@ function handleCalendarFocus(index: number) {
               >
                 {{ timeslot.start_time }} - {{ timeslot.end_time }}
                 {{ timeslot.is_create ? '(新增)' : '' }}
+                {{
+                  timeslot.timeslotorders && timeslot.timeslotorders.length > 0
+                    ? `订单id: ${timeslot.timeslotorders![0].id.toString()}`
+                    : ''
+                }}
               </TimelineItem>
             </Timeline>
           </CollapsePanel>

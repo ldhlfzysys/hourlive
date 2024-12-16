@@ -11,6 +11,7 @@ export interface TimeslotModel {
   id?: number;
   date: [Dayjs, Dayjs] | Dayjs;
   slot: [Dayjs, Dayjs] | undefined;
+  streamerId?: number;
   canEdit: boolean;
 }
 
@@ -129,6 +130,7 @@ export interface TimeslotOrderCreate {
   room_id?: number; // 必填，直播间ID
   content_id?: number;
   timeslots?: TimeslotCreateInMany[];
+  order_price: number;
 }
 
 export interface TimeslotOrderSubsidy {
