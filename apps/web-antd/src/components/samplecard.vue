@@ -39,6 +39,12 @@ const type = computed(() => {
     case '2': {
       return 'sample_deal';
     }
+    case '3': {
+      return 'sample_normal';
+    }
+    case '4': {
+      return 'sample_new';
+    }
     default: {
       return '';
     }

@@ -114,6 +114,12 @@ function handleOk() {
                 <SelectOption value="2">
                   {{ $t('sample_deal') }}
                 </SelectOption>
+                <SelectOption value="3">
+                  {{ $t('sample_normal') }}
+                </SelectOption>
+                <SelectOption value="4">
+                  {{ $t('sample_new') }}
+                </SelectOption>
               </Select>
             </div>
           </div>
