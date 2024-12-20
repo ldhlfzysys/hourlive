@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import type { LiveAccount } from '#/types';
 
+import { ref } from 'vue';
+
 import { AccessControl } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 import { useLiveAccountStore } from '#/store';
 
@@ -17,6 +20,7 @@ const props = defineProps<{
 }>();
 
 const liveaccountStore = useLiveAccountStore();
+const showPassword = ref(false);
 </script>
 
 <template>
@@ -82,23 +86,42 @@ const liveaccountStore = useLiveAccountStore();
             </div>
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
+                $t('password')
+              }}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-900">
+                  {{ showPassword ? props.liveaccount.password : '••••••••' }}
+                </span>
+                <div
+                  class="cursor-pointer text-gray-400 hover:text-gray-600"
+                  @click="showPassword = !showPassword"
+                >
+                  <Eye v-if="!showPassword" class="h-4 w-4" />
+                  <EyeOff v-else class="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div class="space-y-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
                 $t('live_uid')
               }}</span>
               <span class="text-sm text-gray-900">{{
                 props.liveaccount.live_uid
               }}</span>
             </div>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4">
-          <div class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-gray-500">{{
-              $t('platform')
-            }}</span>
-            <span class="text-sm text-gray-900">{{
-              props.liveaccount.platform
-            }}</span>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-500">{{
+                $t('platform')
+              }}</span>
+              <span class="text-sm text-gray-900">{{
+                props.liveaccount.platform
+              }}</span>
+            </div>
           </div>
         </div>
       </div>

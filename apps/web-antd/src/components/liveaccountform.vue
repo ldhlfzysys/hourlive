@@ -45,7 +45,7 @@ function handleOk() {
       <div class="flex flex-row justify-between">
         <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
           <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
+            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
               {{ $t('mobile') }}
             </span>
             <Input
@@ -53,8 +53,18 @@ function handleOk() {
               class="flex-1 text-sm text-gray-900"
             />
           </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
+          <div class="mb-4 flex flex-row items-center">
+            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
+              {{ $t('live_account') }}
+            </span>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.live_account"
+              autocomplete="new-username"
+              class="flex-1 text-sm text-gray-900"
+            />
+          </div>
+          <div class="mb-4 flex flex-row items-center">
+            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
               {{ $t('email') }}
             </span>
             <Input
@@ -62,40 +72,31 @@ function handleOk() {
               class="flex-1 text-sm text-gray-900"
             />
           </div>
-        </div>
-
-        <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
           <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              {{ $t('live_account') }}
+            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
+              {{ $t('password') }}
             </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_account"
+            <Input.Password
+              v-model:value="liveaccountStore.liveaccountCreate.password"
+              autocomplete="new-password"
               class="flex-1 text-sm text-gray-900"
             />
           </div>
           <div class="flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
+            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
               {{ $t('live_uid') }}
             </span>
             <Input
               v-model:value="liveaccountStore.liveaccountCreate.live_uid"
               class="flex-1 text-sm text-gray-900"
             />
-          </div>
-        </div>
-
-        <div class="flex w-[350px] flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex text-sm font-medium text-gray-500">
-              <Select
-                v-model:value="liveaccountStore.liveaccountCreate.platform"
-                class="w-[100px]"
-              >
-                <SelectOption value="TikTok"> TikTok</SelectOption>
-                <SelectOption value="Shopee"> Shopee </SelectOption>
-              </Select>
-            </span>
+            <Select
+              v-model:value="liveaccountStore.liveaccountCreate.platform"
+              class="ml-3 w-[120px]"
+            >
+              <SelectOption value="TikTok">TikTok</SelectOption>
+              <SelectOption value="Shopee">Shopee</SelectOption>
+            </Select>
           </div>
         </div>
       </div>

@@ -90,7 +90,7 @@ export const useSampleStore = defineStore('sample-store', () => {
   function makeCreate() {
     showModal.value = true;
     sampleUpdate.value = {
-      is_main: '0',
+      is_main: '3',
     };
   }
   function makeUpdate(id: number) {
