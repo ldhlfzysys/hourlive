@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { $t } from '@vben/locales';
 
@@ -13,24 +13,32 @@ defineOptions({
 });
 
 const sampleShippingStore = useSampleShippingStore();
-const receivedDate = ref(dayjs()); // 默认今天
+
+const receiver_time = ref(dayjs());
+
+// 添加 watch 监听器来同步更新 currentSampleShipping
+watch(
+  receiver_time,
+  (newValue) => {
+    sampleShippingStore.currentSampleShipping.receiver_time = newValue.format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+  },
+  { immediate: true },
+);
 
 async function handleOk() {
-  if (sampleShippingStore.sampleShippingCreate.id) {
+  if (sampleShippingStore.currentSampleShipping.id) {
     try {
-      await sampleShippingStore.agencyUpdate({
-        id: sampleShippingStore.sampleShippingCreate.id,
-        receiver_name: sampleShippingStore.sampleShippingCreate.receiver_name,
-        receiver_time: receivedDate.value.format('YYYY-MM-DD HH:mm:ss'),
-      });
+      await sampleShippingStore.agencyUpdate();
       notification.success({
-        description: $t('update_success'),
+        description: $t('receiver_success'),
         message: $t('success'),
       });
-      sampleShippingStore.showModal = false;
     } catch (error) {
+      console.error(error);
       notification.error({
-        description: error.message || $t('update_failed'),
+        description: $t('receiver_failed'),
         message: $t('error'),
       });
     }
@@ -55,7 +63,7 @@ async function handleOk() {
           </span>
           <Input
             v-model:value="
-              sampleShippingStore.sampleShippingCreate.receiver_name
+              sampleShippingStore.currentSampleShipping.receiver_name
             "
             class="flex-1 text-sm text-gray-900"
           />
@@ -65,9 +73,10 @@ async function handleOk() {
             {{ $t('receiver_time') }}
           </span>
           <DatePicker
-            v-model:value="receivedDate"
+            v-model:value="receiver_time"
             :placeholder="$t('select_date')"
             class="flex-1"
+            format="YYYY-MM-DD HH:mm"
             show-time
           />
         </div>

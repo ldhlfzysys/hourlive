@@ -8,7 +8,6 @@ import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
 
-import ConfirmShippingForm from '#/components/confirmshippingform.vue';
 import SampleList from '#/components/samplelist.vue';
 import { useAgencyStore, useSampleShippingStore } from '#/store';
 
@@ -81,9 +80,23 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
             :disabled="props.sampleshipping.delivery_approval === '1'"
             class="min-w-[80px]"
             type="primary"
-            @click="sampleShippingStore.makeUpdate(props.sampleshipping.id!)"
+            @click="
+              sampleShippingStore.agencyMakeUpdate(props.sampleshipping.id!)
+            "
           >
             {{ isAgency ? $t('confirm_receipt') : $t('edit') }}
+          </Button>
+        </AccessControl>
+        <AccessControl :codes="['customer']">
+          <Button
+            :disabled="props.sampleshipping.delivery_approval === '1'"
+            class="min-w-[80px]"
+            type="primary"
+            @click="
+              sampleShippingStore.customerMakeUpdate(props.sampleshipping.id!)
+            "
+          >
+            {{ $t('edit') }}
           </Button>
         </AccessControl>
       </div>
@@ -162,8 +175,5 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
 
     <!-- 修改 SampleList 组件的使用 -->
     <SampleList v-model:open="showSampleList" :samples="sampleArray" />
-
-    <!-- 添加 ConfirmShippingForm 组件 -->
-    <ConfirmShippingForm />
   </div>
 </template>

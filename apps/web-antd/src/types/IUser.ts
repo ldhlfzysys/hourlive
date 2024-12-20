@@ -108,6 +108,7 @@ export interface Agency {
   samples?: Sample[];
   status?: number;
   shippingaddress?: ShippingAddress[];
+  user: User;
 }
 
 export interface AgencyHomeInfo {

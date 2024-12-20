@@ -74,8 +74,8 @@
   "isInAgency": "是否在机构仓库",
   "isChecked": "是否在库",
   "shipping_time": "物流时间",
-  "express_company": "物流公司",
-  "tracking_number": "物流单号",
+  "express_company": "物流公司/lalamove",
+  "tracking_number": "物流单号/lalamove链接",
   "sender_name": "寄件人",
   "sender_time": "寄件时间",
   "receiver_name": "收件人",
@@ -160,6 +160,7 @@
   "fetchMoreSample": "获取更多样品",
   "fetchproductinfo": "获取商品信息",
   "createshipping": "创建物流",
+  "updateshipping": "修改物流",
   "addpackage": "添加到包裹",
   "removepackage": "从包裹撤回",
   "checksample": "查看样品",
@@ -332,5 +333,8 @@
   "balance": "余额",
   "source": "来源",
   "contents": "内容",
-  "select_customer": "请选择商家"
+  "select_customer": "请选择商家",
+  "createshippingsuccess": "创建物流成功，请到我的寄样单查看",
+  "receiver_success": "收货成功",
+  "receiver_failed": "收货失败"
 }

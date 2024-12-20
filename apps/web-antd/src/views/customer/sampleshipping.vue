@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Sample } from '#/types/ISample';
 
+import SampleShippingForm from '#/components/sampleshippingform.vue';
 import {
   useAgencyStore,
   useSampleShippingStore,
@@ -8,11 +9,10 @@ import {
 } from '#/store';
 
 // @ts-ignore
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { Button, Image, InputNumber, Transfer } from 'ant-design-vue';
 
-import SampleShippingForm from '#/components/sampleshippingform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -26,7 +26,11 @@ function getData() {
 
 const targetKeys = ref<string[]>([]);
 function createShipping() {
-  sampleShippingStore.showSampleShippingForm = true;
+  sampleShippingStore.makeCreate();
+  sampleShippingStore.currentSampleShipping.samples =
+    sampleStore.sampleList.filter((sample) =>
+      targetKeys.value.includes(sample.id),
+    );
 }
 
 const searchValue = ref('');
@@ -61,13 +65,6 @@ function handleChange(keys: string[]) {
   });
   targetKeys.value = keys;
 }
-
-// 添加一个计算属性来获取选中的样品列表
-const selectedSamples = computed(() => {
-  return sampleStore.sampleList.filter((sample) =>
-    targetKeys.value.includes(sample.id),
-  );
-});
 </script>
 
 <template>
@@ -140,7 +137,7 @@ const selectedSamples = computed(() => {
           </template>
         </Transfer>
       </div>
-      <SampleShippingForm :sample-list="selectedSamples" />
+      <SampleShippingForm />
     </template>
 
     <template #footer> </template>

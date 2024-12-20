@@ -5,11 +5,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
-import { Button, Input, message, Modal, Upload } from 'ant-design-vue';
+import { Button, Image, Input, message, Modal, Upload } from 'ant-design-vue';
 import { Check, Mail, Pencil, Phone, QrCode, X } from 'lucide-vue-next';
 
 import { useAuthStore } from '#/store';
-import { useFeishuStore } from '#/store/feishu';
 import { useOSSFileStore } from '#/store/ossfile';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -30,7 +29,7 @@ const userStore = useUserStore();
 const userInfo = ref<User>();
 
 const ossFileStore = useOSSFileStore();
-const feishuStore = useFeishuStore();
+// const feishuStore = useFeishuStore();
 
 // 计算属性：头像URL
 const avatarSrc = computed(() => {
@@ -53,7 +52,7 @@ onMounted(() => {
   console.log(` onMounted userInfo : ${JSON.stringify(userInfo.value)}`);
 
   // 查询绑定的飞书用户信息
-  feishuStore.queryBoundFeishuUser(userInfo.value.userId);
+  // feishuStore.queryBoundFeishuUser(userInfo.value.userId);
 });
 
 // 修改头像
@@ -262,92 +261,54 @@ const editState = ref({
 <template>
   <HourLivePage :content-overflow="true">
     <template #content>
-      <div class="mx-auto max-w-4xl space-y-6 p-6">
-        <!-- 个人信息卡片 -->
+      <div class="space-y-6 p-6">
         <div class="rounded-lg bg-white p-6 shadow-md">
-          <!-- 头像区域 -->
-          <div class="mb-8 flex justify-center">
-            <Upload
-              :before-upload="() => false"
-              :show-upload-list="false"
-              accept=".jpg, .jpeg, .png"
-              @change="handleAvatarChange"
-            >
-              <div class="group relative">
-                <img
-                  :src="avatarSrc"
-                  alt="avatar"
-                  class="h-32 w-32 rounded-full object-cover"
-                />
-                <div
-                  class="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                >
-                  <Pencil class="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </Upload>
-          </div>
-
-          <!-- 个人信息表单 -->
           <div class="space-y-4">
-            <!-- 用户名 -->
-            <div
-              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
-            >
-              <div class="flex items-center gap-2 text-gray-500">
-                <User class="h-5 w-5" />
-                <span>用户名</span>
-              </div>
-              <div class="flex items-center">
-                <template v-if="!editState.username">
-                  <span class="mr-3">{{
-                    authStore.userInfo?.name || '未设置'
-                  }}</span>
-                  <Pencil
-                    class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
-                    @click="editState.username = true"
-                  />
-                </template>
-                <template v-else>
-                  <div class="flex items-center space-x-2">
-                    <Input
-                      v-model:value="authStore.userInfo.name"
-                      class="w-48"
-                      @press-enter="saveUserInfo('username')"
+            <!-- 品牌Logo/头像 -->
+            <div class="rounded-lg p-4 hover:bg-gray-50">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-gray-500">
+                  <Image class="h-5 w-5" />
+                  <span>品牌Logo</span>
+                </div>
+                <Upload
+                  :before-upload="() => false"
+                  :show-upload-list="false"
+                  accept=".jpg, .jpeg, .png"
+                  @change="handleAvatarChange"
+                >
+                  <div class="group relative inline-block">
+                    <img
+                      :src="avatarSrc"
+                      alt="brand logo"
+                      class="max-h-10 w-auto object-contain"
                     />
-                    <Check
-                      class="h-5 w-5 cursor-pointer text-green-500"
-                      @click="saveUserInfo('username')"
-                    />
-                    <X
-                      class="h-5 w-5 cursor-pointer text-red-500"
-                      @click="editState.username = false"
-                    />
+                    <div
+                      class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    >
+                      <Pencil class="h-4 w-4 text-white" />
+                    </div>
                   </div>
-                </template>
+                </Upload>
               </div>
             </div>
 
             <!-- 手机号 -->
-            <div
-              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
-            >
-              <div class="flex items-center gap-2 text-gray-500">
-                <Phone class="h-5 w-5" />
-                <span>手机号</span>
-              </div>
-              <div class="flex items-center">
+            <div class="rounded-lg p-4 hover:bg-gray-50">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-gray-500">
+                  <Phone class="h-5 w-5" />
+                  <span>手机号</span>
+                </div>
                 <template v-if="!editState.mobile">
-                  <span class="mr-3">{{
-                    authStore.userInfo?.mobile || '未设置'
-                  }}</span>
+                  <span>{{ authStore.userInfo?.mobile || '未设置' }}</span>
                   <Pencil
                     class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
                     @click="editState.mobile = true"
                   />
                 </template>
                 <template v-else>
-                  <div class="flex items-center space-x-2">
+                  <div class="flex items-center gap-2">
                     <Input
                       v-model:value="authStore.userInfo.mobile"
                       class="w-48"
@@ -367,25 +328,21 @@ const editState = ref({
             </div>
 
             <!-- 邮箱 -->
-            <div
-              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
-            >
-              <div class="flex items-center gap-2 text-gray-500">
-                <Mail class="h-5 w-5" />
-                <span>邮箱</span>
-              </div>
-              <div class="flex items-center">
+            <div class="rounded-lg p-4 hover:bg-gray-50">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-gray-500">
+                  <Mail class="h-5 w-5" />
+                  <span>邮箱</span>
+                </div>
                 <template v-if="!editState.email">
-                  <span class="mr-3">{{
-                    authStore.userInfo?.email || '未设置'
-                  }}</span>
+                  <span>{{ authStore.userInfo?.email || '未设置' }}</span>
                   <Pencil
                     class="h-4 w-4 cursor-pointer text-blue-500 hover:text-blue-600"
                     @click="editState.email = true"
                   />
                 </template>
                 <template v-else>
-                  <div class="flex items-center space-x-2">
+                  <div class="flex items-center gap-2">
                     <Input
                       v-model:value="authStore.userInfo.email"
                       class="w-48"
@@ -406,46 +363,46 @@ const editState = ref({
           </div>
         </div>
 
-        <!-- 账号绑定卡片 -->
-        <div class="rounded-lg bg-white p-6 shadow-md">
+        <!-- 账号绑定卡片 - 添加 v-if="false" 暂时隐藏 -->
+        <div v-if="false" class="rounded-lg bg-white p-6 shadow-md">
           <h2 class="mb-6 text-lg font-medium">账号绑定</h2>
           <div class="space-y-4">
             <div
               v-for="item in accountBindList"
               :key="item.key"
-              class="flex items-center justify-between rounded-lg p-4 hover:bg-gray-50"
+              class="rounded-lg p-4 hover:bg-gray-50"
             >
-              <div class="flex items-center space-x-4">
-                <div
-                  :style="{ backgroundColor: `${item.color}10` }"
-                  class="flex h-10 w-10 items-center justify-center rounded-full"
-                >
-                  <component
-                    :is="item.icon"
-                    :style="{ color: item.color }"
-                    class="h-6 w-6"
-                  />
-                </div>
-                <div>
-                  <div class="font-medium">{{ item.title }}</div>
-                  <div class="text-sm text-gray-500">
-                    {{
-                      item.key === '4' && feishuStore.feishuBind
-                        ? `已绑定: ${feishuStore.feishuBind.name}`
-                        : item.description
-                    }}
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-gray-500">
+                  <div
+                    :style="{ backgroundColor: `${item.color}10` }"
+                    class="flex h-5 w-5 items-center justify-center rounded"
+                  >
+                    <component
+                      :is="item.icon"
+                      :style="{ color: item.color }"
+                      class="h-4 w-4"
+                    />
                   </div>
+                  <span>{{ item.title }}</span>
                 </div>
+                <span class="text-gray-500">
+                  <!-- {{
+                    item.key === '4' && feishuStore.feishuBind
+                      ? feishuStore.feishuBind.name
+                      : item.description
+                  }} -->
+                </span>
+                <Button
+                  class="flex items-center gap-2"
+                  ghost
+                  type="primary"
+                  @click="bindClick(item)"
+                >
+                  <QrCode class="h-4 w-4" />
+                  {{ feishuStore.feishuBind ? '重新绑定' : '绑定' }}
+                </Button>
               </div>
-              <Button
-                class="flex items-center gap-2"
-                ghost
-                type="primary"
-                @click="bindClick(item)"
-              >
-                <QrCode class="h-4 w-4" />
-                {{ feishuStore.feishuBind ? '重新绑定' : '绑定' }}
-              </Button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
+import ConfirmShippingForm from '#/components/confirmshippingform.vue';
 import Empty from '#/components/empty.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
@@ -84,6 +85,7 @@ function onUpdate(
 
       <SampleKspForm />
       <OSSFileForm />
+      <ConfirmShippingForm />
     </template>
   </HourLivePage>
 </template>

@@ -184,7 +184,7 @@ export const useSampleStore = defineStore('sample-store', () => {
       });
       sampleFetchLoading.value = false;
       if (res && res.success) {
-        sampleUpdate.value = res.data;
+        Object.assign(sampleUpdate.value, res.data);
         sampleUpdate.value.product_link = tempLink;
       }
     } catch {

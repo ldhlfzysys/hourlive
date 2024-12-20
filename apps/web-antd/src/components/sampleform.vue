@@ -30,7 +30,7 @@ function handleOk() {
   <Modal
     v-model:open="sampleStore.showModal"
     :confirm-loading="sampleStore.sampleUpdateLoading"
-    :ok-text="sampleStore.sampleUpdate.id ? $t('edit') : $t('create')"
+    :ok-text="sampleStore.sampleUpdate.id ? $t('save') : $t('create')"
     :title="sampleStore.sampleUpdate.id ? $t('edit') : $t('create')"
     centered
     width="800px"

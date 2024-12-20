@@ -9,7 +9,6 @@ import { $t } from '#/locales';
 
 // types
 import type {
-  Sample,
   SampleShipping,
   SampleShippingQuery,
   StanderResult,
@@ -47,44 +46,69 @@ export const useSampleShippingStore = defineStore(
   'sampleshipping-store',
   () => {
     // loading
-
-    const sampleShippingLoading = ref(false);
+    // 查询物流单
+    const sampleShippingQueryLoading = ref(false);
+    // 创建物流单
     const sampleShippingCreateLoading = ref(false);
+    // 更新物流单
     const sampleShippingUpdateLoading = ref(false);
-    const sampleShippingCreate = ref<SampleShipping>({});
-    // liveaccounts
+
+    // 当前选中的物流单
+    const currentSampleShipping = ref<SampleShipping>({
+      samples: [],
+    });
+
+    // 存储所有
     const sampleShippings = ref<Map<number, SampleShipping>>(new Map());
 
+    // 获取列表
     const sampleShippingList = computed(() => {
       return [...sampleShippings.value.entries()]
         .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
         .map(([_, sampleShipping]) => sampleShipping); // 转换为SampleShipping的list
     });
 
+    // 机构确认收货弹窗
     const showModal = ref(false);
+
+    // 新建和客户编辑物流单弹窗
     const showSampleShippingForm = ref(false);
 
+    // 创建物流单
     function makeCreate() {
-      showModal.value = true;
-      sampleShippingCreate.value = {};
+      showSampleShippingForm.value = true;
+      currentSampleShipping.value.tracking_number = '';
     }
 
-    function makeUpdate(id: number) {
+    // 机构确认收货
+    function agencyMakeUpdate(id: number) {
       showModal.value = true;
       const sample = sampleShippings.value.get(id);
       if (sample) {
-        sampleShippingCreate.value = sample;
+        currentSampleShipping.value = sample;
       }
     }
 
-    function contentById(id: number) {
-      return sampleShippings.value.get(id);
+    // 客户编辑物流单
+    function customerMakeUpdate(id: number) {
+      showSampleShippingForm.value = true;
+      const sample = sampleShippings.value.get(id);
+      if (sample) {
+        currentSampleShipping.value = sample;
+      }
     }
 
-    async function agencyUpdate(sampleShipping: SampleShipping) {
+    async function agencyUpdate() {
       try {
         sampleShippingUpdateLoading.value = true;
-        const res = await _agencyUpdate(sampleShipping);
+        // 只传递需要的字段
+        const updateData = {
+          id: currentSampleShipping.value.id,
+          receiver_name: currentSampleShipping.value.receiver_name,
+          receiver_time: currentSampleShipping.value.receiver_time,
+          samples: [],
+        };
+        const res = await _agencyUpdate(updateData);
         if (res && res.success && res.data.id) {
           const existingShipping = sampleShippings.value.get(res.data.id);
           if (existingShipping) {
@@ -95,6 +119,7 @@ export const useSampleShippingStore = defineStore(
               status: res.data.status,
             });
           }
+          showModal.value = false;
           sampleShippingUpdateLoading.value = false;
         }
       } finally {
@@ -102,12 +127,31 @@ export const useSampleShippingStore = defineStore(
       }
     }
 
-    async function customerUpdate(sampleShipping: SampleShipping) {
+    async function customerUpdate() {
       try {
         sampleShippingUpdateLoading.value = true;
-        const res = await _customerUpdate(sampleShipping);
+        const updateData = {
+          agency_id: currentSampleShipping.value.agency_id,
+          express_company: currentSampleShipping.value.express_company,
+          id: currentSampleShipping.value.id,
+          receiver_address: currentSampleShipping.value.receiver_address,
+          samples: [],
+          sender_name: currentSampleShipping.value.sender_name,
+          sender_time: currentSampleShipping.value.sender_time,
+          tracking_number: currentSampleShipping.value.tracking_number,
+        };
+        const res = await _customerUpdate(updateData);
         if (res && res.success && res.data.id) {
-          sampleShippings.value.set(res.data.id, res.data);
+          const existingShipping = sampleShippings.value.get(res.data.id);
+          if (existingShipping) {
+            Object.assign(existingShipping, {
+              express_company: res.data.express_company,
+              sender_name: res.data.sender_name,
+              sender_time: res.data.sender_time,
+              tracking_number: res.data.tracking_number,
+            });
+          }
+          showSampleShippingForm.value = false;
           sampleShippingUpdateLoading.value = false;
         }
       } finally {
@@ -123,7 +167,7 @@ export const useSampleShippingStore = defineStore(
     });
 
     function $reset() {
-      sampleShippingLoading.value = false;
+      sampleShippingQueryLoading.value = false;
       sampleShippingCreateLoading.value = false;
       sampleShippingQuery.value.q_id = -1;
 
@@ -142,7 +186,7 @@ export const useSampleShippingStore = defineStore(
     // methods
     async function querySampleShipping() {
       try {
-        sampleShippingLoading.value = true;
+        sampleShippingQueryLoading.value = true;
         const res = await _getAllSampleShipping(sampleShippingQuery.value);
         if (res && res.success) {
           if (res.data.length > 0) {
@@ -158,27 +202,33 @@ export const useSampleShippingStore = defineStore(
           });
         }
       } finally {
-        sampleShippingLoading.value = false;
+        sampleShippingQueryLoading.value = false;
       }
     }
 
-    async function createSampleShipping(samples: Sample[]) {
+    async function createSampleShipping() {
       try {
         sampleShippingCreateLoading.value = true;
         // 只保留需要的字段
-        const simplifiedSamples = samples.map((sample) => ({
-          id: sample.id,
-          sample_count: sample.sample_count,
-        }));
+        const simplifiedSamples = currentSampleShipping.value.samples.map(
+          (sample) => ({
+            id: sample.id,
+            sample_count: sample.sample_count,
+          }),
+        );
 
         const res = await _newSampleShipping({
-          ...sampleShippingCreate.value,
+          ...currentSampleShipping.value,
           samples: simplifiedSamples,
         });
 
         if (res && res.success && res.data.id) {
           showSampleShippingForm.value = false;
           sampleShippings.value.set(res.data.id, res.data);
+          notification.success({
+            description: res.message,
+            message: $t('createshippingsuccess'),
+          });
         } else {
           notification.error({
             description: res.message,
@@ -192,19 +242,20 @@ export const useSampleShippingStore = defineStore(
 
     return {
       $reset,
+      agencyMakeUpdate,
+
       agencyUpdate,
-      contentById,
       createSampleShipping,
+      currentSampleShipping,
+      customerMakeUpdate,
       customerUpdate,
       makeCreate,
-      makeUpdate,
       querySampleShipping,
       sampleShippingById,
-      sampleShippingCreate,
       sampleShippingCreateLoading,
       sampleShippingList,
-      sampleShippingLoading,
       sampleShippingQuery,
+      sampleShippingQueryLoading,
       sampleShippings,
       sampleShippingUpdateLoading,
       showModal,

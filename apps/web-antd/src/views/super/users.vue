@@ -103,7 +103,12 @@ onMounted(async () => {
             <template #title>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <UserRound class="size-4" />
+                  <img
+                    v-if="customer.user.avatar"
+                    :src="customer.user.avatar"
+                    alt="avatar"
+                    class="h-6 w-auto rounded-full object-cover"
+                  />
                   {{ customer.code }}
                 </div>
                 <span class="text-sm text-gray-500">{{ customer.source }}</span>
@@ -137,7 +142,12 @@ onMounted(async () => {
           >
             <template #title>
               <div class="flex items-center gap-2">
-                <Building2 class="size-4" />
+                <img
+                  v-if="agency.user.avatar"
+                  :src="agency.user.avatar"
+                  alt="avatar"
+                  class="h-6 w-auto rounded-full object-cover"
+                />
                 {{ agency.name }}
               </div>
             </template>

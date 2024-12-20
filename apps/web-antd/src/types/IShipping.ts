@@ -27,7 +27,7 @@ export interface SampleShipping {
   customer_id?: number;
   agency_id?: number;
   allsamples?: Sample[];
-  samples?: Sample[];
+  samples: Sample[];
   customer?: Customer;
   agency?: Agency;
 }

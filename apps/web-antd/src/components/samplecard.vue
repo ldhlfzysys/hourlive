@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import { $t } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { Button, Image } from 'ant-design-vue';
+import { Button, Image, Tooltip } from 'ant-design-vue';
 
 import { useOSSFileStore, useSampleStore } from '#/store';
 
@@ -85,17 +85,22 @@ const canEdit = computed(() => {
           <div class="mt-3 flex items-center space-x-4 text-sm">
             <span class="text-gray-500">ID: {{ props.sample.product_id }}</span>
             <div class="flex space-x-3">
+              <Tooltip
+                placement="top"
+                title="卖点是主播在介绍商品时会额外关注的内容，保证主播在介绍商品时，不错过重要内容。"
+              >
+                <a
+                  class="transform text-blue-600 transition-colors hover:text-blue-800"
+                  href="#"
+                  @click="sampleStore.makeKSPUpdate(props.sample.id!)"
+                  >{{ $t('product_ksp') }}</a
+                >
+              </Tooltip>
               <a
                 class="transform text-blue-600 transition-colors hover:text-blue-800"
                 href="#"
                 @click="ossFileStore.showOSSFileModal(props.sample.id!)"
                 >{{ $t('scriptmanager') }}</a
-              >
-              <a
-                class="transform text-blue-600 transition-colors hover:text-blue-800"
-                href="#"
-                @click="sampleStore.makeKSPUpdate(props.sample.id!)"
-                >{{ $t('product_ksp') }}</a
               >
             </div>
           </div>

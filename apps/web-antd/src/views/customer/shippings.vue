@@ -5,14 +5,15 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import Empty from '#/components/empty.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
+import SampleShippingForm from '#/components/sampleshippingform.vue';
 import ShippingCard from '#/components/shippingcard.vue';
-import { useSampleShippingStore } from '#/store';
+import { useAgencyStore, useSampleShippingStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const sampleShippingStore = useSampleShippingStore();
-
+const agencyStore = useAgencyStore();
 const updateParts = ref({
   viewEndIdx: 0,
   viewStartIdx: 0,
@@ -22,6 +23,7 @@ const updateParts = ref({
 
 onMounted(() => {
   sampleShippingStore.querySampleShipping();
+  agencyStore.fetchAgency();
 });
 
 function onTop() {}
@@ -80,13 +82,14 @@ function onUpdate(
         <Empty
           v-else
           :description="$t('empty_shipping_tip')"
-          :loading="sampleShippingStore.sampleShippingLoading"
+          :loading="sampleShippingStore.sampleShippingQueryLoading"
           class="flex-1"
         />
       </div>
       <ShippingForm />
       <SampleKspForm />
       <OSSFileForm />
+      <SampleShippingForm />
     </template>
   </HourLivePage>
 </template>

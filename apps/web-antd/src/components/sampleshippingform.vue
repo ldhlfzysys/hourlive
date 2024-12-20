@@ -1,5 +1,5 @@
-<script setup>
-import { computed, defineProps, ref } from 'vue';
+<script lang="ts" setup>
+import { computed, ref, watch } from 'vue';
 
 import { $t } from '@vben/locales';
 
@@ -21,23 +21,28 @@ defineOptions({
   name: 'SampleShippingForm',
 });
 
-const props = defineProps({
-  sampleList: {
-    required: true,
-    type: Array,
-  },
-});
-
 const emit = defineEmits(['update:visible']);
 
-const agencyStore = useAgencyStore();
+const sender_time = ref(dayjs());
 const sampleShippingStore = useSampleShippingStore();
+// 添加 watch 监听器来同步更新 currentSampleShipping
+watch(
+  sender_time,
+  (newValue) => {
+    sampleShippingStore.currentSampleShipping.sender_time = newValue.format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+  },
+  { immediate: true },
+);
+
+const agencyStore = useAgencyStore();
 
 const selectedAgency = computed(() => {
   console.log('update selected agency');
 
   return agencyStore.agencyById(
-    sampleShippingStore.sampleShippingCreate.agency_id,
+    sampleShippingStore.currentSampleShipping.agency_id!,
   );
 });
 
@@ -62,10 +67,12 @@ const rules = {
 
 const handleOk = async () => {
   try {
-    await formRef.value.validate();
-    sampleShippingStore.createSampleShipping(props.sampleList);
-    // 处理表单提交逻辑
-    // emit('update:visible', false);
+    if (sampleShippingStore.currentSampleShipping.id) {
+      sampleShippingStore.customerUpdate();
+    } else {
+      await formRef.value.validate();
+      sampleShippingStore.createSampleShipping();
+    }
   } catch (error) {
     console.error('Validation failed:', error);
   }
@@ -76,7 +83,10 @@ const handleCancel = () => {
 };
 
 const getTotalSamples = () => {
-  return props.sampleList.reduce((total, item) => total + item.sample_count, 0);
+  return sampleShippingStore.currentSampleShipping.samples.reduce(
+    (total, item) => total + (item.sample_count ?? 0),
+    0,
+  );
 };
 
 // 计算 Modal 宽度
@@ -84,30 +94,48 @@ const modalWidth = `${Math.min(90, Math.max(800, window.innerWidth * 0.75))}px`;
 
 const handleAgencyChange = (value) => {
   // 清空收货地址
-  sampleShippingStore.sampleShippingCreate.receiver_address = '';
+  sampleShippingStore.currentSampleShipping.receiver_address = '';
 };
 </script>
 
 <template>
   <Modal
-    :confirm-loading="sampleShippingStore.sampleShippingCreateLoading"
+    :confirm-loading="
+      sampleShippingStore.sampleShippingCreateLoading ||
+      sampleShippingStore.sampleShippingUpdateLoading
+    "
     :open="sampleShippingStore.showSampleShippingForm"
     :style="{ top: '20px' }"
-    :title="$t('createshipping')"
+    :title="
+      sampleShippingStore.currentSampleShipping.id
+        ? $t('updateshipping')
+        : $t('createshipping')
+    "
     width="90%"
     @cancel="handleCancel"
     @ok="handleOk"
   >
     <Form
       ref="formRef"
-      :model="sampleShippingStore.sampleShippingCreate"
+      :model="sampleShippingStore.currentSampleShipping"
       :rules="rules"
     >
       <Row :gutter="16">
         <Col :span="12">
           <Form.Item :label="$t('selectagency')" name="agency_id" required>
             <Select
-              v-model:value="sampleShippingStore.sampleShippingCreate.agency_id"
+              v-model:value="
+                sampleShippingStore.currentSampleShipping.agency_id
+              "
+              :filter-option="
+                (input, option) => {
+                  return (
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >=
+                    0
+                  );
+                }
+              "
+              show-search
               @change="handleAgencyChange"
             >
               <Select.Option
@@ -129,7 +157,7 @@ const handleAgencyChange = (value) => {
           >
             <Select
               v-model:value="
-                sampleShippingStore.sampleShippingCreate.receiver_address
+                sampleShippingStore.currentSampleShipping.receiver_address
               "
               :custom-height="true"
               :dropdown-match-select-width="false"
@@ -157,7 +185,7 @@ const handleAgencyChange = (value) => {
           >
             <Input
               v-model:value="
-                sampleShippingStore.sampleShippingCreate.express_company
+                sampleShippingStore.currentSampleShipping.express_company
               "
             />
           </Form.Item>
@@ -170,7 +198,7 @@ const handleAgencyChange = (value) => {
           >
             <Input
               v-model:value="
-                sampleShippingStore.sampleShippingCreate.tracking_number
+                sampleShippingStore.currentSampleShipping.tracking_number
               "
             />
           </Form.Item>
@@ -182,7 +210,7 @@ const handleAgencyChange = (value) => {
           <Form.Item :label="$t('sender_name')" name="sender_name" required>
             <Input
               v-model:value="
-                sampleShippingStore.sampleShippingCreate.sender_name
+                sampleShippingStore.currentSampleShipping.sender_name
               "
             />
           </Form.Item>
@@ -190,10 +218,10 @@ const handleAgencyChange = (value) => {
         <Col :span="12">
           <Form.Item :label="$t('sender_time')" name="sendDate">
             <DatePicker
-              v-model:value="
-                sampleShippingStore.sampleShippingCreate.shipping_time
-              "
+              v-model:value="sender_time"
               :default-value="dayjs()"
+              :show-time="true"
+              format="YYYY-MM-DD HH:mm"
               style="width: 100%"
             />
           </Form.Item>
@@ -204,12 +232,15 @@ const handleAgencyChange = (value) => {
         <h3>
           {{ $t('sampleinshipping') }}
           <span class="sample-summary">
-            ({{ sampleList.length }}{{ $t('sample') }}，{{ $t('total')
-            }}{{ getTotalSamples() }}{{ $t('piece') }})
+            ({{ sampleShippingStore.currentSampleShipping.samples.length
+            }}{{ $t('sample') }}，{{ $t('total') }}{{ getTotalSamples()
+            }}{{ $t('piece') }})
           </span>
         </h3>
         <div class="sample-scroll">
-          <List :data-source="sampleList">
+          <List
+            :data-source="sampleShippingStore.currentSampleShipping.samples"
+          >
             <template #renderItem="{ item }">
               <List.Item>
                 <div class="sample-item">
