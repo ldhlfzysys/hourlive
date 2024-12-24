@@ -3,8 +3,15 @@ import { computed, onMounted, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import { Card, Collapse, Input } from 'ant-design-vue';
-import { Building2, MapPin, Search, UserRound } from 'lucide-vue-next';
+import {
+  Button,
+  Card,
+  Collapse,
+  CollapsePanel,
+  Input,
+  Modal,
+} from 'ant-design-vue';
+import { Building2, MapPin, Search, Trash2, UserRound } from 'lucide-vue-next';
 
 import { useAgencyStore } from '#/store/agency';
 import { useCustomerStore } from '#/store/customer';
@@ -39,6 +46,33 @@ onMounted(async () => {
   await customerStore.fetchAllCustomers();
   await agencyStore.fetchAgency();
 });
+
+// 添加删除确认方法
+const handleDeleteCustomer = (customer: any) => {
+  Modal.confirm({
+    cancelText: $t('cancel'),
+    content: `${$t('confirmDeleteCustomer')}: ${customer.code}`,
+
+    okText: $t('confirm'),
+    async onOk() {
+      await customerStore.hideCustomer(customer.id);
+    },
+    title: $t('confirmDelete'),
+  });
+};
+
+const handleDeleteAgency = (agency: any) => {
+  Modal.confirm({
+    cancelText: $t('cancel'),
+    content: `${$t('confirmDeleteAgency')}: ${agency.name}`,
+
+    okText: $t('confirm'),
+    async onOk() {
+      await agencyStore.hideAgency(agency.id);
+    },
+    title: $t('confirmDelete'),
+  });
+};
 </script>
 
 <template>
@@ -111,7 +145,18 @@ onMounted(async () => {
                   />
                   {{ customer.code }}
                 </div>
-                <span class="text-sm text-gray-500">{{ customer.source }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-gray-500">{{
+                    customer.source
+                  }}</span>
+                  <Button
+                    class="!p-0"
+                    type="link"
+                    @click="handleDeleteCustomer(customer)"
+                  >
+                    <Trash2 class="size-4 text-red-500" />
+                  </Button>
+                </div>
               </div>
             </template>
             <div class="space-y-3">
@@ -141,14 +186,23 @@ onMounted(async () => {
             class="transition-shadow hover:shadow-md"
           >
             <template #title>
-              <div class="flex items-center gap-2">
-                <img
-                  v-if="agency.user.avatar"
-                  :src="agency.user.avatar"
-                  alt="avatar"
-                  class="h-6 w-auto rounded-full object-cover"
-                />
-                {{ agency.name }}
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <img
+                    v-if="agency.user.avatar"
+                    :src="agency.user.avatar"
+                    alt="avatar"
+                    class="h-6 w-auto rounded-full object-cover"
+                  />
+                  {{ agency.name }}
+                </div>
+                <Button
+                  class="!p-0"
+                  type="link"
+                  @click="handleDeleteAgency(agency)"
+                >
+                  <Trash2 class="size-4 text-red-500" />
+                </Button>
               </div>
             </template>
             <div class="space-y-2">
@@ -173,14 +227,6 @@ onMounted(async () => {
                       :key="index"
                       class="rounded bg-gray-50 p-2 dark:bg-neutral-700"
                     >
-                      <p class="font-medium">{{ address.contact_name }}</p>
-                      <p class="text-sm text-gray-600 dark:text-gray-300">
-                        {{ address.phone }}
-                      </p>
-                      <p class="text-sm text-gray-600 dark:text-gray-300">
-                        {{ address.province }}{{ address.city
-                        }}{{ address.district }}
-                      </p>
                       <p class="text-sm text-gray-600 dark:text-gray-300">
                         {{ address.address }}
                       </p>

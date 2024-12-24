@@ -52,6 +52,12 @@ function getAllCustomers() {
   return requestClient.get<StanderResult<Customer[]>>(CustomerApi.AllCustomers);
 }
 
+function _hideCustomer(id: number) {
+  return requestClient.post<StanderResult<Customer>>(`customer/hidecustomer`, {
+    id,
+  });
+}
+
 function getLiveAccount() {
   return requestClient.post<StanderResult<LiveAccount[]>>(
     CustomerApi.GetLiveAccount,
@@ -109,13 +115,24 @@ export const useCustomerStore = defineStore('customer-store', () => {
 
   // 存储机构往来的小时播账户
   const agencyCustomers = ref<StanderResult<Customer[]>>();
-
+  const hideCustomerLoading = ref(false);
   const customerOptions = computed(() => {
     return agencyCustomers.value?.data.map((item: Customer) => ({
       label: item.code,
       value: item.id,
     }));
   });
+
+  async function hideCustomer(id: number) {
+    hideCustomerLoading.value = true;
+    const res = await _hideCustomer(id);
+    if (res.success && agencyCustomers.value?.data) {
+      agencyCustomers.value.data = agencyCustomers.value.data.filter(
+        (item) => item.id !== id,
+      );
+    }
+    hideCustomerLoading.value = false;
+  }
 
   const contentOptions = computed(() => {
     return agencyCustomers.value?.data
@@ -168,5 +185,7 @@ export const useCustomerStore = defineStore('customer-store', () => {
     customerOptions,
     fetchAllCustomers,
     getAgencyCustomers,
+    hideCustomer,
+    hideCustomerLoading,
   };
 });

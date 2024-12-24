@@ -21,6 +21,10 @@ async function getAllAgency() {
   );
 }
 
+async function _hideAgency(id: number) {
+  return requestClient.post<StanderResult<Agency>>(`agency/hideagency`, { id });
+}
+
 async function getAgencyHomeInfo() {
   return requestClient.post<StanderResult<AgencyHomeInfo>>('home/agencyhome');
 }
@@ -34,6 +38,8 @@ export const useAgencyStore = defineStore('agency-store', () => {
       value: item.id,
     }));
   });
+
+  const hideAgencyLoading = ref(false);
 
   const agencyHomeInfo = ref<AgencyHomeInfo>();
 
@@ -55,6 +61,15 @@ export const useAgencyStore = defineStore('agency-store', () => {
     }));
   }
 
+  async function hideAgency(id: number) {
+    hideAgencyLoading.value = true;
+    const res = await _hideAgency(id);
+    if (res.success) {
+      allAgency.value = allAgency.value.filter((agency) => agency.id !== id);
+    }
+    hideAgencyLoading.value = false;
+  }
+
   async function fetchAgency() {
     const res = await getAllAgency();
     allAgency.value = res.data;
@@ -73,6 +88,8 @@ export const useAgencyStore = defineStore('agency-store', () => {
     allAgency,
     fetchAgency,
     fetchAgencyHomeInfo,
+    hideAgency,
+    hideAgencyLoading,
     roomOptionsByAgencyIds,
     roomsByAgencyIds,
   };
