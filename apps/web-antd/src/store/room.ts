@@ -79,16 +79,16 @@ function _updateHardware(hardware: Hardware) {
 export const useRoomStore = defineStore('room-store', () => {
   const roomLoading = ref(false); // 加载状态
   const roomCreateLoading = ref(false); // 创建加载状态
-
+  const roomUpdateLoading = ref(false); // 更新加载状态
+  const showRoomDescModal = ref(false); // 控制直播间描述模态框显示
   const roomCreate = ref<RoomCreate>({
     agency_id: -1,
     name: '',
   });
+  const roomUpdate = ref<Room>({});
   const hardwareCreate = ref<Hardware>({
     name: '',
   });
-
-  const isEditing = ref(false); // 是否处于编辑状态
 
   const rooms = ref<Map<number, Room>>(new Map()); // 存储直播间的Map
 
@@ -181,14 +181,35 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
+  async function makeRoomUpdate(id: number) {
+    const room = rooms.value.get(id);
+    if (room) {
+      roomUpdate.value = room;
+    }
+  }
+
   // 修改直播间
-  async function modifyRoom(updatedRoom: Room) {
+  async function modifyRoom() {
     try {
       roomLoading.value = true;
-      const res = await _updateRoom(updatedRoom);
-      if (res && res.success) {
-        rooms.value.set(res.data.id, res.data);
+      roomUpdateLoading.value = true;
+      const res = await _updateRoom(roomUpdate.value);
+      if (res && res.success && res.data.id) {
+        // 获取现有的房间数据
+        const existingRoom = rooms.value.get(res.data.id);
+        // 只更新 name 和 desc，保留其他数据
+        const updatedRoom = {
+          ...existingRoom,
+          desc: res.data.desc,
+          name: res.data.name,
+        };
+        rooms.value.set(res.data.id, updatedRoom);
         showModal.value = false;
+        showRoomDescModal.value = false;
+        notification.success({
+          description: $t('修改直播间成功'),
+          message: $t('操作成功'),
+        });
       } else {
         notification.error({
           description: res.message,
@@ -197,6 +218,7 @@ export const useRoomStore = defineStore('room-store', () => {
       }
     } finally {
       roomLoading.value = false;
+      roomUpdateLoading.value = false;
     }
   }
 
@@ -286,7 +308,7 @@ export const useRoomStore = defineStore('room-store', () => {
     deleteHardwareFromRoom,
 
     hardwareCreate,
-    isEditing, // 确保在返回对象中包含 isEditing
+    makeRoomUpdate,
     modifyRoom,
     queryRoom,
     removeRoom, // 确保在返回对象中包含 removeRoom
@@ -296,7 +318,9 @@ export const useRoomStore = defineStore('room-store', () => {
     roomLoading,
     roomQuery,
     rooms,
-
+    roomUpdate,
+    roomUpdateLoading,
     showModal,
+    showRoomDescModal,
   };
 });

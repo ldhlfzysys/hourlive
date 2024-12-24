@@ -4,7 +4,7 @@ import type { CreateHardwareToRoom, Room } from '#/types';
 import { $t } from '@vben/locales';
 
 import { Button, message, Upload } from 'ant-design-vue';
-import { Plus, Trash2 } from 'lucide-vue-next';
+import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
 
 import { useOSSFileStore, useRoomStore } from '#/store';
 
@@ -22,8 +22,12 @@ const ossFileStore = useOSSFileStore();
 
 function editRoom(id: number) {
   roomStore.showModal = true;
-  roomStore.isEditing = true;
-  roomStore.roomCreate = { ...props.room };
+  roomStore.makeRoomUpdate(id);
+}
+
+function editRoomDesc(id: number) {
+  roomStore.showRoomDescModal = true;
+  roomStore.makeRoomUpdate(id);
 }
 
 function deleteRoom(id: number) {
@@ -111,6 +115,23 @@ const handleHardwareImageChange = async (info) => {
     </div>
 
     <div class="p-6">
+      <div
+        class="mb-4 flex items-center justify-between rounded-lg bg-gray-50 p-4"
+      >
+        <div class="space-y-2">
+          <div class="text-sm text-gray-600">
+            <span class="font-medium">描述：</span>
+            <span v-html="props.room.desc || '暂无'"></span>
+          </div>
+        </div>
+        <div
+          class="cursor-pointer rounded-lg p-2 hover:bg-gray-200"
+          @click="editRoomDesc(props.room.id)"
+        >
+          <Pencil class="h-4 w-4 text-gray-500" />
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
         <div class="flex gap-4 pb-2">
           <div

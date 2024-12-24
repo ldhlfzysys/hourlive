@@ -336,5 +336,6 @@
   "select_customer": "请选择商家",
   "createshippingsuccess": "创建物流成功，请到我的寄样单查看",
   "receiver_success": "收货成功",
-  "receiver_failed": "收货失败"
+  "receiver_failed": "收货失败",
+  "hardware_desc": "填写直播间硬件描述"
 }

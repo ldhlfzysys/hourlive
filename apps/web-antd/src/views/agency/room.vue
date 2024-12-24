@@ -5,10 +5,10 @@ import { Button } from 'ant-design-vue';
 
 import Empty from '#/components/empty.vue';
 import RoomCard from '#/components/roomcard.vue';
+import RoomDescForm from '#/components/roomdescform.vue';
 import RoomForm from '#/components/roomform.vue';
 import { useRoomStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
-
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
@@ -89,6 +89,7 @@ function onUpdate(
         />
       </div>
       <RoomForm />
+      <RoomDescForm />
     </template>
   </HourLivePage>
 </template>

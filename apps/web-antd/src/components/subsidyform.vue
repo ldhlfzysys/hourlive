@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { $t } from '@vben/locales';
 
-import { Input, InputNumber, Modal, Select } from 'ant-design-vue';
+import { Input, InputNumber, Modal } from 'ant-design-vue';
 
 import { useTimeslotOrderStore } from '#/store';
 
@@ -27,7 +27,7 @@ function handleCancel() {
 
 const subsidyTypeOptions = [
   { label: '广告补贴', value: '1' },
-  { label: '达人补贴', value: '2' },
+  { label: '优惠券补贴', value: '2' },
 ];
 </script>
 
@@ -43,7 +43,7 @@ const subsidyTypeOptions = [
   >
     <div class="modal-content">
       <div class="input-container">
-        <div class="form-item horizontal">
+        <!-- <div class="form-item horizontal">
           <div class="label">补贴类型</div>
           <Select
             v-model:value="
@@ -54,7 +54,7 @@ const subsidyTypeOptions = [
             :placeholder="$t('请选择补贴类型')"
             class="subsidy-input"
           />
-        </div>
+        </div> -->
 
         <div class="form-item horizontal">
           <div class="label">广告补贴金额</div>
@@ -64,6 +64,7 @@ const subsidyTypeOptions = [
             "
             :placeholder="$t('请输入广告补贴金额')"
             class="subsidy-input number-input"
+            prefix="$"
           />
         </div>
 
@@ -80,23 +81,24 @@ const subsidyTypeOptions = [
         </div>
 
         <div class="form-item horizontal">
-          <div class="label">达人补贴金额</div>
+          <div class="label">优惠券补贴金额</div>
           <InputNumber
             v-model:value="
               timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy
             "
-            :placeholder="$t('请输入达人补贴金额')"
+            :placeholder="$t('请输入优惠券补贴金额')"
             class="subsidy-input number-input"
+            prefix="$"
           />
         </div>
 
         <div class="form-item">
-          <div class="label">达人补贴备注</div>
+          <div class="label">优惠券补贴备注</div>
           <TextArea
             v-model:value="
               timeslotOrderStore.timeslotOrderSubsidyForm.tts_subsidy_remark
             "
-            :placeholder="$t('请输入达人补贴备注')"
+            :placeholder="$t('请输入优惠券补贴备注')"
             :rows="3"
             class="subsidy-input"
           />

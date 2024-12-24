@@ -2,13 +2,14 @@ import type { BaseQuery } from './ISystem';
 import type { Timeslot, TimeslotCreate } from './ITimeslot';
 
 export interface Room {
-  id: number;
-  create_time: string; // DateTime in ISO format
-  update_time: string; // DateTime in ISO format
-  name: string;
-  agency_id: number;
-  timeslots: Timeslot[];
-  hardwares: Hardware[];
+  id?: number;
+  create_time?: string; // DateTime in ISO format
+  update_time?: string; // DateTime in ISO format
+  name?: string;
+  agency_id?: number;
+  timeslots?: Timeslot[];
+  hardwares?: Hardware[];
+  desc?: string;
 }
 
 export interface RoomCreate {

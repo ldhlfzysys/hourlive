@@ -169,34 +169,27 @@ const subsidyTypeText = computed(() => {
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('subsidy')" :span="3">
-          <div class="grid grid-cols-[180px_1fr] gap-4">
-            <div class="row-span-2 flex items-center rounded bg-gray-50 p-2">
-              <strong>{{ $t('subsidy_type') }}: </strong>
-              <div class="ml-2">
-                {{ subsidyTypeText }}
-              </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex items-center">
+              <strong>{{ $t('tts_subsidy') }}: </strong>
+              <span class="ml-1 text-red-500"
+                >${{ orderStore.currentSelectedOrder!.tts_subsidy }}</span
+              >
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('ads_subsidy') }}: </strong>
+              <span class="ml-1 text-red-500"
+                >${{ orderStore.currentSelectedOrder!.ads_subsidy }}</span
+              >
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div class="flex items-center">
-                <strong>{{ $t('tts_subsidy') }}: </strong
-                >{{ orderStore.currentSelectedOrder!.tts_subsidy }}
-              </div>
-              <div class="flex items-center">
-                <strong>{{ $t('ads_subsidy') }}: </strong
-                >{{ orderStore.currentSelectedOrder!.ads_subsidy }}
-              </div>
+            <div class="flex items-center">
+              <strong>{{ $t('tts_subsidy_remark') }}: </strong
+              >{{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="flex items-center">
-                <strong>{{ $t('tts_subsidy_remark') }}: </strong
-                >{{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
-              </div>
-              <div class="flex items-center">
-                <strong>{{ $t('ads_subsidy_remark') }}: </strong
-                >{{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
-              </div>
+            <div class="flex items-center">
+              <strong>{{ $t('ads_subsidy_remark') }}: </strong
+              >{{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
             </div>
           </div>
         </DescriptionsItem>

@@ -12,8 +12,8 @@ defineOptions({
 const roomStore = useRoomStore();
 
 function handleOk() {
-  if (roomStore.isEditing) {
-    roomStore.modifyRoom(roomStore.roomCreate);
+  if (roomStore.roomUpdate.id) {
+    roomStore.modifyRoom();
   } else {
     roomStore.createRoom();
   }
@@ -21,8 +21,7 @@ function handleOk() {
 
 function handleCancel() {
   roomStore.showModal = false;
-  roomStore.isEditing = false;
-  roomStore.roomCreate = { agency_id: -1, name: '' };
+  roomStore.roomUpdate = {};
 }
 </script>
 
@@ -39,7 +38,7 @@ function handleCancel() {
     <div class="overflow-hidden rounded-lg border bg-white shadow">
       <div class="flex flex-col px-4 py-5 sm:px-6">
         <Input
-          v-model:value="roomStore.roomCreate.name"
+          v-model:value="roomStore.roomUpdate.name"
           :placeholder="$t('room_name')"
           class="mb-3 text-lg font-medium leading-6 text-gray-900"
         />
