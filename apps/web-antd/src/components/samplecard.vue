@@ -79,7 +79,13 @@ const canEdit = computed(() => {
       <div class="ml-6 flex flex-1 flex-col justify-between">
         <div>
           <h2 class="line-clamp-2 text-lg font-medium text-gray-900">
-            {{ props.sample.product_name }}
+            <a
+              :href="props.sample.product_link"
+              class="hover:text-blue-600"
+              target="_blank"
+            >
+              {{ props.sample.product_name }}
+            </a>
           </h2>
 
           <div class="mt-3 flex items-center space-x-4 text-sm">
