@@ -145,7 +145,7 @@ export const useCustomerStore = defineStore('customer-store', () => {
           item.id
         ) {
           return {
-            label: `${item.liveaccount.name} - ${item.liveaccount.live_account}`,
+            label: `${item.id} - ${item.liveaccount.name} - ${item.liveaccount.live_account}`,
             value: item.id,
           };
         }
