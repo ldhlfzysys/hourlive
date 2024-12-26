@@ -1,12 +1,10 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import { AccessControl } from '@vben/access';
 import { SvgShopeeIcon, SvgTiktokIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
-import { useElementBounding } from '@vueuse/core';
 import {
   Button,
   Descriptions,
@@ -14,6 +12,7 @@ import {
   Modal,
   Tag,
 } from 'ant-design-vue';
+import html2pdf from 'html2pdf.js';
 
 import Empty from '#/components/empty.vue';
 import OrderApendModal from '#/components/orderApendModal.vue';
@@ -34,8 +33,18 @@ const agencyStore = useAgencyStore();
 const itemWidth = ref(300);
 const loading = ref(false);
 
-const maxHeight = computed(() => {
-  return window.innerHeight * 0.8;
+// const maxHeight = computed(() => {
+//   return window.innerHeight * 0.8;
+// });
+const maxHeight = ref(window.innerHeight * 0.85);
+const updateMaxHeight = () => {
+  maxHeight.value = window.innerHeight * 0.85;
+};
+onMounted(() => {
+  window.addEventListener('resize', updateMaxHeight);
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMaxHeight);
 });
 
 const liveAccountInfo = computed(() => {
@@ -61,32 +70,6 @@ const contentInfo = computed(() => {
     customer_id: content?.customer_id,
   };
 });
-
-const scroller = ref();
-
-const updateParts = ref({
-  viewEndIdx: 0,
-  viewStartIdx: 0,
-  visibleEndIdx: 0,
-  visibleStartIdx: 0,
-});
-
-function onResize() {
-  const width = useElementBounding(scroller).width.value;
-  itemWidth.value = width / 2;
-}
-
-function onUpdate(
-  viewStartIndex: number,
-  viewEndIndex: number,
-  visibleStartIndex: number,
-  visibleEndIndex: number,
-) {
-  updateParts.value.viewStartIdx = viewStartIndex;
-  updateParts.value.viewEndIdx = viewEndIndex;
-  updateParts.value.visibleStartIdx = visibleStartIndex;
-  updateParts.value.visibleEndIdx = visibleEndIndex;
-}
 
 async function handleDeleteOrder() {
   Modal.confirm({
@@ -135,6 +118,60 @@ const subsidyTypeText = computed(() => {
     }
   }
 });
+
+async function exportToPDF() {
+  const element = document.querySelector('.order-detail-content');
+  if (!element) return;
+
+  // 临时调整样式以确保内容完整显示
+  const originalStyle = element.style.cssText;
+  element.style.width = '1200px';
+  element.style.maxHeight = 'none';
+  element.style.margin = '0 auto';
+  element.style.padding = '20px';
+
+  // 等待图片加载完成
+  await Promise.all(
+    [...element.querySelectorAll('img')].map(
+      (img) =>
+        new Promise((resolve) => {
+          if (img.complete) {
+            resolve(null);
+          } else {
+            img.addEventListener('load', () => resolve(null));
+            img.addEventListener('error', () => resolve(null));
+          }
+        }),
+    ),
+  );
+
+  const opt = {
+    filename: `订单详情-${orderStore.currentSelectedOrder!.id}.pdf`,
+    html2canvas: {
+      height: element.scrollHeight,
+      logging: true,
+      scale: 2,
+      useCORS: true,
+      width: 1200, // 设置固定宽度
+    },
+    image: { quality: 0.98, type: 'jpeg' },
+    jsPDF: {
+      format: [1200, element.scrollHeight], // 自定义PDF尺寸
+      orientation: 'portrait',
+      unit: 'px',
+    },
+    margin: [10, 10, 10, 10],
+  };
+
+  try {
+    await html2pdf().set(opt).from(element).save();
+  } catch (error) {
+    console.error('PDF导出失败:', error);
+  } finally {
+    // 恢复原始样式
+    element.style.cssText = originalStyle;
+  }
+}
 </script>
 
 <template>
@@ -145,7 +182,7 @@ const subsidyTypeText = computed(() => {
     style="top: 10px; width: 85%"
     @cancel="orderStore.showEventDetails = false"
   >
-    <div class="flex h-full flex-1 flex-col">
+    <div class="order-detail-content flex h-full flex-1 flex-col">
       <Descriptions :column="3" bordered>
         <DescriptionsItem :label="$t('id')">
           {{ orderStore.currentSelectedOrder!.id }}
@@ -236,27 +273,33 @@ const subsidyTypeText = computed(() => {
 
       <div
         v-if="sampleStore.sampleList.length > 0"
-        ref="scroller"
         class="flex h-full flex-1 flex-col"
       >
         <br />
         <h1>{{ $t('sample') }}</h1>
-        <RecycleScroller
-          v-slot="{ item }"
-          :emit-update="true"
-          :grid-items="2"
-          :item-secondary-size="itemWidth"
-          :item-size="240"
-          :items="sampleStore.sampleList"
-          :loading="sampleStore.sampleQueryLoading"
-          :page-mode="true"
-          class="scroller"
-          key-field="id"
-          @resize="onResize"
-          @update="onUpdate"
-        >
-          <SampleCard :sample="item" />
-        </RecycleScroller>
+        <div class="sample-list">
+          <div
+            v-for="(item, index) in sampleStore.sampleList"
+            :key="item.id"
+            class="sample-item"
+          >
+            <div class="sample-container">
+              <div class="sample-number-wrapper">
+                <div class="sample-number">{{ index + 1 }}</div>
+              </div>
+              <div class="sample-content">
+                <SampleCard :sample="item" />
+                <div class="sample-selling-points">
+                  <h3>{{ $t('product_ksp') }}</h3>
+                  <div
+                    class="selling-points-content"
+                    v-html="item.product_ksp || $t('no_product_ksp')"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <OSSFileForm />
         <SampleKspForm />
       </div>
@@ -306,8 +349,102 @@ const subsidyTypeText = computed(() => {
           {{ $t('delete') }}
         </Button>
       </AccessControl>
+      <Button
+        key="exportPDF"
+        :loading="loading"
+        type="primary"
+        @click="exportToPDF"
+      >
+        {{ $t('exportPDF') }}
+      </Button>
     </template>
   </Modal>
   <OrderApendModal v-if="orderStore.showApendModal" />
   <SubsidyForm />
 </template>
+
+<style scoped>
+.grid {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+}
+
+.sample-item {
+  width: 100%;
+}
+
+.sample-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+}
+
+.sample-number-wrapper {
+  padding-top: 90px;
+}
+
+.sample-number {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background-color: #1890ff;
+  border-radius: 50%;
+}
+
+.sample-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sample-selling-points {
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.sample-selling-points h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+.selling-points-content {
+  line-height: 1.5;
+  color: #666;
+}
+
+/* 确保 HTML 内容中的样式正确显示 */
+.selling-points-content :deep(p) {
+  margin-bottom: 8px;
+}
+
+.selling-points-content :deep(ul),
+.selling-points-content :deep(ol) {
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.selling-points-content :deep(li) {
+  margin-bottom: 4px;
+}
+</style>

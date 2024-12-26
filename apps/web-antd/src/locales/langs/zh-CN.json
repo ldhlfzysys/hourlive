@@ -67,6 +67,7 @@
   "product_final_price": "折扣价",
   "product_discount": "折扣",
   "product_ksp": "卖点",
+  "no_product_ksp": "未设置卖点",
   "product_script": "脚本",
   "product_commission": "佣金",
   "is_main": "是否主推",
