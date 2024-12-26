@@ -12,7 +12,9 @@ import {
   Modal,
   Tag,
 } from 'ant-design-vue';
+import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
+import JSZip from 'jszip';
 
 import Empty from '#/components/empty.vue';
 import OrderApendModal from '#/components/orderApendModal.vue';
@@ -20,7 +22,12 @@ import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
 import SubsidyForm from '#/components/subsidyform.vue';
-import { useAgencyStore, useSampleStore, useTimeslotOrderStore } from '#/store';
+import {
+  useAgencyStore,
+  useOSSFileStore,
+  useSampleStore,
+  useTimeslotOrderStore,
+} from '#/store';
 
 defineOptions({
   name: 'OrderDetailModal',
@@ -29,6 +36,7 @@ defineOptions({
 const orderStore = useTimeslotOrderStore();
 const sampleStore = useSampleStore();
 const agencyStore = useAgencyStore();
+const ossfileStore = useOSSFileStore();
 
 const itemWidth = ref(300);
 const loading = ref(false);
@@ -120,55 +128,101 @@ const subsidyTypeText = computed(() => {
 });
 
 async function exportToPDF() {
+  const zip = new JSZip();
+
+  // 获取订单里商品脚本文件路径
+  // files结构为：{sample_id:[{name,path}]}
+  const files = await ossfileStore.fetchFileFromOrder(
+    orderStore.currentSelectedOrder!.id!,
+  );
+
+  // 创建PDF
   const element = document.querySelector('.order-detail-content');
   if (!element) return;
 
   // 临时调整样式以确保内容完整显示
   const originalStyle = element.style.cssText;
-  element.style.width = '1000px'; // 增加宽度
+  element.style.width = '1000px';
   element.style.maxHeight = 'none';
   element.style.margin = '0 auto';
   element.style.padding = '20px';
 
-  // 等待图片加载完成
-  await Promise.all(
-    [...element.querySelectorAll('img')].map(
-      (img) =>
-        new Promise((resolve) => {
-          if (img.complete) {
-            resolve(null);
-          } else {
-            img.addEventListener('load', () => resolve(null));
-            img.addEventListener('error', () => resolve(null));
-          }
-        }),
-    ),
-  );
-
-  const opt = {
-    filename: `订单详情-${orderStore.currentSelectedOrder!.id}.pdf`,
-    html2canvas: {
-      logging: true,
-      scale: 1.5, // 降低缩放比例，使内容更清晰
-      useCORS: true,
-    },
-    image: { quality: 0.98, type: 'jpeg' },
-    jsPDF: {
-      format: 'a4',
-      orientation: 'landscape', // 改为横向布局
-      unit: 'mm',
-    },
-    margin: [10, 10, 10, 10],
-    pagebreak: {
-      before: '.sample-item',
-      mode: ['avoid-all', 'css', 'legacy'],
-    },
-  };
-
   try {
-    await html2pdf().set(opt).from(element).save();
+    // 等待图片加载
+    await Promise.all(
+      [...element.querySelectorAll('img')].map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete) resolve(null);
+            else {
+              img.addEventListener('load', () => resolve(null));
+              img.addEventListener('error', () => resolve(null));
+            }
+          }),
+      ),
+    );
+
+    const opt = {
+      filename: `订单详情-${orderStore.currentSelectedOrder!.id}.pdf`,
+      html2canvas: {
+        logging: true,
+        scale: 1.5,
+        useCORS: true,
+      },
+      image: { quality: 0.98, type: 'jpeg' },
+      jsPDF: {
+        format: 'a4',
+        orientation: 'landscape',
+        unit: 'mm',
+      },
+      margin: [10, 10, 10, 10],
+      pagebreak: {
+        before: '.sample-item',
+        mode: ['avoid-all', 'css', 'legacy'],
+      },
+    };
+
+    // 生成PDF并添加到zip
+    const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+    zip.file(`订单详情-${orderStore.currentSelectedOrder!.id}.pdf`, pdfBlob);
+
+    // 下载额外文件并按商品编号组织
+    if (files.success && files.data) {
+      // 创建sample_id到序号的映射
+      const sampleIndexMap = new Map(
+        sampleStore.sampleList.map((sample, index) => [sample.id, index + 1]),
+      );
+
+      // 按sample_id分组处理文件
+      for (const [sampleId, fileList] of Object.entries(files.data)) {
+        // 获取商品在列表中的序号
+        const sampleIndex = sampleIndexMap.get(Number(sampleId));
+        if (sampleIndex === undefined) continue;
+
+        // 获取商品信息
+        const sample = sampleStore.sampleList.find(
+          (s) => s.id === Number(sampleId),
+        );
+        const folderName = `商品${sampleIndex}-${sample?.product_id || '未命名'}`;
+
+        // 下载该商品的所有文件并放入对应文件夹
+        for (const file of fileList) {
+          try {
+            const response = await fetch(file.path);
+            const fileBlob = await response.blob();
+            zip.file(`${folderName}/${file.name}`, fileBlob);
+          } catch (error) {
+            console.error(`下载文件失败: ${folderName}/${file.name}`, error);
+          }
+        }
+      }
+    }
+
+    // 生成并下载zip文件
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipBlob, `订单${orderStore.currentSelectedOrder!.id}-完整资料.zip`);
   } catch (error) {
-    console.error('PDF导出失败:', error);
+    console.error('导出失败:', error);
   } finally {
     // 恢复原始样式
     element.style.cssText = originalStyle;
@@ -328,9 +382,7 @@ async function exportToPDF() {
         :disabled="sampleStore.sampleQueryLoading || orderStore.downloadLoading"
         :loading="orderStore.downloadLoading"
         type="primary"
-        @click="
-          orderStore.downloadTimeslotOrder(orderStore.currentSelectedOrder!)
-        "
+        @click="exportToPDF"
       >
         {{ $t('download') }}
       </Button>
@@ -351,14 +403,6 @@ async function exportToPDF() {
           {{ $t('delete') }}
         </Button>
       </AccessControl>
-      <Button
-        key="exportPDF"
-        :loading="loading"
-        type="primary"
-        @click="exportToPDF"
-      >
-        {{ $t('exportPDF') }}
-      </Button>
     </template>
   </Modal>
   <OrderApendModal v-if="orderStore.showApendModal" />

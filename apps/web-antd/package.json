@@ -46,6 +46,7 @@
     "@wangeditor/editor-for-vue": "^5.1.12",
     "ant-design-vue": "^4.2.4",
     "dayjs": "^1.11.13",
+    "file-saver": "^2.0.5",
     "html2pdf.js": "^0.10.2",
     "lucide-vue-next": "^0.441.0",
     "pinia": "2.2.2",

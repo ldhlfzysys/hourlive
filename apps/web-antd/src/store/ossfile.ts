@@ -45,6 +45,12 @@ function _fetchFile(product_id: number) {
   );
 }
 
+function _fetchFileFromOrder(order_id: number) {
+  return requestClient.get<StanderResult<OSSFile[]>>(
+    `oss/listorderfiles/${order_id}`,
+  );
+}
+
 // 新增的 API 方法
 function _uploadAvatar(file: File) {
   const formData = new FormData();
@@ -142,6 +148,11 @@ export const useOSSFileStore = defineStore('file-store', () => {
     fetching.value = false;
   }
 
+  async function fetchFileFromOrder(order_id: number) {
+    const result = await _fetchFileFromOrder(order_id);
+    return result;
+  }
+
   async function uploadAvatar(file: File) {
     uploading.value = true;
     const result = await _uploadAvatar(file);
@@ -169,6 +180,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     $reset,
     currentProductId,
     fetchFile,
+    fetchFileFromOrder,
     fetching,
     getFileList,
     ossfiles,
