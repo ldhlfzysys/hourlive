@@ -125,7 +125,7 @@ async function exportToPDF() {
 
   // 临时调整样式以确保内容完整显示
   const originalStyle = element.style.cssText;
-  element.style.width = '1200px';
+  element.style.width = '1000px'; // 增加宽度
   element.style.maxHeight = 'none';
   element.style.margin = '0 auto';
   element.style.padding = '20px';
@@ -148,19 +148,21 @@ async function exportToPDF() {
   const opt = {
     filename: `订单详情-${orderStore.currentSelectedOrder!.id}.pdf`,
     html2canvas: {
-      height: element.scrollHeight,
       logging: true,
-      scale: 2,
+      scale: 1.5, // 降低缩放比例，使内容更清晰
       useCORS: true,
-      width: 1200, // 设置固定宽度
     },
     image: { quality: 0.98, type: 'jpeg' },
     jsPDF: {
-      format: [1200, element.scrollHeight], // 自定义PDF尺寸
-      orientation: 'portrait',
-      unit: 'px',
+      format: 'a4',
+      orientation: 'landscape', // 改为横向布局
+      unit: 'mm',
     },
     margin: [10, 10, 10, 10],
+    pagebreak: {
+      before: '.sample-item',
+      mode: ['avoid-all', 'css', 'legacy'],
+    },
   };
 
   try {
