@@ -1,0 +1,321 @@
+/* schedule.css */
+.event-container {
+  height: 100%;
+  border-radius: 1px;
+}
+
+.event-content {
+  padding: 4px 10px;
+  font-size: 12px;
+  text-align: left;
+  word-break: break-all;
+}
+
+.vuecal__event {
+  max-width: 500px !important;
+  overflow: hidden;
+  background-color: rgb(46 139 168 / 60%);
+  border: 1px solid #e5e7eb !important;
+  border-radius: 4px;
+}
+
+.vuecal__cell--disabled {
+  pointer-events: all;
+  background-color: rgb(
+    191 191 191 / 50%
+  ) !important; /* Light gray background */
+}
+
+.color-event-0 {
+  background-color: #fde6e0;
+}
+
+.color-event-0-past {
+  color: gray;
+  background-color: #fde6e0;
+  opacity: 0.5;
+}
+
+.color-event-1 {
+  background-color: #c7edcc;
+}
+
+.color-event-1-past {
+  color: gray;
+  background-color: #c7edcc;
+  opacity: 0.5;
+}
+
+.color-event-2 {
+  background-color: #faf9de;
+}
+
+.color-event-2-past {
+  color: gray;
+  background-color: #faf9de;
+  opacity: 0.5;
+}
+
+.color-event-3 {
+  background-color: #dce2f1;
+}
+
+.color-event-3-past {
+  color: gray;
+  background-color: #dce2f1;
+  opacity: 0.5;
+}
+
+.color-event-4 {
+  background-color: #c7edcc;
+}
+
+.color-event-4-past {
+  color: gray;
+  background-color: #c7edcc;
+  opacity: 0.5;
+}
+
+.color-event-5 {
+  background-color: #fff2e2;
+}
+
+.color-event-5-past {
+  color: gray;
+  background-color: #fff2e2;
+  opacity: 0.5;
+}
+
+.color-event-6 {
+  background-color: #e0ffff;
+}
+
+.color-event-6-past {
+  color: gray;
+  background-color: #e0ffff;
+  opacity: 0.5;
+}
+
+.color-event-7 {
+  background-color: #f0e68c;
+}
+
+.color-event-7-past {
+  color: gray;
+  background-color: #f0e68c;
+  opacity: 0.5;
+}
+
+.color-event-8 {
+  background-color: #afeeee;
+}
+
+.color-event-8-past {
+  color: gray;
+  background-color: #afeeee;
+  opacity: 0.5;
+}
+
+.color-event-9 {
+  background-color: #88ada6;
+}
+
+.color-event-9-past {
+  color: gray;
+  background-color: #88ada6;
+  opacity: 0.5;
+}
+
+.color-event-10 {
+  background-color: #a1afc9;
+}
+
+.color-event-10-past {
+  color: gray;
+  background-color: #a1afc9;
+  opacity: 0.5;
+}
+
+.color-event-11 {
+  background-color: #e4c6d0;
+}
+
+.color-event-11-past {
+  color: gray;
+  background-color: #e4c6d0;
+  opacity: 0.5;
+}
+
+.color-event-12 {
+  background-color: #eedeb0;
+}
+
+.color-event-12-past {
+  color: gray;
+  background-color: #eedeb0;
+  opacity: 0.5;
+}
+
+.color-event-13 {
+  background-color: #fcefe8;
+}
+
+.color-event-13-past {
+  color: gray;
+  background-color: #fcefe8;
+  opacity: 0.5;
+}
+
+.color-event-14 {
+  background-color: #d6ecf0;
+}
+
+.color-event-14-past {
+  color: gray;
+  background-color: #d6ecf0;
+  opacity: 0.5;
+}
+
+.color-event-15 {
+  background-color: #e9e7ef;
+}
+
+.color-event-15-past {
+  color: gray;
+  background-color: #e9e7ef;
+  opacity: 0.5;
+}
+
+.color-event-16 {
+  background-color: #eacd76;
+}
+
+.color-event-16-past {
+  color: gray;
+  background-color: #eacd76;
+  opacity: 0.5;
+}
+
+.color-event-17 {
+  background-color: #f4a460;
+}
+
+.color-event-17-past {
+  color: gray;
+  background-color: #f4a460;
+  opacity: 0.5;
+}
+
+.color-event-18 {
+  background-color: #d3d3d3;
+}
+
+.color-event-18-past {
+  color: gray;
+  background-color: #d3d3d3;
+  opacity: 0.5;
+}
+
+.color-event-19 {
+  background-color: #d1c4ca;
+}
+
+.color-event-19-past {
+  color: gray;
+  background-color: #d1c4ca;
+  opacity: 0.5;
+}
+
+.color-event-20 {
+  background-color: #cbb1ab;
+}
+
+.color-event-20-past {
+  color: gray;
+  background-color: #cbb1ab;
+  opacity: 0.5;
+}
+
+.color-event-21 {
+  background-color: #b7d2be;
+}
+
+.color-event-21-past {
+  color: gray;
+  background-color: #b7d2be;
+  opacity: 0.5;
+}
+
+.color-event-22 {
+  background-color: #e7dfec;
+}
+
+.color-event-22-past {
+  color: gray;
+  background-color: #e7dfec;
+  opacity: 0.5;
+}
+
+.color-event-23 {
+  background-color: #eee791;
+}
+
+.color-event-23-past {
+  color: gray;
+  background-color: #eee791;
+  opacity: 0.5;
+}
+
+.color-event-24 {
+  background-color: #e0ffff;
+}
+
+.color-event-24-past {
+  color: gray;
+  background-color: #e0ffff;
+  opacity: 0.5;
+}
+
+.color-event-25 {
+  background-color: #cc9;
+}
+
+.color-event-25-past {
+  color: gray;
+  background-color: #cc9;
+  opacity: 0.5;
+}
+
+.color-event-26 {
+  background-color: #39c;
+}
+
+.color-event-26-past {
+  color: gray;
+  background-color: #39c;
+  opacity: 0.5;
+}
+
+.color-event-27 {
+  background-color: #f9c;
+}
+
+.color-event-27-past {
+  color: gray;
+  background-color: #f9c;
+  opacity: 0.5;
+}
+
+.color-event-28 {
+  background-color: #fc9;
+}
+
+.color-event-28-past {
+  color: gray;
+  background-color: #fc9;
+  opacity: 0.5;
+}
+
+.vuecal__event[class*='color-event-'] .vuecal__event-time {
+  display: none;
+}

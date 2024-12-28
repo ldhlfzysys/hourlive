@@ -149,13 +149,20 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     currentSelectedOrder.value = orderById.value(id);
   }
 
-  function getEventClass(id: number) {
+  function getEventClass(id: number, isPast: boolean) {
     const colorLength = 29;
     if (!colorMap.value.has(id)) {
       colorMap.value.set(id, `color-event-${colorIndex.value}`);
       colorIndex.value = (colorIndex.value + 1) % colorLength;
     }
-    return colorMap.value.get(id)!;
+
+    let color = colorMap.value.get(id)!;
+    const order: TimeslotOrder | undefined = orderById.value(id);
+
+    if (order && isPast) {
+      color = `${color}-past`;
+    }
+    return color;
   }
 
   const canAppendOrder = computed(() => {

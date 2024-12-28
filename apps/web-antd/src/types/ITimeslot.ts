@@ -6,7 +6,7 @@ export interface Timeslot {
   id: number;
   create_time: string; // DateTime in ISO format
   update_time: string; // DateTime in ISO format
-  date: string; // Format YYYY-MM-DD
+  date: string; // deprecated Format YYYY-MM-DD
   start_time: string; // Format HH:MM
   end_time: string; // Format HH:MM
   hourlive_money_cost: number;
@@ -14,6 +14,9 @@ export interface Timeslot {
   timeslotorders: TimeslotOrder[];
   room: Room;
   streamers?: Streamer[];
+
+  begin_date: string; // Format YYYY-MM-DD
+  finish_date: string; // Format YYYY-MM-DD
 }
 
 export type DateTimeslot = {

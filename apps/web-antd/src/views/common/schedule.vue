@@ -28,6 +28,7 @@ import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import 'vue-cal/dist/vuecal.css';
+import './css/schedule.css';
 
 const { hasAccessByRoles } = useAccess();
 
@@ -74,7 +75,13 @@ const events = computed(() => {
 
       const agencyName = agencyStore.agencyById(order.agency_id)?.name;
 
-      const eventClass = orderStore.getEventClass(order.id);
+      console.log(timeslot);
+
+      const startTimeStr = timeslot.begin_date.replace('T', ' ');
+      const endTimeStr = timeslot.finish_date.replace('T', ' ');
+      const isPast = dayjs(endTimeStr).isBefore(dayjs());
+
+      const eventClass = orderStore.getEventClass(order.id, isPast);
 
       let content = '';
       content =
@@ -97,11 +104,11 @@ const events = computed(() => {
         content,
         deletable: false,
         draggable: false,
-        end: `${timeslot.date} ${timeslot.end_time}`,
+        end: endTimeStr,
         id: order.id,
         resizable: false,
         slotId: timeslot.id,
-        start: `${timeslot.date} ${timeslot.start_time}`,
+        start: startTimeStr,
         title: `
           <div class="event-container">
             <div class="flex justify-between items-center text-sm" >
@@ -225,26 +232,27 @@ function handleApendOrder() {
   orderStore.showApendModal = true;
 }
 
-function handleViewChange(event: any) {
-  let currentDate = event.startDate;
-  const endDate = event.endDate;
-  const dates: string[] = [];
-  const previousDate = dayjs(selectDate).subtract(1, 'day');
+// function handleViewChange(event: any) {
+//   let currentDate = event.startDate;
+//   const endDate = event.endDate;
+//   const dates: string[] = [];
+//   const previousDate = dayjs(selectDate).subtract(1, 'day');
 
-  while (dayjs(currentDate).isBefore(dayjs(endDate))) {
-    if (dayjs(currentDate).isBefore(previousDate)) {
-      dates.push(currentDate.format('YYYY-MM-DD'));
-    } else {
-      break;
-    }
-    currentDate = dayjs(currentDate).add(1, 'day');
-  }
-  disablePastDates.value = dates;
-}
+//   while (dayjs(currentDate).isBefore(dayjs(endDate))) {
+//     if (dayjs(currentDate).isBefore(previousDate)) {
+//       dates.push(currentDate.format('YYYY-MM-DD'));
+//     } else {
+//       break;
+//     }
+//     currentDate = dayjs(currentDate).add(1, 'day');
+//   }
+//   disablePastDates.value = dates;
+// }
 </script>
 
 <template>
   <div>
+    <link href="./css/schedule.css" rel="stylesheet" />
     <HourLivePage :content-overflow="true">
       <template #header>
         <div class="flex w-[full] flex-wrap">
@@ -287,7 +295,6 @@ function handleViewChange(event: any) {
           >
             <VueCal
               v-model:active-view="activeView"
-              :disable-days="disablePastDates"
               :disable-views="['years', 'year']"
               :drag-to-create-threshold="0"
               :editable-events="{
@@ -311,8 +318,6 @@ function handleViewChange(event: any) {
               @event-click="handleEventClick"
               @event-drag-create="handleEventChange"
               @event-duration-change="handleEventChange"
-              @ready="handleViewChange"
-              @view-change="handleViewChange"
             />
           </div>
 
@@ -377,152 +382,5 @@ function handleViewChange(event: any) {
   /* padding: 0 12px; */
   display: flex;
   align-items: center;
-}
-
-:deep(.event-container) {
-  height: 100%;
-  border-radius: 1px;
-}
-
-:deep(.event-content) {
-  padding: 4px 10px;
-  font-size: 12px;
-  text-align: left;
-  word-break: break-all;
-}
-
-:deep(.vuecal__event) {
-  max-width: 500px !important;
-  overflow: hidden;
-  background-color: rgb(46 139 168 / 60%);
-  border: 1px solid #e5e7eb !important;
-  border-radius: 4px;
-}
-
-:deep(.color-event-0) {
-  background-color: #fde6e0;
-}
-
-:deep(.vuecal__cell--disabled) {
-  pointer-events: all;
-  background-color: rgb(
-    191 191 191 / 50%
-  ) !important; /* Light gray background */
-}
-
-:deep(.color-event-1) {
-  background-color: #c7edcc;
-}
-
-:deep(.color-event-2) {
-  background-color: #faf9de;
-}
-
-:deep(.color-event-3) {
-  background-color: #dce2f1;
-}
-
-:deep(.color-event-4) {
-  background-color: #c7edcc;
-}
-
-:deep(.color-event-5) {
-  background-color: #fff2e2;
-}
-
-:deep(.color-event-6) {
-  background-color: #e0ffff;
-}
-
-:deep(.color-event-7) {
-  background-color: #f0e68c;
-}
-
-:deep(.color-event-8) {
-  background-color: #afeeee;
-}
-
-:deep(.color-event-9) {
-  background-color: #88ada6;
-}
-
-:deep(.color-event-10) {
-  background-color: #a1afc9;
-}
-
-:deep(.color-event-11) {
-  background-color: #e4c6d0;
-}
-
-:deep(.color-event-12) {
-  background-color: #eedeb0;
-}
-
-:deep(.color-event-13) {
-  background-color: #fcefe8;
-}
-
-:deep(.color-event-14) {
-  background-color: #d6ecf0;
-}
-
-:deep(.color-event-15) {
-  background-color: #e9e7ef;
-}
-
-:deep(.color-event-16) {
-  background-color: #eacd76;
-}
-
-:deep(.color-event-17) {
-  background-color: #f4a460;
-}
-
-:deep(.color-event-18) {
-  background-color: #d3d3d3;
-}
-
-:deep(.color-event-19) {
-  background-color: #d1c4ca;
-}
-
-:deep(.color-event-20) {
-  background-color: #cbb1ab;
-}
-
-:deep(.color-event-21) {
-  background-color: #b7d2be;
-}
-
-:deep(.color-event-22) {
-  background-color: #e7dfec;
-}
-
-:deep(.color-event-23) {
-  background-color: #eee791;
-}
-
-:deep(.color-event-24) {
-  background-color: #e0ffff;
-}
-
-:deep(.color-event-25) {
-  background-color: #cc9;
-}
-
-:deep(.color-event-26) {
-  background-color: #39c;
-}
-
-:deep(.color-event-27) {
-  background-color: #f9c;
-}
-
-:deep(.color-event-28) {
-  background-color: #fc9;
-}
-
-:deep(.vuecal__event[class*='color-event-'] .vuecal__event-time) {
-  display: none;
 }
 </style>
