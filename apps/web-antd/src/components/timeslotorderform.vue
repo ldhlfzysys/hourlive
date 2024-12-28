@@ -2,24 +2,11 @@
 <script lang="ts" setup>
 import type { TimeslotModel } from '#/types';
 
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import {
-  Card,
-  DatePicker,
-  Form,
-  FormItem,
-  List,
-  ListItem,
-  RangePicker,
-  Select,
-  Tag,
-  Timeline,
-  TimelineItem,
-  TimeRangePicker,
-} from 'ant-design-vue';
+import { Card, Form, FormItem, Select, Tag } from 'ant-design-vue';
 
 import {
   useAgencyStore,
@@ -27,6 +14,8 @@ import {
   useRoomStore,
   useTimeslotOrderStore,
 } from '#/store';
+
+import TimeslotsControl from './timeslotscontrol.vue';
 // Data
 
 defineOptions({
@@ -63,25 +52,6 @@ const roomOptions = computed(() => {
     Number.parseInt(orderStore.formState.agency),
   ]);
 });
-
-const visible = ref(false);
-
-function addTimeslot() {
-  if (orderStore.formState.timeslots!.length === 0) {
-    return;
-  }
-  const lastTimeslot =
-    orderStore.formState.timeslots![orderStore.formState.timeslots!.length - 1];
-  orderStore.formState.timeslots!.push({
-    canEdit: true,
-    date: lastTimeslot!.date.add(1, 'day'),
-    slot: lastTimeslot!.slot,
-  });
-}
-
-function deleteTimeslot(index: number) {
-  orderStore.formState.timeslots!.splice(index, 1);
-}
 
 function generateTimelineText(timeslot: TimeslotModel) {
   return `${timeslot.date.format('YYYY-MM-DD')}  ${timeslot.slot[0].format('HH:mm')} - ${timeslot.slot[1].format('HH:mm')}`;
@@ -154,101 +124,13 @@ function generateTimelineText(timeslot: TimeslotModel) {
         <FormItem :label="$t('livetime')">
           <div v-if="orderStore.formState.formType === 'add'">
             <div class="flex gap-2">
-              <RangePicker
-                v-model:value="orderStore.formState.liveTime"
-                class="w-[65%]"
-                @change="orderStore.generateTimeslots"
-              />
-              <TimeRangePicker
-                v-model:value="orderStore.formState.timeslot"
-                class="w-[40%]"
-                format="HH:mm"
-                @change="orderStore.generateTimeslots"
-              />
+              <TimeslotsControl />
             </div>
             <br />
-
-            <div>
-              <Timeline>
-                <TimelineItem
-                  v-for="(timeslot, index) in orderStore.formState.timeslots"
-                  :key="index"
-                >
-                  {{ generateTimelineText(timeslot) }}
-                </TimelineItem>
-              </Timeline>
-            </div>
           </div>
 
           <div v-if="orderStore.formState.formType === 'apend'">
-            <List
-              :bordered="true"
-              :data-source="orderStore.formState.timeslots"
-              item-layout="horizontal"
-              size="small"
-              style="max-height: 400px; overflow: auto"
-            >
-              <!-- <template #header>
-
-                  <Popover v-model:open="visible" :title="$t('bulkAddDates')" trigger="click" placement="bottom" width="300">
-                    <template #content>
-                      <Row>
-                        <Col :span="12">
-                          <RangePicker v-model:value="" />
-                        </Col>
-                        <Col :span="9" :offset="1">
-                          <TimeRangePicker v-model:value=""/>
-                        </Col>
-                      </Row>
-
-                      <br/>
-
-                      <Row justify="center">
-                        <Button type="primary"  @click="">
-                            {{ $t('confirm') }}
-                        </Button>
-
-                      </Row>
-                      
-                    </template>
-                    <Button type="primary"  @click="">
-                        {{ $t('bulkAdd') }}
-                    </Button>
-                  </Popover>
-                </template> -->
-              <template #renderItem="{ item, index }">
-                <ListItem>
-                  <div class="flex gap-2">
-                    <DatePicker
-                      v-model:value="item.date"
-                      :allow-clear="false"
-                      :disabled="!item.canEdit"
-                    />
-                    <TimeRangePicker
-                      v-model:value="item.slot"
-                      :allow-clear="false"
-                      :disabled="!item.canEdit"
-                      format="HH:mm"
-                    />
-                    <span
-                      v-if="
-                        orderStore.formState.timeslots!.length > 1 &&
-                        item.canEdit
-                      "
-                      class="icon-[mdi--minus] size-6"
-                      @click="deleteTimeslot(index)"
-                    ></span>
-                    <span
-                      v-if="
-                        index === orderStore.formState.timeslots!.length - 1
-                      "
-                      class="icon-[mdi--plus] size-6"
-                      @click="addTimeslot"
-                    ></span>
-                  </div>
-                </ListItem>
-              </template>
-            </List>
+            <TimeslotsControl />
           </div>
         </FormItem>
       </Form>

@@ -75,8 +75,6 @@ const events = computed(() => {
 
       const agencyName = agencyStore.agencyById(order.agency_id)?.name;
 
-      console.log(timeslot);
-
       const startTimeStr = timeslot.begin_date.replace('T', ' ');
       const endTimeStr = timeslot.finish_date.replace('T', ' ');
       const isPast = dayjs(endTimeStr).isBefore(dayjs());
@@ -131,7 +129,6 @@ const selectedAgencies = ref([]);
 const selectedCustomers = ref([]);
 const selectedContents = ref([]);
 const selectedRooms = ref([]);
-const disablePastDates = ref<string[]>([]);
 
 watch(
   [selectedAgencies, selectedCustomers, selectedContents, selectedRooms],
@@ -231,23 +228,6 @@ function handleApendOrder() {
   orderStore.isEditing = false;
   orderStore.showApendModal = true;
 }
-
-// function handleViewChange(event: any) {
-//   let currentDate = event.startDate;
-//   const endDate = event.endDate;
-//   const dates: string[] = [];
-//   const previousDate = dayjs(selectDate).subtract(1, 'day');
-
-//   while (dayjs(currentDate).isBefore(dayjs(endDate))) {
-//     if (dayjs(currentDate).isBefore(previousDate)) {
-//       dates.push(currentDate.format('YYYY-MM-DD'));
-//     } else {
-//       break;
-//     }
-//     currentDate = dayjs(currentDate).add(1, 'day');
-//   }
-//   disablePastDates.value = dates;
-// }
 </script>
 
 <template>
