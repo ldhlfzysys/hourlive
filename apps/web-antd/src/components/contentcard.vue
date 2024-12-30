@@ -41,22 +41,23 @@ const liveaccount = computed(() => {
         <p class="text-sm text-gray-600">
           {{ props.content.content_text }}
         </p>
-        <a
-          class="transform text-blue-600 transition-colors hover:text-blue-800"
-          href="#"
-          @click="contentStore.makeDescUpdate(props.content.id!)"
-        >
-          {{ $t('content_desc') }}
-        </a>
       </div>
       <AccessControl :codes="['customer']">
-        <Button
-          class="min-w-[80px]"
-          type="primary"
-          @click="contentStore.makeUpdate(props.content.id!)"
-        >
-          {{ $t('edit') }}
-        </Button>
+        <div class="flex gap-2">
+          <Button
+            class="min-w-[80px]"
+            @click="contentStore.makeSampleManagerUpdate(props.content.id!)"
+          >
+            {{ $t('contentsample') }}
+          </Button>
+          <Button
+            class="min-w-[80px]"
+            type="primary"
+            @click="contentStore.makeUpdate(props.content.id!)"
+          >
+            {{ $t('edit') }}
+          </Button>
+        </div>
       </AccessControl>
     </div>
 
@@ -113,6 +114,19 @@ const liveaccount = computed(() => {
               liveaccount?.platform
             }}</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 活动描述 -->
+      <div class="mt-6 rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+        <div class="flex flex-col gap-1.5">
+          <span class="text-sm font-medium text-gray-500">{{
+            $t('content_desc')
+          }}</span>
+          <div
+            class="prose prose-sm mt-2 text-gray-900"
+            v-html="props.content.content_desc"
+          ></div>
         </div>
       </div>
     </div>

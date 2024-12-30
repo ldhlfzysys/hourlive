@@ -7,8 +7,8 @@ import { AccessControl } from '@vben/access';
 import { Button } from 'ant-design-vue';
 
 import ContentCard from '#/components/contentcard.vue';
-import ContentDescForm from '#/components/contentdescform.vue';
 import ContentForm from '#/components/contentform.vue';
+import ContentSampleForm from '#/components/contentSampleform.vue';
 import Empty from '#/components/empty.vue';
 import { useContentStore, useLiveAccountStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
@@ -89,7 +89,7 @@ function onUpdate(
         />
       </div>
       <ContentForm />
-      <ContentDescForm :allow-edit="true" />
+      <ContentSampleForm />
     </template>
   </HourLivePage>
 </template>

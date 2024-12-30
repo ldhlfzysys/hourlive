@@ -1,10 +1,15 @@
 <script lang="ts" setup>
+import { onBeforeUnmount, ref } from 'vue';
+
 import { useAccess } from '@vben/access';
 import { $t } from '@vben/locales';
 
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
 import { Input, Modal, Select, SelectOption } from 'ant-design-vue';
 
 import { useContentStore, useLiveAccountStore } from '#/store';
+
+import '@wangeditor/editor/dist/css/style.css';
 
 defineOptions({
   name: 'ContentForm',
@@ -12,6 +17,23 @@ defineOptions({
 const { hasAccessByRoles } = useAccess();
 const contentStore = useContentStore();
 const liveaccountStore = useLiveAccountStore();
+
+// 添加编辑器相关配置
+const editorRef = ref();
+const mode = ref('simple');
+
+const toolbarConfig = {
+  toolbarKeys: ['bold', 'headerSelect', 'color'],
+};
+const editorConfig = { placeholder: '请输入内容...' };
+
+onBeforeUnmount(() => {
+  // 组件销毁时，也及时销毁编辑器
+});
+
+const handleCreated = (editor: any) => {
+  editorRef.value = editor;
+};
 
 function handleOk() {
   if (contentStore.contentCreate.id) {
@@ -62,6 +84,28 @@ function handleOk() {
               {{ account.name }}
             </SelectOption>
           </Select>
+        </div>
+
+        <!-- 添加富文本编辑器 -->
+        <div class="flex flex-col">
+          <span class="mb-2 text-sm font-medium text-gray-500">
+            {{ $t('content_desc') }}
+          </span>
+          <div style="border: 1px solid #ccc">
+            <Toolbar
+              :default-config="toolbarConfig"
+              :editor="editorRef"
+              :mode="mode"
+              style="border-bottom: 1px solid #ccc"
+            />
+            <Editor
+              v-model="contentStore.contentCreate.content_desc"
+              :default-config="editorConfig"
+              :mode="mode"
+              style="height: 300px; overflow-y: hidden"
+              @on-created="handleCreated"
+            />
+          </div>
         </div>
       </div>
     </div>

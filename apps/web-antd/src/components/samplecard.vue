@@ -70,7 +70,8 @@ const canEdit = computed(() => {
           class="h-full w-full rounded-lg object-cover"
         />
         <div
-          class="absolute right-2 top-2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
+          :class="[type === 'sample_main' ? 'bg-red-500/60' : 'bg-black/60']"
+          class="absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
         >
           {{ $t(type) }}
         </div>

@@ -342,5 +342,13 @@
   "cancel": "取消",
   "confirmDelete": "确认删除",
   "confirmDeleteCustomer": "确认删除商家",
-  "confirmDeleteAgency": "确认删除机构"
+  "confirmDeleteAgency": "确认删除机构",
+  "removeSample": "移除样品",
+  "removesuccess": "移除样品成功",
+  "removefail": "移除样品失败",
+  "sample_management": "添加样品到场次管理",
+  "available_samples": "所有样品",
+  "selected_samples": "场次内样品",
+  "add_selected": "添加到场次",
+  "fetch_more_sample": "加载更多样品"
 }
