@@ -41,36 +41,36 @@ const rightSlots = computed(() => {
     });
   }
 
-  if (preferencesButtonPosition.value.header) {
-    list.push({
-      index: 10,
-      name: 'preferences',
-    });
-  }
-  if (preferences.widget.themeToggle) {
-    list.push({
-      index: 15,
-      name: 'theme-toggle',
-    });
-  }
+  // if (preferencesButtonPosition.value.header) {
+  //   list.push({
+  //     index: 10,
+  //     name: 'preferences',
+  //   });
+  // }
+  // if (preferences.widget.themeToggle) {
+  //   list.push({
+  //     index: 15,
+  //     name: 'theme-toggle',
+  //   });
+  // }
   if (preferences.widget.languageToggle) {
     list.push({
       index: 20,
       name: 'language-toggle',
     });
   }
-  if (preferences.widget.fullscreen) {
-    list.push({
-      index: 25,
-      name: 'fullscreen',
-    });
-  }
-  if (preferences.widget.notification) {
-    list.push({
-      index: 30,
-      name: 'notification',
-    });
-  }
+  // if (preferences.widget.fullscreen) {
+  //   list.push({
+  //     index: 25,
+  //     name: 'fullscreen',
+  //   });
+  // }
+  // if (preferences.widget.notification) {
+  //   list.push({
+  //     index: 30,
+  //     name: 'notification',
+  //   });
+  // }
 
   Object.keys(slots).forEach((key) => {
     const name = key.split('-');
