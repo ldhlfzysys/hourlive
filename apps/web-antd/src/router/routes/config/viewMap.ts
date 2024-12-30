@@ -108,7 +108,7 @@ const viewMap = {
       icon: 'lucide:package',
       title: $t('sample'),
     },
-    name: 'Sales',
+    name: 'AgencySales',
     path: '/sales',
   },
   sample: {

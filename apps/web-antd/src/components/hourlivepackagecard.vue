@@ -3,7 +3,7 @@ import type { TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, ref, watch } from 'vue';
 
-import { AccessControl } from '@vben/access';
+import { AccessControl, useAccess } from '@vben/access';
 import { useUserStore } from '@vben/stores';
 
 import {
@@ -30,7 +30,7 @@ const props = defineProps<{
 }>();
 
 const userStore = useUserStore();
-
+const access = useAccess();
 const showModal = ref(false);
 watch(showModal, (newVal) => {
   if (newVal) {
@@ -142,6 +142,14 @@ async function handleBuyTimeslot() {
   );
   showModal.value = false;
 }
+
+async function handleConfirm() {
+  await useHourLivePackageStore().confirmOrder(props.item.id);
+}
+
+async function handleReject() {
+  await useHourLivePackageStore().rejectOrder(props.item.id);
+}
 </script>
 
 <template>
@@ -222,7 +230,10 @@ async function handleBuyTimeslot() {
 
       <!-- 操作按钮 -->
       <div class="mt-3 flex items-center justify-end space-x-2">
-        <AccessControl :codes="['agency']">
+        <AccessControl
+          v-if="item.status === 4 || item.status === 5"
+          :codes="['agency']"
+        >
           <Button
             :disabled="!hasTimeslot"
             :type="isOnline ? 'default' : 'primary'"
@@ -243,16 +254,28 @@ async function handleBuyTimeslot() {
             设置时段
           </Button>
         </AccessControl>
+        <AccessControl v-if="item.status === 6" :codes="['agency']">
+          <Button size="small" type="primary" @click="handleReject">
+            拒绝
+          </Button>
+          <Button size="small" type="primary" @click="handleConfirm">
+            确认
+          </Button>
+        </AccessControl>
         <AccessControl v-if="item.status === 5" :codes="['customer']">
           <Button size="small" type="primary" @click="showModal = true">
             购买
           </Button>
         </AccessControl>
+
+        <AccessControl v-if="item.status === 6" :codes="['customer']">
+          <Tag color="#f50" ghost> 机构确认中 </Tag>
+        </AccessControl>
       </div>
     </div>
     <Modal
       v-model:open="showModal"
-      :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
+      :body-style="{ overflowY: 'auto', maxHeight: '500px' }"
       style="top: 10px; width: 55%"
       title="购买时段"
       @ok="handleBuyTimeslot"
