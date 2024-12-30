@@ -40,6 +40,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       loginLoading.value = true;
       const result = await loginApi(params);
+      console.log(result);
+      if (!result || !result.success) {
+        notification.error({
+          description: $t('passworderror'),
+          duration: 3,
+          message: $t('loginError'),
+        });
+        return;
+      }
       const accessToken = result.token.access_token;
 
       // 如果成功获取到 accessToken

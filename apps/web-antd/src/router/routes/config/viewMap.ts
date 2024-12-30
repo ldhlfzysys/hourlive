@@ -28,8 +28,8 @@ const viewMap = {
       icon: 'lucide:orders',
       title: $t('agency_shippings'),
     },
-    name: 'Shippings',
-    path: '/shippings',
+    name: 'AgencyShippings',
+    path: '/agencyshippings',
   },
   content: {
     component: () => import('#/views/customer/content.vue'),
@@ -170,8 +170,8 @@ const viewMap = {
       icon: 'lucide:orders',
       title: $t('mysampleshipping'),
     },
-    name: 'Shippings',
-    path: '/shippings',
+    name: 'CustomerShippings',
+    path: '/customershippings',
   },
 
   streamer: {

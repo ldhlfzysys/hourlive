@@ -353,5 +353,7 @@
   "fetch_more_sample": "加载更多样品",
   "registerError": "注册失败",
   "registerSuccess": "注册成功",
-  "registerErrorDesc": "注册失败，请联系客服"
+  "registerErrorDesc": "注册失败，请联系客服",
+  "loginError": "登录失败",
+  "loginErrorDesc": "登录失败，请联系客服"
 }

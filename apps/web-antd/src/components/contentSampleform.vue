@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { $t } from '@vben/locales';
 
 import { useElementBounding } from '@vueuse/core';
-import { Button, Checkbox, Image, Modal } from 'ant-design-vue';
+import { Button, Checkbox, Image, InputSearch, Modal } from 'ant-design-vue';
 import { Trash2 } from 'lucide-vue-next';
 
 import { useContentStore, useSampleStore } from '#/store';
@@ -24,6 +24,7 @@ const contentStore = useContentStore();
 const scroller = ref();
 const itemWidth = ref(300);
 const selectedSamples = ref<string[]>([]);
+const searchText = ref('');
 
 function onResize() {
   const width = useElementBounding(scroller).width.value;
@@ -116,6 +117,22 @@ function getSampleType(isMain: string) {
   }
 }
 
+// 过滤商品列表
+const filteredProducts = computed(() => {
+  if (!searchText.value) {
+    return sampleStore.sampleList; // 原始商品列表
+  }
+
+  return sampleStore.sampleList.filter((item) =>
+    item.product_name.toLowerCase().includes(searchText.value.toLowerCase()),
+  );
+});
+
+// 搜索处理函数
+const handleSearch = () => {
+  // 如果需要额外处理，可以在这里添加逻辑
+};
+
 onMounted(() => {
   sampleStore.querySample();
 });
@@ -142,13 +159,19 @@ onMounted(() => {
           </Button>
         </div>
         <div class="flex-1 overflow-hidden">
+          <InputSearch
+            v-model:value="searchText"
+            :placeholder="$t('请输入商品名称')"
+            allow-clear
+            style="margin-bottom: 16px"
+          />
           <RecycleScroller
             v-if="sampleStore.sampleList.length > 0"
             ref="scroller"
             v-slot="{ item }"
             :emit-update="true"
             :item-size="180"
-            :items="sampleStore.sampleList"
+            :items="filteredProducts"
             :page-mode="false"
             class="h-full"
             key-field="id"
@@ -255,9 +278,7 @@ onMounted(() => {
                 {{ sample?.product_name }}
               </h3>
               <div class="mt-3 flex items-center space-x-3 text-sm">
-                <span class="text-gray-500"
-                  >ID: {{ sample?.product_code }}</span
-                >
+                <span class="text-gray-500">ID: {{ sample?.product_id }}</span>
               </div>
               <div class="mt-4 flex items-baseline space-x-3">
                 <span class="text-xl font-bold text-blue-600">{{

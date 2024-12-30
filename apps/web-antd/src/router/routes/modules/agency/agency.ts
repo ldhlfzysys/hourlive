@@ -42,7 +42,7 @@ const routes: RouteRecordRaw[] = [
       title: $t('agency_shippings'),
     },
     name: 'AgencyShippings',
-    path: '/shippings',
+    path: '/agencyshippings',
 
     children: [config.agencyshippings],
   },
