@@ -125,7 +125,6 @@ function handleEventChange(event: Event) {
 <template>
   <div>
     <Modal
-      v-if="hourLivePackageStore.showAvailableTimeslotsModal"
       v-model:open="hourLivePackageStore.showAvailableTimeslotsModal"
       style="top: 5%"
       title="选择时间"
