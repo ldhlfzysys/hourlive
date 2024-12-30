@@ -350,5 +350,8 @@
   "available_samples": "所有样品",
   "selected_samples": "场次内样品",
   "add_selected": "添加到场次",
-  "fetch_more_sample": "加载更多样品"
+  "fetch_more_sample": "加载更多样品",
+  "registerError": "注册失败",
+  "registerSuccess": "注册成功",
+  "registerErrorDesc": "注册失败，请联系客服"
 }

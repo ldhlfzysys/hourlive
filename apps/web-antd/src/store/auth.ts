@@ -127,6 +127,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       registerLoading.value = true;
       const result = await registerApi(params);
+      console.log(` register result : ${JSON.stringify(result)}`);
+      if (!result || !result.success) {
+        notification.error({
+          description: $t('registerErrorDesc'),
+          duration: 3,
+          message: $t('registerError'),
+        });
+        return;
+      }
       const accessToken = result.token.access_token;
 
       // 如果成功获取到 accessToken
