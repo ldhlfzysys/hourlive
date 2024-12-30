@@ -5,7 +5,6 @@ import { Button, Checkbox, TabPane, Tabs } from 'ant-design-vue';
 
 import HourLivePackageForm from '#/components/hourlivepackageform.vue';
 import HourLivePackageGrid from '#/components/hourlivepackageGrid.vue';
-import HourLivePackageList from '#/components/hourlivepackagelist.vue';
 import {
   useHourLivePackageStore,
   useRoomStore,
@@ -64,7 +63,7 @@ onMounted(() => {
             </div>
           </template>
           <TabPane key="1" tab="未出售">
-            <div v-if="unsoldPackages.length > 0" class="package-group">
+            <div class="package-group">
               <div class="mb-4 flex items-center">
                 <Checkbox.Group v-model:value="unsoldStatusChecked">
                   <Checkbox :value="4">未上架</Checkbox>
@@ -76,16 +75,13 @@ onMounted(() => {
           </TabPane>
           <TabPane key="2" tab="已售出">
             <div class="package-group">
-              <div
-                v-if="soldPackages.length > 0"
-                class="mb-4 flex items-center"
-              >
+              <div class="mb-4 flex items-center">
                 <Checkbox.Group v-model:value="soldStatusChecked">
                   <Checkbox :value="6">待确认</Checkbox>
                   <Checkbox :value="7">已确认</Checkbox>
                 </Checkbox.Group>
               </div>
-              <HourLivePackageList :packages="soldPackages" />
+              <HourLivePackageGrid :packages="soldPackages" />
             </div>
           </TabPane>
           <TabPane key="3" tab="已拒绝">

@@ -110,15 +110,6 @@ export const useContentStore = defineStore('content-store', () => {
     contents.value = new Map();
   }
 
-  const contentOptions = computed(() => {
-    return contentList.value.map((item: Content) => {
-      return {
-        label: `${item.id} - ${item.liveaccount?.name} - ${item.liveaccount?.live_account}`,
-        value: item.id,
-      };
-    });
-  });
-
   // methods
   async function queryContent() {
     try {
@@ -226,7 +217,6 @@ export const useContentStore = defineStore('content-store', () => {
     contentCreateLoading,
     contentList,
     contentLoading,
-    contentOptions,
     contentQuery,
     contents,
     createContent,

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TimeslotModel, TimeslotOrder } from '#/types';
+import type { Content, TimeslotModel, TimeslotOrder } from '#/types';
 
 import { computed, ref, watch } from 'vue';
 
@@ -17,7 +17,11 @@ import {
 import dayjs from 'dayjs';
 import { Timer, Users } from 'lucide-vue-next';
 
-import { useContentStore, useHourLivePackageStore } from '#/store';
+import {
+  useContentStore,
+  useHourLivePackageStore,
+  useLiveAccountStore,
+} from '#/store';
 
 import HourLiveAvatar from './hourliveavartar.vue';
 
@@ -43,6 +47,17 @@ watch(showModal, (newVal) => {
 });
 
 const contentStore = useContentStore();
+const liveaccountStore = useLiveAccountStore();
+
+const contentOptions = computed(() => {
+  return contentStore.contentList.map((item: Content) => {
+    const liveAccount = liveaccountStore.contentById(item.liveaccount_id!);
+    return {
+      label: `${item.id} - ${liveAccount!.name} - ${liveAccount!.live_account}`,
+      value: item.id,
+    };
+  });
+});
 
 const timeslots = computed(() =>
   props.item.timeslots.map((slot) => {
@@ -144,11 +159,23 @@ async function handleBuyTimeslot() {
 }
 
 async function handleConfirm() {
-  await useHourLivePackageStore().confirmOrder(props.item.id);
+  Modal.confirm({
+    content: '是否确认当前小时包？',
+    onOk: async () => {
+      await useHourLivePackageStore().confirmTimePackage(props.item.id);
+    },
+    title: '确认',
+  });
 }
 
 async function handleReject() {
-  await useHourLivePackageStore().rejectOrder(props.item.id);
+  Modal.confirm({
+    content: '是否拒绝当前小时包？',
+    onOk: async () => {
+      await useHourLivePackageStore().removeContent(props.item.id);
+    },
+    title: '拒绝',
+  });
 }
 </script>
 
@@ -309,7 +336,7 @@ async function handleReject() {
         <p class="mr-2 text-sm font-medium text-gray-600">选择内容</p>
         <Select
           v-model:value="selectedContentId"
-          :options="contentStore.contentOptions"
+          :options="contentOptions"
           :placeholder="$t('selectcontent')"
           class="w-[50%]"
           show-search

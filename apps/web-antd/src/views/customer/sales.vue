@@ -9,11 +9,17 @@ import { RadioButton, RadioGroup } from 'ant-design-vue';
 
 import Empty from '#/components/empty.vue';
 import HourLivePackageGrid from '#/components/hourlivepackageGrid.vue';
-import { useHourLivePackageStore } from '#/store';
+import {
+  useContentStore,
+  useHourLivePackageStore,
+  useLiveAccountStore,
+} from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 const store = useHourLivePackageStore();
+const liveaccountStore = useLiveAccountStore();
 const userStore = useUserStore();
+const contentStore = useContentStore();
 const tab = ref('all');
 
 const packages = computed(() => {
@@ -25,6 +31,7 @@ const packages = computed(() => {
 
 onMounted(() => {
   fetchPackages();
+  liveaccountStore.queryLiveAccount();
 });
 
 function fetchPackages() {
