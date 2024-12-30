@@ -29,7 +29,7 @@ const routes: RouteRecordRaw[] = [
       title: $t('hourlivepackage'),
     },
     name: 'AgencySales',
-    path: '/sales',
+    path: '/agencySales',
     children: [config.sales],
   },
   {

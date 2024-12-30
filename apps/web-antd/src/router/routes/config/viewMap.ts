@@ -59,7 +59,7 @@ const viewMap = {
       title: $t('sample'),
     },
     name: 'CustomerSales',
-    path: '/sales',
+    path: '/customerSales',
   },
   liveaccount: {
     component: () => import('#/views/customer/liveaccount.vue'),
@@ -109,7 +109,7 @@ const viewMap = {
       title: $t('sample'),
     },
     name: 'AgencySales',
-    path: '/sales',
+    path: '/agencySales',
   },
   sample: {
     component: () => import('#/views/customer/sample.vue'),
