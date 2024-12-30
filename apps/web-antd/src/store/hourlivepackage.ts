@@ -96,6 +96,7 @@ export const useHourLivePackageStore = defineStore(
   () => {
     const packageQueryLoading = ref(false);
     const packageCreateLoading = ref(false);
+    const packageBuyLoading = ref(false);
     const packages = ref<Map<number, TimeslotOrder>>(new Map());
     const orderQuery = ref<OrderQuery>({});
     const dateTimeslots = ref<Map<string, DateTimeslot[]>>(new Map());
@@ -147,9 +148,10 @@ export const useHourLivePackageStore = defineStore(
     const formState = ref<TimeslotOrderFormState>({});
 
     // 查询方法
-    async function queryPackages() {
+    async function queryPackages(params?: OrderQuery) {
       try {
         packageQueryLoading.value = true;
+        orderQuery.value = params || {};
         const res = await _getAllPackages(orderQuery.value);
         if (res.success) {
           res.data.forEach((pkg: TimeslotOrder) => {
@@ -340,6 +342,7 @@ export const useHourLivePackageStore = defineStore(
     // 添加内容
     async function addContent(contentId: number, packageId: number) {
       try {
+        packageBuyLoading.value = true;
         const res = await _addContent(contentId, packageId);
         if (res.success) {
           const pkg = packages.value.get(packageId);
@@ -351,6 +354,8 @@ export const useHourLivePackageStore = defineStore(
       } catch (error) {
         console.error(error);
         return null;
+      } finally {
+        packageBuyLoading.value = false;
       }
     }
 
@@ -520,6 +525,7 @@ export const useHourLivePackageStore = defineStore(
       formState,
       listedPackages,
       makeOrders,
+      packageBuyLoading,
       packageCreateLoading,
       packageList,
       packageQueryLoading,

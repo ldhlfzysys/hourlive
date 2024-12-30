@@ -1,13 +1,23 @@
 <script lang="ts" setup>
 import type { TimeslotModel, TimeslotOrder } from '#/types';
 
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-import { Button, Modal, Tag } from 'ant-design-vue';
+import { AccessControl } from '@vben/access';
+import { useUserStore } from '@vben/stores';
+
+import {
+  Button,
+  Descriptions,
+  DescriptionsItem,
+  Modal,
+  Select,
+  Tag,
+} from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { Timer, Users } from 'lucide-vue-next';
 
-import { useHourLivePackageStore } from '#/store';
+import { useContentStore, useHourLivePackageStore } from '#/store';
 
 import HourLiveAvatar from './hourliveavartar.vue';
 
@@ -19,6 +29,28 @@ const props = defineProps<{
   item: TimeslotOrder;
 }>();
 
+const userStore = useUserStore();
+
+const showModal = ref(false);
+watch(showModal, (newVal) => {
+  if (newVal) {
+    selectedContentId.value = null;
+    contentStore.contentQuery = {
+      customer_id: userStore.userInfo.customer_id,
+    };
+    contentStore.queryContent();
+  }
+});
+
+const contentStore = useContentStore();
+
+const timeslots = computed(() =>
+  props.item.timeslots.map((slot) => {
+    const beginDate = dayjs(slot.begin_date).format('YYYY-MM-DD HH:mm');
+    const finishDate = dayjs(slot.finish_date).format('YYYY-MM-DD HH:mm');
+    return `${beginDate} - ${finishDate}`;
+  }),
+);
 // 计算总时长（小时）
 const totalDuration = computed(() => {
   let total = 0;
@@ -38,6 +70,8 @@ const getTagColor = (tag: { color: string }) => {
 
 // 判断状态是否为上架
 const isOnline = computed(() => props.item.status === 5);
+
+const selectedContentId = ref<null | number>(null);
 
 // 获取所有时段的主播
 const getAllStreamers = computed(() => {
@@ -99,6 +133,14 @@ function handleOnlineOrOffline() {
       });
     }
   }
+}
+
+async function handleBuyTimeslot() {
+  await useHourLivePackageStore().addContent(
+    selectedContentId.value,
+    props.item.id,
+  );
+  showModal.value = false;
 }
 </script>
 
@@ -180,26 +222,76 @@ function handleOnlineOrOffline() {
 
       <!-- 操作按钮 -->
       <div class="mt-3 flex items-center justify-end space-x-2">
-        <Button
-          :disabled="!hasTimeslot"
-          :type="isOnline ? 'default' : 'primary'"
-          size="small"
-          @click="handleOnlineOrOffline"
-        >
-          {{ isOnline ? '下架' : '上架' }}
-        </Button>
-        <Button
-          v-if="!isOnline"
-          class="flex items-center"
-          ghost
-          size="small"
-          type="primary"
-          @click="handleSetTimeslot"
-        >
-          <Timer class="mr-1 h-3 w-3" />
-          设置时段
-        </Button>
+        <AccessControl :codes="['agency']">
+          <Button
+            :disabled="!hasTimeslot"
+            :type="isOnline ? 'default' : 'primary'"
+            size="small"
+            @click="handleOnlineOrOffline"
+          >
+            {{ isOnline ? '下架' : '上架' }}
+          </Button>
+          <Button
+            v-if="!isOnline"
+            class="flex items-center"
+            ghost
+            size="small"
+            type="primary"
+            @click="handleSetTimeslot"
+          >
+            <Timer class="mr-1 h-3 w-3" />
+            设置时段
+          </Button>
+        </AccessControl>
+        <AccessControl v-if="item.status === 5" :codes="['customer']">
+          <Button size="small" type="primary" @click="showModal = true">
+            购买
+          </Button>
+        </AccessControl>
       </div>
     </div>
+    <Modal
+      v-model:open="showModal"
+      :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
+      style="top: 10px; width: 55%"
+      title="购买时段"
+      @ok="handleBuyTimeslot"
+    >
+      <template #footer>
+        <Button
+          key="submit"
+          :disabled="!selectedContentId"
+          :loading="useHourLivePackageStore().packageBuyLoading"
+          type="primary"
+          @click="handleBuyTimeslot"
+        >
+          确认购买
+        </Button>
+      </template>
+      <Descriptions :column="2" bordered size="small" title="当前小时直播套餐">
+        <DescriptionsItem label="总时长">
+          {{ totalDuration }} 小时
+        </DescriptionsItem>
+        <DescriptionsItem label="价格">
+          ¥{{ item.order_price }}
+        </DescriptionsItem>
+        <DescriptionsItem label="时间段">
+          <Tag v-for="slot in timeslots" :key="slot" color="blue">
+            {{ slot }}
+          </Tag>
+        </DescriptionsItem>
+      </Descriptions>
+
+      <div class="mt-4 flex items-center">
+        <p class="mr-2 text-sm font-medium text-gray-600">选择内容</p>
+        <Select
+          v-model:value="selectedContentId"
+          :options="contentStore.contentOptions"
+          :placeholder="$t('selectcontent')"
+          class="w-[50%]"
+          show-search
+        />
+      </div>
+    </Modal>
   </div>
 </template>

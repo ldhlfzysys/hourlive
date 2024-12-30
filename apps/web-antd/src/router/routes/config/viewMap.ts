@@ -51,6 +51,16 @@ const viewMap = {
     name: 'Home',
     path: '/home',
   },
+  customerSales: {
+    component: () => import('#/views/customer/sales.vue'),
+    meta: {
+      affixTab: false,
+      icon: 'lucide:package',
+      title: $t('sample'),
+    },
+    name: 'CustomerSales',
+    path: '/sales',
+  },
   liveaccount: {
     component: () => import('#/views/customer/liveaccount.vue'),
     meta: {
