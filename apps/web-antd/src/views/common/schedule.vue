@@ -43,6 +43,7 @@ interface Event {
   background?: boolean; // Optional. (Event type not CSS property)
   split?: number | string; // Optional.
   allDay?: boolean; // Optional.
+  key?: string; // Optional.
   draggable?: boolean; // Optional.
   deletable?: boolean; // optional - force undeletable when events are editable.
   resizable?: boolean; // optional - force unresizable when events are editable.

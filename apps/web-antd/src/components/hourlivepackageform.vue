@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import type { CancelTimeSlot } from '#/types';
+import type { CancelTimeSlot, TimeSlot } from '#/types';
 
 import { computed, ref } from 'vue';
 
 import {
+  Button,
   Collapse,
   CollapsePanel,
   InputNumber,
@@ -21,6 +22,8 @@ import { useHourLivePackageStore, useTimeslotOrderStore } from '#/store';
 import { useRoomStore } from '#/store/room';
 import { useStreamerStore } from '#/store/streamer';
 
+import SingleDateModal from './singleDateModal.vue';
+
 defineOptions({
   name: 'HourLivePackageForm',
 });
@@ -29,7 +32,6 @@ const hourLivePackageStore = useHourLivePackageStore();
 const roomStore = useRoomStore();
 const streamerStore = useStreamerStore();
 const focusDate = ref<string>('');
-
 const streamerAvatar = computed(() => {
   let avatarStr =
     'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png';
@@ -44,6 +46,46 @@ const streamerAvatar = computed(() => {
 
   return avatarStr;
 });
+
+const availableTimeslots = computed(() => {
+  const availableTimeslotsMap = new Map<
+    string,
+    { end: Dayjs; start: Dayjs }[]
+  >();
+  hourLivePackageStore.dateTimeslots.forEach((timeslots, date) => {
+    availableTimeslotsMap.set(date, getDateAvailableTimeslots(timeslots));
+  });
+  return availableTimeslotsMap;
+});
+
+function getDateAvailableTimeslots(timeslots: TimeSlot[]) {
+  const startOfDay = dayjs().startOf('day');
+  const endOfDay = dayjs().endOf('day');
+  const availableSlots: { end: Dayjs; start: Dayjs }[] = [];
+
+  let current = startOfDay;
+
+  while (current.isBefore(endOfDay)) {
+    const next = current.add(30, 'minute');
+    const isAvailable = !timeslots.some((timeslot) => {
+      const slotStart = dayjs(timeslot.start_time);
+      const slotEnd = dayjs(timeslot.end_time);
+      return current.isBefore(slotEnd) && next.isAfter(slotStart);
+    });
+
+    if (isAvailable) {
+      availableSlots.push({
+        end: next.format('HH:mm'),
+        selected: false,
+        start: current.format('HH:mm'),
+      });
+    }
+
+    current = next;
+  }
+
+  return availableSlots;
+}
 
 // 添加时间段
 function addTimeslot() {
@@ -87,6 +129,14 @@ function deleteTimeslot(index: number) {
     hourLivePackageStore.formState.timeslots!.splice(index, 1);
     hourLivePackageStore.queryTimeslots();
   }
+}
+
+function handleSelectTimeslot(slot: {
+  end: string;
+  selected: boolean;
+  start: string;
+}) {
+  slot.selected = !slot.selected;
 }
 
 // 提交表单
@@ -261,7 +311,7 @@ function handleStreamerSelect(value: number) {
           </List>
         </div>
       </div>
-      <div class="flex max-h-[500px] w-[35%] flex-col overflow-y-auto">
+      <div class="flex max-h-[500px] w-[40%] flex-col overflow-y-auto">
         <Collapse
           v-if="hourLivePackageStore.dateTimeslots.size > 0"
           v-model:active-key="focusDate"
@@ -294,6 +344,18 @@ function handleStreamerSelect(value: number) {
                     : ''
                 }}
               </TimelineItem>
+              <Button
+                type="primary"
+                @click="hourLivePackageStore.showAvailableTimeslotsModal = true"
+              >
+                选择当日可用时间段
+              </Button>
+              <SingleDateModal
+                v-if="hourLivePackageStore.showAvailableTimeslotsModal"
+                :key="date"
+                :select-date="dayjs(date)"
+                :timeslots="hourLivePackageStore.dateTimeslots.get(date)!"
+              />
             </Timeline>
           </CollapsePanel>
         </Collapse>

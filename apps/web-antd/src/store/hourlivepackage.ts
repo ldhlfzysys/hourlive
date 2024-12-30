@@ -129,6 +129,8 @@ export const useHourLivePackageStore = defineStore(
 
     // 状态
     const showModal = ref(false);
+
+    const showAvailableTimeslotsModal = ref(false);
     watch(showModal, (newVal) => {
       if (newVal) {
         if (formState.value.timeslots) {
@@ -535,6 +537,7 @@ export const useHourLivePackageStore = defineStore(
       queryTimeslots,
       rejectedPackages,
       removeContent,
+      showAvailableTimeslotsModal,
       showModal,
       unlistedPackages,
       upTimePackage,
