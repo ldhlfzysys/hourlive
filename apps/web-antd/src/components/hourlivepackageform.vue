@@ -346,15 +346,18 @@ function handleStreamerSelect(value: number) {
               </TimelineItem>
               <Button
                 type="primary"
-                @click="hourLivePackageStore.showAvailableTimeslotsModal = true"
+                @click="
+                  hourLivePackageStore.currentSlotsMap.set(
+                    date,
+                    hourLivePackageStore.dateTimeslots.get(date)!,
+                  );
+                  hourLivePackageStore.showAvailableTimeslotsModal = true;
+                "
               >
                 选择当日可用时间段
               </Button>
               <SingleDateModal
                 v-if="hourLivePackageStore.showAvailableTimeslotsModal"
-                :key="date"
-                :select-date="dayjs(date)"
-                :timeslots="hourLivePackageStore.dateTimeslots.get(date)!"
               />
             </Timeline>
           </CollapsePanel>

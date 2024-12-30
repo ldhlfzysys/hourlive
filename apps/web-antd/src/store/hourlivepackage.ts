@@ -129,8 +129,6 @@ export const useHourLivePackageStore = defineStore(
 
     // 状态
     const showModal = ref(false);
-
-    const showAvailableTimeslotsModal = ref(false);
     watch(showModal, (newVal) => {
       if (newVal) {
         if (formState.value.timeslots) {
@@ -141,6 +139,14 @@ export const useHourLivePackageStore = defineStore(
         dateTimeslots.value = new Map();
       }
     });
+
+    const showAvailableTimeslotsModal = ref(false);
+    watch(showAvailableTimeslotsModal, (newVal) => {
+      if (!newVal) {
+        currentSlotsMap.value = new Map();
+      }
+    });
+    const currentSlotsMap = ref<Map<string, DateTimeslot[]>>(new Map());
 
     const timeslotOrderCreate = ref<TimeslotOrderCreate>({
       content_id: 0,
@@ -522,6 +528,7 @@ export const useHourLivePackageStore = defineStore(
       confirmedPackages,
       confirmTimePackage,
       createTimePackage,
+      currentSlotsMap,
       dateTimeslots,
       downTimePackage,
       formState,

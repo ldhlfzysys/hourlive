@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { DateTimeslot, Event, TimeslotModel } from '#/types';
+import type { Event, TimeslotModel } from '#/types';
 
 import { computed, ref } from 'vue';
 import VueCal from 'vue-cal';
@@ -7,7 +7,7 @@ import VueCal from 'vue-cal';
 import { i18n } from '@vben/locales';
 
 import { Modal } from 'ant-design-vue';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 import { useHourLivePackageStore, useTimeslotOrderStore } from '#/store';
 
@@ -18,11 +18,6 @@ defineOptions({
   name: 'SingleDateModal',
 });
 
-const props = defineProps<{
-  selectDate: Dayjs;
-  timeslots: DateTimeslot[];
-}>();
-
 const hourLivePackageStore = useHourLivePackageStore();
 const timeslotOrderStore = useTimeslotOrderStore();
 
@@ -30,11 +25,20 @@ const localeStr = computed(() => {
   return i18n.global.locale.value.toLowerCase();
 });
 
+const selectDate = computed(() => {
+  const date = hourLivePackageStore.currentSlotsMap.keys().next().value;
+  return dayjs(date);
+});
+
+const timeslots = computed(() => {
+  return hourLivePackageStore.currentSlotsMap.values().next().value;
+});
+
 const vueCalRef = ref(null);
 const events = computed(() => {
   const allEvents: Event[] = [];
 
-  props.timeslots.forEach((timeslot) => {
+  timeslots.value.forEach((timeslot) => {
     const startTimeStr = `${timeslot.date} ${timeslot.start_time}`;
     const endTimeStr = `${timeslot.date} ${timeslot.end_time}`;
     const isPast = dayjs(endTimeStr).isBefore(dayjs());
