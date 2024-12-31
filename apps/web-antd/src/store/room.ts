@@ -3,7 +3,6 @@ import type {
   Hardware,
   IdQuery,
   Room,
-  RoomCreate,
   RoomQuery,
   StanderResult,
 } from '#/types';
@@ -34,7 +33,7 @@ function _getAllRooms(params?: RoomQuery) {
   return requestClient.post<StanderResult<Room[]>>(RoomApi.QueryRoom, params);
 }
 
-function _newRoom(params: RoomCreate) {
+function _newRoom(params: Room) {
   return requestClient.post<StanderResult<Room>>(RoomApi.CreateRoom, params);
 }
 
@@ -81,10 +80,6 @@ export const useRoomStore = defineStore('room-store', () => {
   const roomCreateLoading = ref(false); // 创建加载状态
   const roomUpdateLoading = ref(false); // 更新加载状态
   const showRoomDescModal = ref(false); // 控制直播间描述模态框显示
-  const roomCreate = ref<RoomCreate>({
-    agency_id: -1,
-    name: '',
-  });
   const roomUpdate = ref<Room>({});
   const hardwareCreate = ref<Hardware>({
     name: '',
@@ -148,7 +143,7 @@ export const useRoomStore = defineStore('room-store', () => {
   // 创建直播间
   async function createRoom() {
     try {
-      if (!roomCreate.value.name) {
+      if (!roomUpdate.value.name) {
         notification.error({
           description: $t('请输入直播间名称'),
           message: $t('验证失败'),
@@ -157,12 +152,12 @@ export const useRoomStore = defineStore('room-store', () => {
       }
       roomCreateLoading.value = true;
 
-      const res = await _newRoom(roomCreate.value);
+      const res = await _newRoom(roomUpdate.value);
       if (res && res.success) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
         // 清空当前新增对象数据
-        roomCreate.value = {
+        roomUpdate.value = {
           agency_id: -1,
           name: '',
         };
@@ -312,7 +307,7 @@ export const useRoomStore = defineStore('room-store', () => {
     modifyRoom,
     queryRoom,
     removeRoom, // 确保在返回对象中包含 removeRoom
-    roomCreate,
+
     roomCreateLoading,
     roomList,
     roomLoading,

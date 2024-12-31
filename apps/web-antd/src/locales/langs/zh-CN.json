@@ -355,5 +355,6 @@
   "registerSuccess": "注册成功",
   "registerErrorDesc": "注册失败，请联系客服",
   "loginError": "登录失败",
-  "loginErrorDesc": "登录失败，请联系客服"
+  "loginErrorDesc": "登录失败，请联系客服",
+  "room_name": "直播间名称"
 }

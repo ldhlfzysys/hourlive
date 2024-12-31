@@ -138,7 +138,11 @@ const canEdit = computed(() => {
         </div>
 
         <div
-          v-if="props.sample.sample_count && props.sample.sample_count > 0"
+          v-if="
+            props.sample.sample_count &&
+            props.sample.sample_count > 0 &&
+            !canEdit
+          "
           class="mt-auto"
         >
           <span

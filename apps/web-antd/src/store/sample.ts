@@ -23,6 +23,13 @@ function _updateSample(params: Sample) {
   return requestClient.post<StanderResult<Sample>>('sample/update', params);
 }
 
+function _querySampleFromIds(params: SampleQuery) {
+  return requestClient.post<StanderResult<Sample[]>>(
+    'sample/query/ids',
+    params,
+  );
+}
+
 function _fetchSampleInfo(url: Url) {
   return requestClient.post<StanderResult<Sample>>(
     'sample/getProductInfo',
@@ -130,6 +137,22 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
+  async function querySampleFromIds() {
+    try {
+      sampleQueryLoading.value = true;
+      const res = await _querySampleFromIds(sampleQuery.value);
+      if (res && res.success) {
+        res.data.forEach((sample) => {
+          if (sample.id) {
+            samples.value.set(sample.id, sample);
+          }
+        });
+      }
+    } finally {
+      sampleQueryLoading.value = false;
+    }
+  }
+
   async function createSample() {
     try {
       sampleUpdateLoading.value = true;
@@ -203,6 +226,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     makeKSPUpdate,
     makeUpdate,
     querySample,
+    querySampleFromIds,
     sampleFetchLoading,
     sampleList,
     sampleQuery,

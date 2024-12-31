@@ -141,6 +141,7 @@ onMounted(() => {
 <template>
   <Modal
     v-model:open="contentStore.showSampleManagerModal"
+    :footer="null"
     :title="$t('sample_management')"
     centered
     width="1200px"
@@ -182,12 +183,16 @@ onMounted(() => {
           >
             <div class="px-2 py-1">
               <div
-                class="flex min-h-[160px] items-center rounded-lg border p-4"
+                class="flex min-h-[160px] cursor-pointer items-center rounded-lg border p-4"
+                @click="
+                  handleSelect(item.id, !selectedSamples.includes(item.id))
+                "
               >
                 <Checkbox
                   :checked="selectedSamples.includes(item.id)"
                   class="mr-2"
                   @change="(e) => handleSelect(item.id, e.target.checked)"
+                  @click.stop
                 />
                 <div
                   class="relative m-[1px] flex h-[140px] w-[140px] rounded-lg bg-gray-200"

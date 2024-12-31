@@ -223,9 +223,9 @@ export const useAuthStore = defineStore('auth', () => {
         const updatedUserInfo = await fetchUserInfo();
         userStore.setUserInfo(updatedUserInfo);
         notification.success({
-          description: $t('modifysuccess'),
+          // description: $t('modifysuccess'),
           duration: 3,
-          message: $t('user.updateSuccess'),
+          message: $t('modifysuccess'),
         });
       } else {
         notification.error({

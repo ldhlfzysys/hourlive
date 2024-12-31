@@ -1,5 +1,5 @@
 import type { BaseQuery } from './ISystem';
-import type { Timeslot, TimeslotCreate } from './ITimeslot';
+import type { Timeslot } from './ITimeslot';
 
 export interface Room {
   id?: number;
@@ -10,12 +10,6 @@ export interface Room {
   timeslots?: Timeslot[];
   hardwares?: Hardware[];
   desc?: string;
-}
-
-export interface RoomCreate {
-  name: string;
-  timeslots?: TimeslotCreate[];
-  agency_id: number;
 }
 
 export interface RoomUpdate {
