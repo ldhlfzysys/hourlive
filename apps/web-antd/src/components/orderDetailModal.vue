@@ -50,9 +50,21 @@ const updateMaxHeight = () => {
 };
 onMounted(() => {
   window.addEventListener('resize', updateMaxHeight);
+  sampleStore.sampleQuery.ids =
+    orderStore.currentSelectedOrder?.contents.flatMap((content) =>
+      content.samples.flatMap((sample) => sample.id),
+    );
+  sampleStore.querySampleFromIds();
 });
 onUnmounted(() => {
   window.removeEventListener('resize', updateMaxHeight);
+});
+
+const orderSamples = computed(() => {
+  const ids = orderStore.currentSelectedOrder?.contents.flatMap((content) =>
+    content.samples.flatMap((sample) => sample.id),
+  );
+  return sampleStore.sampleList.filter((sample) => ids.includes(sample.id));
 });
 
 const liveAccountInfo = computed(() => {
@@ -327,15 +339,12 @@ async function exportToPDF() {
         </DescriptionsItem>
       </Descriptions>
 
-      <div
-        v-if="sampleStore.sampleList.length > 0"
-        class="flex h-full flex-1 flex-col"
-      >
+      <div v-if="orderSamples.length > 0" class="flex h-full flex-1 flex-col">
         <br />
         <h1>{{ $t('sample') }}</h1>
         <div class="sample-list">
           <div
-            v-for="(item, index) in sampleStore.sampleList"
+            v-for="(item, index) in orderSamples"
             :key="item.id"
             class="sample-item"
           >

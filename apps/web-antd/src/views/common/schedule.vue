@@ -207,13 +207,7 @@ function handleEventClick(event: Event, e: MouseEvent) {
   const order = orderStore.orderById(event.id);
   if (order) {
     orderStore.setCurrentSelectedOrder(event.id);
-    sampleStore.clearSamples();
     orderStore.isEditing = false;
-    sampleStore.sampleQuery.content_ids = order.contents.map(
-      (content) => content.id!,
-    );
-    sampleStore.sampleQuery.q_size = 100;
-    sampleStore.querySample();
     orderStore.currentSelectedOrder!.end = dayjs(event.end).format(
       'MM/DD HH:mm',
     );
@@ -352,7 +346,7 @@ function handleApendOrder() {
       <template #footer></template>
     </HourLivePage>
 
-    <OrderDetailModal />
+    <OrderDetailModal v-if="orderStore.showEventDetails" />
   </div>
 </template>
 

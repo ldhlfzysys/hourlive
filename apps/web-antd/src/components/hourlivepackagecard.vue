@@ -409,6 +409,6 @@ function showDetail() {
         />
       </div>
     </Modal>
-    <OrderDetailModal />
+    <OrderDetailModal v-if="orderStore.showEventDetails" />
   </div>
 </template>
