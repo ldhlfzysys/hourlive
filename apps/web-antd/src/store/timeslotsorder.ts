@@ -302,14 +302,43 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     return null;
   }
 
+  const enableOrder = computed(() => {
+    return (
+      formState.value.agency !== undefined &&
+      formState.value.roomId !== undefined &&
+      formState.value.contentId !== undefined &&
+      formState.value.timeslots !== undefined
+    );
+  });
+
   async function makeOrders() {
     if (formState.value.timeslots === undefined) {
       return;
     }
+    const allTimeslots = formState.value.timeslots;
+    // 检测时间冲突
+    for (let i = 0; i < allTimeslots.length; i++) {
+      for (let j = i + 1; j < allTimeslots.length; j++) {
+        const slotA = allTimeslots[i]!;
+        const slotB = allTimeslots[j]!;
 
-    // await formRef.value?.validateFields().then((values) => {
-    //   console.log(values);
-    // });
+        const startA = slotA.slot![0];
+        const endA = slotA.slot![1];
+        const startB = slotB.slot![0];
+        const endB = slotB.slot![1];
+
+        if (
+          (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition
+          (startB.isBefore(endA) && endB.isAfter(startA))
+        ) {
+          notification.error({
+            description: $t('时间段冲突'),
+            message: $t('error'),
+          });
+          return;
+        }
+      }
+    }
 
     const timeslots: TimeslotCreateInMany[] = [];
 
@@ -346,10 +375,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     params.id =
       formState.value.orderId === undefined ? -1 : formState.value.orderId;
 
-    timeslotOrderCreate.value = params;
-    createTimeslotOrder();
-    showApendModal.value = false;
-    isEditing.value = false;
+    // timeslotOrderCreate.value = params;
+    // createTimeslotOrder();
+    // showApendModal.value = false;
+    // isEditing.value = false;
   }
 
   async function createTimeslotOrder() {
@@ -578,6 +607,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     deleteTimeslotOrders,
     downloadLoading,
     downloadTimeslotOrder,
+    enableOrder,
     formState,
     generateTimeslots,
     getEventClass,

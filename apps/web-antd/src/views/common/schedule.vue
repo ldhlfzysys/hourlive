@@ -334,7 +334,11 @@ function handleApendOrder() {
                 <Button type="primary" @click="handleApendOrder">
                   {{ $t('apendorder') }}
                 </Button>
-                <Button type="primary" @click="orderStore.makeOrders">
+                <Button
+                  :disabled="!orderStore.enableOrder"
+                  type="primary"
+                  @click="orderStore.makeOrders"
+                >
                   {{ $t('makeorder') }}
                 </Button>
               </div>

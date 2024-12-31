@@ -121,7 +121,7 @@ function generateTimelineText(timeslot: TimeslotModel) {
           </div>
         </FormItem>
 
-        <FormItem :label="$t('livetime')">
+        <FormItem :label="$t('livetime')" required>
           <div v-if="orderStore.formState.formType === 'add'">
             <div class="flex gap-2">
               <TimeslotsControl />
