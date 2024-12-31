@@ -23,6 +23,7 @@ import { $t } from '#/locales';
 // API端点枚举
 enum HourLivePackageApi {
   AddContent = 'hourlive_package/addcontent',
+  CancelOrder = 'hourlive_package/cancelorder',
   ConfirmPackage = 'hourlive_package/confirmtimeslotorder',
   CreatePackage = 'hourlive_package/create',
   DownPackage = 'hourlive_package/downtimeslotorder',
@@ -86,6 +87,13 @@ function _queryTimeslot(params: DateTimeslotQuery) {
   return requestClient.post<StanderResult<Timeslot[]>>(
     HourLivePackageApi.QueryDateTimeslot,
     params,
+  );
+}
+
+function _cancelOrder(id: number) {
+  return requestClient.post<StanderResult<TimeslotOrder>>(
+    HourLivePackageApi.CancelOrder,
+    { timeslotorder_id: id },
   );
 }
 
@@ -290,11 +298,16 @@ export const useHourLivePackageStore = defineStore(
     async function upTimePackage(id: number) {
       try {
         const res = await _upPackage(id);
-        if (res.success) {
+        if (res && res.success) {
           const pkg = packages.value.get(id);
           if (pkg) {
             pkg.status = 5;
           }
+        } else {
+          notification.error({
+            description: '上架失败',
+            message: '上架失败',
+          });
         }
         return res;
       } catch (error) {
@@ -312,6 +325,11 @@ export const useHourLivePackageStore = defineStore(
           if (pkg) {
             pkg.status = 4; // 更新状态为未上架
           }
+        } else {
+          notification.error({
+            description: res.message,
+            message: '下架失败',
+          });
         }
         return res;
       } catch (error) {
@@ -345,6 +363,29 @@ export const useHourLivePackageStore = defineStore(
           const pkg = packages.value.get(id);
           if (pkg) {
             pkg.contents = [];
+            pkg.status = res.data.status;
+            pkg.customer = res.data.customer;
+            pkg.customer_id = res.data.customer_id;
+          }
+        }
+        return res;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+
+    // 取消订单
+    async function cancelOrder(id: number) {
+      try {
+        const res = await _cancelOrder(id);
+        if (res.success) {
+          const pkg = packages.value.get(id);
+          if (pkg) {
+            pkg.contents = [];
+            pkg.status = res.data.status;
+            pkg.customer = res.data.customer;
+            pkg.customer_id = res.data.customer_id;
           }
         }
         return res;
@@ -363,6 +404,8 @@ export const useHourLivePackageStore = defineStore(
           const pkg = packages.value.get(packageId);
           if (pkg) {
             pkg.contents = res.data.contents;
+            pkg.customer = res.data.customer;
+            pkg.customer_id = res.data.customer_id;
             pkg.status = res.data.status;
           }
         }
@@ -533,6 +576,7 @@ export const useHourLivePackageStore = defineStore(
     return {
       $reset,
       addContent,
+      cancelOrder,
       confirmedPackages,
       confirmTimePackage,
       createTimePackage,

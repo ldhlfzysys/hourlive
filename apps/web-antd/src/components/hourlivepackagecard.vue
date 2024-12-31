@@ -248,6 +248,16 @@ function showDetail() {
   orderStore.currentSelectedOrder = props.item;
   orderStore.showEventDetails = true;
 }
+
+function handleCancelOrder() {
+  Modal.confirm({
+    content: '是否确认取消对当前小时包的购买？',
+    onOk: async () => {
+      await useHourLivePackageStore().cancelOrder(props.item.id);
+    },
+    title: '取消',
+  });
+}
 </script>
 
 <template>
@@ -366,7 +376,12 @@ function showDetail() {
           >
             查看详情
           </Button>
-          <Button v-if="item.status === 8" size="small" type="primary">
+          <Button
+            v-if="item.status === 8"
+            size="small"
+            type="primary"
+            @click="handleOnlineOrOffline"
+          >
             重新上架
           </Button>
         </AccessControl>
@@ -380,7 +395,12 @@ function showDetail() {
           >
             购买
           </Button>
-          <Button v-if="item.status === 6" size="small" type="primary">
+          <Button
+            v-if="item.status === 6"
+            size="small"
+            type="primary"
+            @click="handleCancelOrder"
+          >
             取消
           </Button>
         </AccessControl>
