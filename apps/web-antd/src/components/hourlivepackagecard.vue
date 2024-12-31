@@ -17,10 +17,12 @@ import {
 import dayjs from 'dayjs';
 import { Timer, Users } from 'lucide-vue-next';
 
+import OrderDetailModal from '#/components/orderDetailModal.vue';
 import {
   useContentStore,
   useHourLivePackageStore,
   useLiveAccountStore,
+  useTimeslotOrderStore,
 } from '#/store';
 
 import HourLiveAvatar from './hourliveavartar.vue';
@@ -33,8 +35,10 @@ const props = defineProps<{
   item: TimeslotOrder;
 }>();
 
+const orderStore = useTimeslotOrderStore();
 const userStore = useUserStore();
-const access = useAccess();
+
+const { hasAccessByRoles } = useAccess();
 const showModal = ref(false);
 watch(showModal, (newVal) => {
   if (newVal) {
@@ -177,6 +181,73 @@ async function handleReject() {
     title: '拒绝',
   });
 }
+
+const agencyStatusMap = {
+  4: {
+    color: 'gray',
+    text: '未上架',
+  },
+  5: {
+    color: 'green',
+    text: '已上架',
+  },
+  6: {
+    color: 'red',
+    text: '被下单',
+  },
+  7: {
+    color: 'green',
+    text: '已接收',
+  },
+  8: {
+    color: 'gray',
+    text: '已拒绝',
+  },
+};
+
+const customerStatusMap = {
+  5: {
+    color: 'green',
+    text: '售卖中',
+  },
+  6: {
+    color: 'gray',
+    text: '待确认',
+  },
+  7: {
+    color: 'green',
+    text: '下单成功',
+  },
+  8: {
+    color: 'red',
+    text: '被拒绝',
+  },
+};
+
+const statusTag = computed(() => {
+  if (!hasTimeslot.value) {
+    return '未设置时段';
+  }
+  if (hasAccessByRoles(['agency'])) {
+    return agencyStatusMap[props.item.status].text;
+  }
+  return customerStatusMap[props.item.status].text;
+});
+
+const statusColor = computed(() => {
+  if (!hasTimeslot.value) {
+    return 'gray';
+  }
+  if (hasAccessByRoles(['agency'])) {
+    return agencyStatusMap[props.item.status].color;
+  }
+  return customerStatusMap[props.item.status].color;
+});
+
+function showDetail() {
+  orderStore.currentSelectedOrder = props.item;
+  orderStore.showEventDetails = true;
+}
 </script>
 
 <template>
@@ -186,20 +257,9 @@ async function handleReject() {
   >
     <!-- 上架状态标签 -->
     <div class="absolute right-2 top-2">
-      <Tag v-if="isOnline" class="flex items-center gap-1" color="success">
-        <span class="relative flex h-2 w-2">
-          <span
-            class="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-          ></span>
-          <span
-            class="bg-success relative inline-flex h-2 w-2 rounded-full"
-          ></span>
-        </span>
-        直播中
-      </Tag>
-      <Tag v-else class="flex items-center gap-1" color="default">
+      <Tag :color="statusColor" class="flex items-center gap-1">
         <span class="inline-block h-2 w-2 rounded-full bg-gray-300"></span>
-        {{ hasTimeslot ? '未上架' : '未设置时段' }}
+        {{ statusTag }}
       </Tag>
     </div>
 
@@ -289,6 +349,12 @@ async function handleReject() {
             确认
           </Button>
         </AccessControl>
+
+        <AccessControl v-if="item.customer !== null" :codes="['agency']">
+          <Button size="small" type="primary" @click="showDetail">
+            查看详情
+          </Button>
+        </AccessControl>
         <AccessControl v-if="item.status === 5" :codes="['customer']">
           <Button size="small" type="primary" @click="showModal = true">
             购买
@@ -296,7 +362,7 @@ async function handleReject() {
         </AccessControl>
 
         <AccessControl v-if="item.status === 6" :codes="['customer']">
-          <Tag color="#f50" ghost> 机构确认中 </Tag>
+          <Button size="small" type="primary"> 取消 </Button>
         </AccessControl>
       </div>
     </div>
@@ -343,5 +409,6 @@ async function handleReject() {
         />
       </div>
     </Modal>
+    <OrderDetailModal />
   </div>
 </template>

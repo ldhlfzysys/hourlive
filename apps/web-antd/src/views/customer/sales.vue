@@ -26,7 +26,7 @@ const packages = computed(() => {
   if (tab.value === 'all') {
     return store.listedPackages;
   }
-  return [];
+  return store.minePackages;
 });
 
 onMounted(() => {

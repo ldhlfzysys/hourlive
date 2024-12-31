@@ -121,6 +121,13 @@ export const useHourLivePackageStore = defineStore(
       packageList.value.filter((pkg) => pkg.status === 8),
     );
 
+    const minePackages = computed(() => {
+      return [...packages.value.entries()]
+        .filter(([_, pkg]) => pkg.status !== 5)
+        .sort(([keyA], [keyB]) => keyB - keyA)
+        .map(([_, pkg]) => pkg);
+    });
+
     const packageList = computed(() => {
       return [...packages.value.entries()]
         .sort(([keyA], [keyB]) => keyB - keyA)
@@ -356,6 +363,7 @@ export const useHourLivePackageStore = defineStore(
           const pkg = packages.value.get(packageId);
           if (pkg) {
             pkg.contents = res.data.contents;
+            pkg.status = res.data.status;
           }
         }
         return res;
@@ -534,6 +542,7 @@ export const useHourLivePackageStore = defineStore(
       formState,
       listedPackages,
       makeOrders,
+      minePackages,
       packageBuyLoading,
       packageCreateLoading,
       packageList,
