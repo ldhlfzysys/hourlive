@@ -41,11 +41,7 @@ const itemCount = ref(3);
       class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3"
     >
       <!-- Grid Items -->
-      <div
-        v-for="item in packages"
-        :key="item.id"
-        class="rounded-lg bg-white p-4 shadow-md"
-      >
+      <div v-for="item in packages" :key="item.id">
         <HourLivePackageCard :item="item" />
       </div>
 

@@ -341,28 +341,48 @@ function showDetail() {
             设置时段
           </Button>
         </AccessControl>
-        <AccessControl v-if="item.status === 6" :codes="['agency']">
-          <Button size="small" type="primary" @click="handleReject">
+        <AccessControl :codes="['agency']">
+          <Button
+            v-if="item.status === 6"
+            size="small"
+            type="primary"
+            @click="handleReject"
+          >
             拒绝
           </Button>
-          <Button size="small" type="primary" @click="handleConfirm">
+          <Button
+            v-if="item.status === 6"
+            size="small"
+            type="primary"
+            @click="handleConfirm"
+          >
             确认
           </Button>
-        </AccessControl>
-
-        <AccessControl v-if="item.customer !== null" :codes="['agency']">
-          <Button size="small" type="primary" @click="showDetail">
+          <Button
+            v-if="item.customer !== null"
+            size="small"
+            type="primary"
+            @click="showDetail"
+          >
             查看详情
           </Button>
-        </AccessControl>
-        <AccessControl v-if="item.status === 5" :codes="['customer']">
-          <Button size="small" type="primary" @click="showModal = true">
-            购买
+          <Button v-if="item.status === 8" size="small" type="primary">
+            重新上架
           </Button>
         </AccessControl>
 
-        <AccessControl v-if="item.status === 6" :codes="['customer']">
-          <Button size="small" type="primary"> 取消 </Button>
+        <AccessControl :codes="['customer']">
+          <Button
+            v-if="item.status === 5"
+            size="small"
+            type="primary"
+            @click="showModal = true"
+          >
+            购买
+          </Button>
+          <Button v-if="item.status === 6" size="small" type="primary">
+            取消
+          </Button>
         </AccessControl>
       </div>
     </div>
