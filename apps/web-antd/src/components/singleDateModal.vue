@@ -149,7 +149,7 @@ function handleEventChange(event: Event) {
         :selected-date="selectDate.format('YYYY-MM-DD')"
         :snap-to-time="15"
         :time-from="0"
-        :time-step="120"
+        :time-step="15"
         :time-to="24 * 60"
         active-view="day"
         class="vuecal--full-height-delete vuecal--blue-theme"
