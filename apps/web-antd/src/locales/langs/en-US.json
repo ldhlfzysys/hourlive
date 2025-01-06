@@ -126,7 +126,7 @@
   "confirm_password": "Confirm Password",
   "sample_main": "Main Product",
   "sample_welfare": "Welfare Product",
-  "sample_deal": "Flash Deal",
+  "sample_deal": "flash deal",
   "sample_normal": "Regular Product",
   "sample_new": "New Product",
   "content_desc": "Activity Description",
@@ -356,5 +356,8 @@
   "registerErrorDesc": "Registration Failed, Please Contact Support",
   "loginError": "Login Failed",
   "loginErrorDesc": "Login Failed, Please Contact Support",
-  "room_name": "Live Room Name"
+  "room_name": "Live Room Name",
+  "delete_confirm_title": "Confirm Delete Sample",
+  "delete_confirm_content": "Confirm Delete Sample, Sample Will Be Removed from Session and Changed to In Transit Status",
+  "select_all": "Select All"
 }

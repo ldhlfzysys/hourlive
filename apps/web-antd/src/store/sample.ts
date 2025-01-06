@@ -8,7 +8,7 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { Sample, SampleQuery, StanderResult, Url } from '#/types';
+import type { IdQuery, Sample, SampleQuery, StanderResult, Url } from '#/types';
 
 // API
 function _getAllSamples(params?: SampleQuery) {
@@ -34,6 +34,13 @@ function _fetchSampleInfo(url: Url) {
   return requestClient.post<StanderResult<Sample>>(
     'sample/getProductInfo',
     url,
+  );
+}
+
+function _deleteSample(params: IdQuery) {
+  return requestClient.post<StanderResult<Sample>>(
+    'sample/deletesample',
+    params,
   );
 }
 // store
@@ -171,6 +178,18 @@ export const useSampleStore = defineStore('sample-store', () => {
     }
   }
 
+  async function deleteSample(id: number) {
+    try {
+      sampleUpdateLoading.value = true;
+      const res = await _deleteSample({ id });
+      if (res && res.success) {
+        samples.value.delete(id);
+      }
+    } finally {
+      sampleUpdateLoading.value = false;
+    }
+  }
+
   async function updateSample() {
     try {
       sampleUpdateLoading.value = true;
@@ -221,6 +240,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     $reset,
     clearSamples,
     createSample,
+    deleteSample,
     fetechProductInfo,
     makeCreate,
     makeKSPUpdate,

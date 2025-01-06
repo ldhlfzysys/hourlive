@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { $t } from '@vben/locales';
@@ -23,8 +23,9 @@ const contentStore = useContentStore();
 
 const scroller = ref();
 const itemWidth = ref(300);
-const selectedSamples = ref<string[]>([]);
+const selectedSamples = ref<number[]>([]);
 const searchText = ref('');
+const isAllSelected = ref(false);
 
 function onResize() {
   const width = useElementBounding(scroller).width.value;
@@ -49,7 +50,7 @@ async function handleBatchAdd() {
 }
 
 // 删除样品
-async function handleRemove(sampleId: string) {
+async function handleRemove(sampleId: number) {
   contentStore.addSample = {
     content_id: contentStore.contentCreate.id!,
     sample_ids: [sampleId],
@@ -65,7 +66,7 @@ function onBottom() {
 function onTop() {}
 
 // 处理单个选择
-function handleSelect(sampleId: string, checked: boolean) {
+function handleSelect(sampleId: number, checked: boolean) {
   if (checked) {
     selectedSamples.value.push(sampleId);
   } else {
@@ -124,7 +125,7 @@ const filteredProducts = computed(() => {
   }
 
   return sampleStore.sampleList.filter((item) =>
-    item.product_name.toLowerCase().includes(searchText.value.toLowerCase()),
+    item.product_name?.toLowerCase().includes(searchText.value.toLowerCase()),
   );
 });
 
@@ -132,6 +133,28 @@ const filteredProducts = computed(() => {
 const handleSearch = () => {
   // 如果需要额外处理，可以在这里添加逻辑
 };
+
+// 修改全选处理函数
+function handleSelectAll(checked: boolean) {
+  isAllSelected.value = checked; // 直接更新复选框状态
+  const currentIds = filteredProducts.value.map((item) => item.id);
+  const remainingSelected = selectedSamples.value.filter(
+    (id) => !currentIds.includes(id),
+  );
+  // 根据选中状态更新选择的样品
+  selectedSamples.value = checked
+    ? [
+        ...remainingSelected,
+        ...currentIds.filter((id): id is number => id !== undefined),
+      ]
+    : remainingSelected;
+}
+
+// 修改监听逻辑，只比较当前过滤后的商品是否全选
+watch([selectedSamples, filteredProducts], ([selected, products]) => {
+  const currentIds = products.map((item) => item.id);
+  isAllSelected.value = currentIds.every((id) => selected.includes(id));
+});
 
 onMounted(() => {
   sampleStore.querySample();
@@ -150,7 +173,15 @@ onMounted(() => {
       <!-- 左侧可选样品列表 -->
       <div class="flex w-1/2 flex-col overflow-hidden rounded-lg border">
         <div class="flex items-center justify-between border-b p-4 font-medium">
-          <span>{{ $t('available_samples') }}</span>
+          <div class="flex items-center gap-2">
+            <span>{{ $t('available_samples') }}</span>
+            <Checkbox
+              :checked="isAllSelected"
+              @change="(e) => handleSelectAll(e.target.checked)"
+            >
+              {{ $t('select_all') }}
+            </Checkbox>
+          </div>
           <Button
             :disabled="selectedSamples.length === 0"
             type="primary"

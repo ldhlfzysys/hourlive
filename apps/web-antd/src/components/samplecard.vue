@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { Sample } from '#/types';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { Button, Image, Tooltip } from 'ant-design-vue';
+import { Button, Image, Modal, Tooltip } from 'ant-design-vue';
+import { Trash2 } from 'lucide-vue-next';
 
 import { useOSSFileStore, useSampleStore } from '#/store';
 
@@ -54,6 +55,21 @@ const type = computed(() => {
 const canEdit = computed(() => {
   return userStore.userRoles.includes('customer') && props.allowEdit;
 });
+
+const showDeleteConfirm = ref(false);
+const deletingId = ref<null | number>(null);
+
+const handleDelete = (id: number) => {
+  deletingId.value = id;
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+  if (deletingId.value) {
+    await sampleStore.deleteSample(deletingId.value);
+    showDeleteConfirm.value = false;
+  }
+};
 </script>
 
 <template>
@@ -96,18 +112,16 @@ const canEdit = computed(() => {
                 placement="top"
                 title="卖点是主播在介绍商品时会额外关注的内容，保证主播在介绍商品时，不错过重要内容。"
               >
-                <a
-                  class="transform text-blue-600 transition-colors hover:text-blue-800"
-                  href="#"
+                <span
+                  class="transform cursor-pointer text-blue-600 transition-colors hover:text-blue-800"
                   @click="sampleStore.makeKSPUpdate(props.sample.id!)"
-                  >{{ $t('product_ksp') }}</a
+                  >{{ $t('product_ksp') }}</span
                 >
               </Tooltip>
-              <a
-                class="transform text-blue-600 transition-colors hover:text-blue-800"
-                href="#"
+              <span
+                class="transform cursor-pointer text-blue-600 transition-colors hover:text-blue-800"
                 @click="ossFileStore.showOSSFileModal(props.sample.id!)"
-                >{{ $t('scriptmanager') }}</a
+                >{{ $t('scriptmanager') }}</span
               >
             </div>
           </div>
@@ -127,13 +141,16 @@ const canEdit = computed(() => {
           </div>
         </div>
 
-        <div v-if="canEdit" class="mt-auto">
+        <div v-if="canEdit" class="mt-auto flex justify-end space-x-2">
           <Button
-            class=""
             type="primary"
             @click="sampleStore.makeUpdate(props.sample.id!)"
           >
             {{ $t('edit') }}
+          </Button>
+
+          <Button danger type="primary" @click="handleDelete(props.sample.id!)">
+            <Trash2 class="h-4 w-4" />
           </Button>
         </div>
 
@@ -154,6 +171,25 @@ const canEdit = computed(() => {
       </div>
     </div>
   </div>
+
+  <Modal
+    :title="$t('delete_confirm_title')"
+    :visible="showDeleteConfirm"
+    @cancel="showDeleteConfirm = false"
+  >
+    <template #footer>
+      <Button @click="showDeleteConfirm = false">{{ $t('cancel') }}</Button>
+      <Button
+        :loading="sampleStore.sampleUpdateLoading"
+        danger
+        type="primary"
+        @click="confirmDelete"
+      >
+        {{ $t('confirm') }}
+      </Button>
+    </template>
+    <p>{{ $t('delete_confirm_content') }}</p>
+  </Modal>
 </template>
 
 <style scoped>
