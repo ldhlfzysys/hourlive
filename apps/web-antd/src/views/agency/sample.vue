@@ -14,7 +14,9 @@ import html2pdf from 'html2pdf.js';
 import JSZip from 'jszip';
 
 import Empty from '#/components/empty.vue';
+import OSSFileForm from '#/components/ossfileform.vue';
 import SampleCard from '#/components/samplecard.vue';
+import SampleKspForm from '#/components/samplekspform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -224,7 +226,7 @@ function syncLatestProducts() {
                 <div class="sample-number">{{ index + 1 }}</div>
               </div>
               <div class="sample-content">
-                <SampleCard :hide-ksp="true" :sample="item" />
+                <SampleCard :sample="item" />
                 <div class="sample-selling-points">
                   <h3>{{ $t('product_ksp') }}</h3>
                   <div
