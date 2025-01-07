@@ -19,19 +19,19 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.customerhome],
   },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['customer'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:podcast',
-      order: 1,
-      title: $t('hourlivepackage'),
-    },
-    name: 'CustomerSales',
-    path: '/customerSales',
-    children: [config.customerSales],
-  },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['customer'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:podcast',
+  //     order: 1,
+  //     title: $t('hourlivepackage'),
+  //   },
+  //   name: 'CustomerSales',
+  //   path: '/customerSales',
+  //   children: [config.customerSales],
+  // },
   {
     component: BasicLayout,
     meta: {
@@ -123,7 +123,7 @@ const routes: RouteRecordRaw[] = [
       hideChildrenInMenu: true,
       icon: 'lucide:settings',
       order: 7,
-      title: $t('个人中心'),
+      title: $t('profile'),
     },
     name: 'profile',
     path: '/profile',

@@ -100,6 +100,12 @@ function handleChange(keys: string[]) {
               </div>
               <h3
                 class="flex-1 whitespace-normal break-words pl-2 text-base font-semibold text-gray-800"
+                style="
+                  display: -webkit-box;
+                  overflow: hidden;
+                  -webkit-line-clamp: 3;
+                  -webkit-box-orient: vertical;
+                "
               >
                 {{ item?.product_name }}
               </h3>

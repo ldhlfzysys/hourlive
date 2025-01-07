@@ -75,7 +75,7 @@ const confirmDelete = async () => {
 <template>
   <div class="w-full p-3">
     <div
-      class="group relative flex h-[220px] w-full transform rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+      class="group relative flex h-[240px] w-full transform rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
     >
       <div class="relative h-full w-[200px]">
         <Image

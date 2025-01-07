@@ -3,6 +3,7 @@ import type { User } from '#/types';
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
+import { $t } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
 import { Button, Image, Input, message, Modal, Upload } from 'ant-design-vue';
@@ -269,7 +270,7 @@ const editState = ref({
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 text-gray-500">
                   <Image class="h-5 w-5" />
-                  <span>品牌Logo</span>
+                  <span>{{ $t('brand_logo') }}</span>
                 </div>
                 <Upload
                   :before-upload="() => false"
@@ -298,7 +299,7 @@ const editState = ref({
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 text-gray-500">
                   <Phone class="h-5 w-5" />
-                  <span>手机号</span>
+                  <span>{{ $t('mobile') }}</span>
                 </div>
                 <template v-if="!editState.mobile">
                   <span>{{ authStore.userInfo?.mobile || '未设置' }}</span>
@@ -332,7 +333,7 @@ const editState = ref({
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 text-gray-500">
                   <Mail class="h-5 w-5" />
-                  <span>邮箱</span>
+                  <span>{{ $t('email') }}</span>
                 </div>
                 <template v-if="!editState.email">
                   <span>{{ authStore.userInfo?.email || '未设置' }}</span>

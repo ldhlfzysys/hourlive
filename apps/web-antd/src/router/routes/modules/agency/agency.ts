@@ -19,19 +19,19 @@ const routes: RouteRecordRaw[] = [
 
     children: [config.agencyhome],
   },
-  {
-    component: BasicLayout,
-    meta: {
-      authority: ['agency'],
-      hideChildrenInMenu: true,
-      icon: 'lucide:podcast',
-      order: 4,
-      title: $t('hourlivepackage'),
-    },
-    name: 'AgencySales',
-    path: '/agencySales',
-    children: [config.sales],
-  },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['agency'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:podcast',
+  //     order: 4,
+  //     title: $t('hourlivepackage'),
+  //   },
+  //   name: 'AgencySales',
+  //   path: '/agencySales',
+  //   children: [config.sales],
+  // },
   {
     component: BasicLayout,
     meta: {

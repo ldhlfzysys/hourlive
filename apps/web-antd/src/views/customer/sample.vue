@@ -95,7 +95,7 @@ function onUpdate(
           :emit-update="true"
           :grid-items="2"
           :item-secondary-size="itemWidth"
-          :item-size="230"
+          :item-size="250"
           :items="sampleStore.sampleList"
           :page-mode="true"
           class="scroller"

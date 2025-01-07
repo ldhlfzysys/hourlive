@@ -359,5 +359,7 @@
   "room_name": "直播间名称",
   "delete_confirm_title": "确认删除样品",
   "delete_confirm_content": "删除样品后，样品将被移出，且场次、物流单中也会受到影响",
-  "select_all": "全选"
+  "select_all": "全选",
+  "profile": "个人中心",
+  "brand_logo": "品牌Logo"
 }

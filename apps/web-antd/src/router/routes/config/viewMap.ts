@@ -86,7 +86,7 @@ const viewMap = {
     meta: {
       affixTab: false,
       icon: 'lucide:user',
-      title: $t('个人中心'),
+      title: $t('profile'),
     },
     name: 'Profile',
     path: '/profile',
