@@ -33,7 +33,7 @@ const defaultPreferences: Preferences = {
   copyright: {
     companyName: 'Vben',
     companySiteLink: 'https://www.vben.pro',
-    date: '2024',
+    date: '2025',
     enable: true,
     icp: '',
     icpLink: '',
