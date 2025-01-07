@@ -11,17 +11,22 @@ import {
   Form,
   FormItem,
   Input,
+  message,
   Radio,
   RadioGroup,
+  Upload,
 } from 'ant-design-vue';
+import { Pencil } from 'lucide-vue-next';
 
 import { useAuthStore } from '#/store';
+import { useOSSFileStore } from '#/store/ossfile';
 
 defineOptions({ name: 'Register' });
 
 const router = useRouter();
 const formRef = ref();
 const authStore = useAuthStore();
+const ossFileStore = useOSSFileStore();
 
 // 校验表单
 const validatePass = async (_rule: Rule, value: string) => {
@@ -58,10 +63,38 @@ const rules: Record<string, Rule[]> = {
 // 表单
 const formData = reactive({
   account: '',
+  avatar: '',
   checkpass: '',
+  email: '',
+  mobile: '',
   password: '',
   user_type: 1,
 });
+
+// 添加头像上传处理函数
+const handleAvatarChange = async (info) => {
+  const isImage = info.file.type.startsWith('image/');
+  const isLt1M = info.file.size / 1024 / 1024 < 1;
+
+  if (!isImage) {
+    message.error('文件格式不正确，请上传图片文件');
+    return;
+  }
+
+  if (!isLt1M) {
+    message.error('图片大小不能超过10MB');
+    return;
+  }
+
+  try {
+    const result = await ossFileStore.uploadAvatarOnly(info.file);
+    if (result && result.success) {
+      formData.avatar = result.data;
+    }
+  } catch (error) {
+    console.error('头像上传失败:', error);
+  }
+};
 
 // 提交表单
 async function handleSubmit() {
@@ -87,9 +120,9 @@ function goToLogin() {
         {{ $t('authentication.createAnAccount') }} 🚀
       </h2>
 
-      <p class="text-muted-foreground lg:text-md text-sm">
+      <!-- <p class="text-muted-foreground lg:text-md text-sm">
         {{ $t('authentication.signUpSubtitle') }}
-      </p>
+      </p> -->
     </div>
 
     <Form ref="formRef" :model="formData" :rules="rules">
@@ -116,6 +149,33 @@ function goToLogin() {
           <Radio :value="1">{{ $t('agency') }}</Radio>
           <Radio :value="2">{{ $t('customer') }}</Radio>
         </RadioGroup>
+      </FormItem>
+      <FormItem>
+        <div class="mb-4 flex items-center gap-4">
+          <Upload
+            :before-upload="() => false"
+            :show-upload-list="false"
+            accept=".jpg, .jpeg, .png"
+            @change="handleAvatarChange"
+          >
+            <div
+              class="hover:border-primary group relative inline-block border border-dashed border-gray-300 p-2"
+            >
+              <img
+                v-if="formData.avatar"
+                :src="formData.avatar"
+                alt="brand logo"
+                class="max-h-10 w-auto object-contain"
+              />
+              <div v-else class="flex h-10 w-20 items-center justify-center">
+                <Pencil class="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+          </Upload>
+          <span class="text-sm text-gray-500">
+            {{ $t('可选择上传品牌Logo，稍后可在个人中心修改') }}
+          </span>
+        </div>
       </FormItem>
       <FormItem>
         <Button

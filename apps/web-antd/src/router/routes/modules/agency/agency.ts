@@ -2,7 +2,6 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
-import config from '#/router/routes/config';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -14,24 +13,21 @@ const routes: RouteRecordRaw[] = [
       order: 1,
       title: $t('home'),
     },
-    name: 'CustomerHome',
+    name: 'AgencyHome',
     path: '/home',
-
-    children: [config.agencyhome],
+    children: [
+      {
+        component: () => import('#/views/agency/home.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('home'),
+        },
+        name: 'AgencyHomeIndex',
+        path: '/home/index',
+      },
+    ],
   },
-  // {
-  //   component: BasicLayout,
-  //   meta: {
-  //     authority: ['agency'],
-  //     hideChildrenInMenu: true,
-  //     icon: 'lucide:podcast',
-  //     order: 4,
-  //     title: $t('hourlivepackage'),
-  //   },
-  //   name: 'AgencySales',
-  //   path: '/agencySales',
-  //   children: [config.sales],
-  // },
   {
     component: BasicLayout,
     meta: {
@@ -43,10 +39,19 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencyShippings',
     path: '/agencyshippings',
-
-    children: [config.agencyshippings],
+    children: [
+      {
+        component: () => import('#/views/agency/shippings.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:orders',
+          title: $t('agency_shippings'),
+        },
+        name: 'AgencyShippingsIndex',
+        path: '/agencyshippings/index',
+      },
+    ],
   },
-
   {
     component: BasicLayout,
     meta: {
@@ -58,9 +63,19 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencySample',
     path: '/agency/sample',
-    children: [config.agencySample],
+    children: [
+      {
+        component: () => import('#/views/agency/sample.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:eye',
+          title: $t('store'),
+        },
+        name: 'AgencySampleIndex',
+        path: '/agency/sample/index',
+      },
+    ],
   },
-
   {
     component: BasicLayout,
     meta: {
@@ -71,8 +86,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('shipping_address'),
     },
     name: 'AgencyShippingAddress',
-    path: '/shippingaddress',
-    children: [config.shippingaddress],
+    path: '/agencyshippingaddress',
+    children: [
+      {
+        component: () => import('#/views/agency/shipppingaddress.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:map-pin',
+          title: $t('shipping_address'),
+        },
+        name: 'AgencyShippingAddressIndex',
+        path: '/agencyshippingaddress/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -84,8 +110,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('room'),
     },
     name: 'AgencyRoom',
-    path: '/room',
-    children: [config.room],
+    path: '/agencyroom',
+    children: [
+      {
+        component: () => import('#/views/agency/room.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:video',
+          title: $t('room'),
+        },
+        name: 'AgencyRoomIndex',
+        path: '/agencyroom/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -97,8 +134,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('teammanagement'),
     },
     name: 'AgencyStreamer',
-    path: '/streamer',
-    children: [config.streamer],
+    path: '/agencystreamer',
+    children: [
+      {
+        component: () => import('#/views/agency/streamer.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:users',
+          title: $t('teammanagement'),
+        },
+        name: 'AgencyStreamerIndex',
+        path: '/agencystreamer/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -111,8 +159,42 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'AgencySchedule',
     path: '/agencyschedule',
-
-    children: [config.schedule],
+    children: [
+      {
+        component: () => import('#/views/common/schedule.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('schedule'),
+        },
+        name: 'AgencyScheduleIndex',
+        path: '/agencyschedule/index',
+      },
+    ],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:settings',
+      order: 8,
+      title: $t('profile'),
+    },
+    name: 'agencyProfile',
+    path: '/agencyprofile',
+    children: [
+      {
+        component: () => import('#/views/customer/profile.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:user',
+          title: $t('profile'),
+        },
+        name: 'AgencyProfileIndex',
+        path: '/agencyprofile/index',
+      },
+    ],
   },
 ];
 

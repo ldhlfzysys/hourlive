@@ -66,6 +66,21 @@ function _uploadAvatar(file: File) {
     },
   );
 }
+
+function _uploadAvatarOnly(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return requestClient.post<StanderResult<string>>(
+    'oss/uploadavataronly',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+}
 // 新增的 API 方法
 function _uploadHardware(file: File) {
   const formData = new FormData();
@@ -164,6 +179,19 @@ export const useOSSFileStore = defineStore('file-store', () => {
     uploading.value = false;
     return result;
   }
+
+  async function uploadAvatarOnly(file: File) {
+    uploading.value = true;
+    const result = await _uploadAvatarOnly(file);
+    if (result && result.success) {
+      message.success($t('success'));
+    } else {
+      message.error($t('upload_faild'));
+    }
+    uploading.value = false;
+    return result;
+  }
+
   async function uploadHardware(file: File) {
     uploading.value = true;
     const result = await _uploadHardware(file);
@@ -189,6 +217,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     showModal,
     showOSSFileModal,
     uploadAvatar,
+    uploadAvatarOnly,
     uploadFile,
     uploadHardware,
     uploading,

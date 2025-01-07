@@ -2,7 +2,6 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
-import config from '#/router/routes/config';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -16,22 +15,19 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'CustomerHome',
     path: '/home',
-
-    children: [config.customerhome],
+    children: [
+      {
+        component: () => import('#/views/customer/home.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('home'),
+        },
+        name: 'CustomerHomeIndex',
+        path: '/home/index',
+      },
+    ],
   },
-  // {
-  //   component: BasicLayout,
-  //   meta: {
-  //     authority: ['customer'],
-  //     hideChildrenInMenu: true,
-  //     icon: 'lucide:podcast',
-  //     order: 1,
-  //     title: $t('hourlivepackage'),
-  //   },
-  //   name: 'CustomerSales',
-  //   path: '/customerSales',
-  //   children: [config.customerSales],
-  // },
   {
     component: BasicLayout,
     meta: {
@@ -42,9 +38,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('sample'),
     },
     name: 'CustomerSample',
-    path: '/sample',
-
-    children: [config.sample],
+    path: '/customersample',
+    children: [
+      {
+        component: () => import('#/views/customer/sample.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:package',
+          title: $t('sample'),
+        },
+        name: 'CustomerSampleIndex',
+        path: '/customersample/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -56,9 +62,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('liveaccount'),
     },
     name: 'CustomerLiveAccount',
-    path: '/liveaccount',
-
-    children: [config.liveaccount],
+    path: '/customerliveaccount',
+    children: [
+      {
+        component: () => import('#/views/customer/liveaccount.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:user-round',
+          title: $t('liveaccount'),
+        },
+        name: 'CustomerLiveAccountIndex',
+        path: '/customerliveaccount/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -70,9 +86,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('sampleshipping'),
     },
     name: 'CustomerSampleshipping',
-    path: '/sampleshipping',
-
-    children: [config.sampleshipping],
+    path: '/customersampleshipping',
+    children: [
+      {
+        component: () => import('#/views/customer/sampleshipping.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:truck',
+          title: $t('sampleshipping'),
+        },
+        name: 'CustomerSampleshippingIndex',
+        path: '/customersampleshipping/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -84,9 +110,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('content'),
     },
     name: 'CustomerContent',
-    path: '/content',
-
-    children: [config.content],
+    path: '/customercontent',
+    children: [
+      {
+        component: () => import('#/views/customer/content.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:tv-minimal-play',
+          title: $t('content'),
+        },
+        name: 'CustomerContentIndex',
+        path: '/customercontent/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -99,8 +135,18 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'CustomerShippings',
     path: '/customershippings',
-
-    children: [config.shippings],
+    children: [
+      {
+        component: () => import('#/views/customer/shippings.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:orders',
+          title: $t('mysampleshipping'),
+        },
+        name: 'CustomerShippingsIndex',
+        path: '/customershippings/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -113,8 +159,18 @@ const routes: RouteRecordRaw[] = [
     },
     name: 'CustomerSchedule',
     path: '/customershcedule',
-
-    children: [config.schedule],
+    children: [
+      {
+        component: () => import('#/views/common/schedule.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('schedule'),
+        },
+        name: 'CustomerScheduleIndex',
+        path: '/customershcedule/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -125,10 +181,20 @@ const routes: RouteRecordRaw[] = [
       order: 7,
       title: $t('profile'),
     },
-    name: 'profile',
-    path: '/profile',
-
-    children: [config.profile],
+    name: 'CustomerProfile',
+    path: '/customerprofile',
+    children: [
+      {
+        component: () => import('#/views/customer/profile.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:user',
+          title: $t('profile'),
+        },
+        name: 'CustomerProfileIndex',
+        path: '/customerprofile/index',
+      },
+    ],
   },
 ];
 

@@ -48,7 +48,7 @@ const defaultPreferences: Preferences = {
     mode: 'fixed',
   },
   logo: {
-    enable: false,
+    enable: true,
     source: '#/assets/images/logo.png',
   },
   navigation: {

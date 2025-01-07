@@ -2,7 +2,6 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { BasicLayout } from '#/layouts';
 import { $t } from '#/locales';
-import config from '#/router/routes/config';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -14,25 +13,21 @@ const routes: RouteRecordRaw[] = [
       order: 1,
       title: $t('home'),
     },
-    name: 'CustomerHome',
+    name: 'SuperHome',
     path: '/home',
-
-    children: [config.superhome],
+    children: [
+      {
+        component: () => import('#/views/super/home.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('home'),
+        },
+        name: 'SuperHomeIndex',
+        path: '/home/index',
+      },
+    ],
   },
-  // {
-  //   component: BasicLayout,
-  //   meta: {
-  //     authority: ['super'],
-  //     hideChildrenInMenu: true,
-  //     icon: 'lucide:calendar',
-  //     order: -1,
-  //     title: $t('schedule'),
-  //   },
-  //   name: 'SuperSchedule',
-  //   path: '/super',
-
-  //   children: [config.schedule],
-  // },
   {
     component: BasicLayout,
     meta: {
@@ -43,9 +38,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('schedule'),
     },
     name: 'SuperSchedule',
-    path: '/schedule',
-
-    children: [config.schedule],
+    path: '/superschedule',
+    children: [
+      {
+        component: () => import('#/views/common/schedule.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar',
+          title: $t('schedule'),
+        },
+        name: 'SuperScheduleIndex',
+        path: '/superschedule/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -56,10 +61,20 @@ const routes: RouteRecordRaw[] = [
       order: 4,
       title: $t('customer_contents'),
     },
-    name: 'CustomerContents',
-    path: '/customerContents',
-
-    children: [config.supercustomercontents],
+    name: 'SuperCustomerContents',
+    path: '/supercustomerContents',
+    children: [
+      {
+        component: () => import('#/views/super/customerContents.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:user-round-search',
+          title: $t('customer_contents'),
+        },
+        name: 'SuperCustomerContentsIndex',
+        path: '/supercustomerContents/index',
+      },
+    ],
   },
   {
     component: BasicLayout,
@@ -71,9 +86,19 @@ const routes: RouteRecordRaw[] = [
       title: $t('user_manager'),
     },
     name: 'SuperUsers',
-    path: '/superUsers',
-
-    children: [config.superusers],
+    path: '/superusers',
+    children: [
+      {
+        component: () => import('#/views/super/users.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:users',
+          title: $t('user_manager'),
+        },
+        name: 'SuperUsersIndex',
+        path: '/superusers/index',
+      },
+    ],
   },
 ];
 
