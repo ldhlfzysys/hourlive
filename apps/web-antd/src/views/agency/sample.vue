@@ -90,8 +90,8 @@ function onUpdate(
 }
 
 function onCustomerChange(value: any) {
-  console.log('Customer changed:', value);
   sampleStore.$reset();
+
   sampleStore.sampleQuery.customer_id = value;
   sampleStore.querySample();
 }
@@ -199,19 +199,28 @@ function syncLatestProducts() {
             {{ customer.code }}
           </SelectOption>
         </Select>
-        <img
+        <template
           v-if="
             sampleStore.sampleQuery.customer_id &&
             customerStore.agencyCustomers?.data
           "
-          :src="
-            customerStore.agencyCustomers.data.find(
-              (c) => c.id === sampleStore.sampleQuery.customer_id,
-            )?.user?.avatar
-          "
-          alt="用户头像"
-          class="user-avatar"
-        />
+        >
+          <img
+            v-if="
+              customerStore.agencyCustomers.data.find(
+                (c) => c.id === sampleStore.sampleQuery.customer_id,
+              )?.user?.avatar
+            "
+            :src="
+              customerStore.agencyCustomers.data.find(
+                (c) => c.id === sampleStore.sampleQuery.customer_id,
+              )?.user?.avatar
+            "
+            alt="用户头像"
+            class="user-avatar"
+          />
+          <span v-else class="no-avatar-text">{{ $t('no_avatar_text') }}</span>
+        </template>
         <Button
           :disabled="sampleStore.sampleList.length === 0"
           class="ml-4"
@@ -387,10 +396,16 @@ function syncLatestProducts() {
 }
 
 .user-avatar {
-  width: 32px;
+  width: auto;
   height: 32px;
   margin-left: 10px;
-  object-fit: cover;
-  border-radius: 50%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.no-avatar-text {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #999;
 }
 </style>

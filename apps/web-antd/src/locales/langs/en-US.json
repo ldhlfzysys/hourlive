@@ -362,5 +362,6 @@
   "select_all": "Select All",
   "profile": "Personal Center",
   "brand_logo": "Brand Logo",
-  "sync_latest_products": "Sync Latest Products"
+  "sync_latest_products": "Sync Latest Products",
+  "no_avatar_text": "No Brand Logo"
 }
