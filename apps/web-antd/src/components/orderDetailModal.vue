@@ -368,7 +368,7 @@ async function exportToPDF() {
                 <div class="sample-number">{{ index + 1 }}</div>
               </div>
               <div class="sample-content">
-                <SampleCard :hide-ksp="true" :sample="item" />
+                <SampleCard :sample="item" />
                 <div class="sample-selling-points">
                   <h3>{{ $t('product_ksp') }}</h3>
                   <div
