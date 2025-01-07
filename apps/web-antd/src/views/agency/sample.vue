@@ -199,6 +199,19 @@ function syncLatestProducts() {
             {{ customer.code }}
           </SelectOption>
         </Select>
+        <img
+          v-if="
+            sampleStore.sampleQuery.customer_id &&
+            customerStore.agencyCustomers?.data
+          "
+          :src="
+            customerStore.agencyCustomers.data.find(
+              (c) => c.id === sampleStore.sampleQuery.customer_id,
+            )?.user?.avatar
+          "
+          alt="用户头像"
+          class="user-avatar"
+        />
         <Button
           :disabled="sampleStore.sampleList.length === 0"
           class="ml-4"
@@ -371,5 +384,13 @@ function syncLatestProducts() {
   display: flex;
   justify-content: center;
   padding: 20px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  margin-left: 10px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 </style>

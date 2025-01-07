@@ -284,8 +284,15 @@ async function exportToPDF() {
           {{ orderStore.currentSelectedOrder!.customer?.code }}
         </DescriptionsItem>
 
-        <DescriptionsItem :label="$t('content')" :span="3">
+        <DescriptionsItem :label="$t('content')">
           {{ orderStore.currentSelectedOrder!.contents[0]?.id }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="$t('brand_logo')">
+          <img
+            :src="orderStore.currentSelectedOrder!.customer?.user.avatar"
+            alt="brand logo"
+            class="customer-avatar h-8 w-8 rounded-full object-cover"
+          />
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('subsidy')" :span="3">
@@ -516,5 +523,13 @@ async function exportToPDF() {
 
 .selling-points-content :deep(li) {
   margin-bottom: 4px;
+}
+
+.customer-avatar {
+  width: auto;
+  height: 2rem;
+  max-height: 2rem;
+  object-fit: contain;
+  border-radius: 9999px;
 }
 </style>
