@@ -1,25 +1,27 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
 
-import { Select, SelectOption } from 'ant-design-vue';
+import { Button, Select, SelectOption } from 'ant-design-vue';
 
-import { useCustomerStore, useSampleStore } from '#/store';
+import { useCustomerStore, useOSSFileStore, useSampleStore } from '#/store';
 // @ts-ignore
-import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { $t } from '@vben/locales';
 
 import { useElementBounding } from '@vueuse/core';
+import { saveAs } from 'file-saver';
+import html2pdf from 'html2pdf.js';
+import JSZip from 'jszip';
 
 import Empty from '#/components/empty.vue';
 import SampleCard from '#/components/samplecard.vue';
-import SampleForm from '#/components/sampleform.vue';
 import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const sampleStore = useSampleStore();
 const customerStore = useCustomerStore();
+const ossfileStore = useOSSFileStore();
 const updateParts = ref({
   viewEndIdx: 0,
   viewStartIdx: 0,
@@ -59,8 +61,18 @@ onMounted(() => {
 });
 
 function onTop() {}
-function onBottom() {
-  sampleStore.querySample();
+
+const isLoadingMore = ref(false);
+
+async function onBottom() {
+  if (isLoadingMore.value || sampleStore.sampleQueryLoading) return;
+
+  isLoadingMore.value = true;
+  try {
+    await sampleStore.querySample();
+  } finally {
+    isLoadingMore.value = false;
+  }
 }
 
 function onUpdate(
@@ -81,6 +93,87 @@ function onCustomerChange(value: any) {
   sampleStore.sampleQuery.customer_id = value;
   sampleStore.querySample();
 }
+
+async function exportToPDF() {
+  const zip = new JSZip();
+
+  // 获取选中商品的文件
+  const files = await ossfileStore.listFilesFromIds(
+    sampleStore.sampleList
+      .map((sample) => sample.id)
+      .filter((id): id is number => id !== undefined),
+  );
+
+  const element = document.querySelector('.sample-list');
+  if (!element) return;
+
+  const originalStyle = element.style.cssText;
+  element.style.width = '1000px';
+  element.style.maxHeight = 'none';
+  element.style.margin = '0 auto';
+  element.style.padding = '20px';
+
+  try {
+    // 等待图片加载
+    await Promise.all(
+      [...element.querySelectorAll('img')].map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete) resolve(null);
+            else {
+              img.addEventListener('load', () => resolve(null));
+              img.addEventListener('error', () => resolve(null));
+            }
+          }),
+      ),
+    );
+
+    const opt = {
+      filename: '商品列表.pdf',
+      html2canvas: { scale: 1.5, useCORS: true },
+      jsPDF: { format: 'a4', orientation: 'landscape' },
+      pagebreak: { before: '.sample-item', mode: ['avoid-all'] },
+    };
+
+    const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+    zip.file('商品列表.pdf', pdfBlob);
+
+    // 下载商品相关文件
+    if (files.success && files.data) {
+      for (const [sampleId, fileList] of Object.entries(files.data)) {
+        const sample = sampleStore.sampleList.find(
+          (s) => s.id === Number(sampleId),
+        );
+        const folderName = `商品-${sample?.product_id || '未命名'}`;
+
+        for (const file of fileList) {
+          try {
+            const response = await fetch(file.path);
+            const fileBlob = await response.blob();
+            zip.file(`${folderName}/${file.name}`, fileBlob);
+          } catch (error) {
+            console.error(`下载文件失败: ${folderName}/${file.name}`, error);
+          }
+        }
+      }
+    }
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipBlob, '商品完整资料.zip');
+  } catch (error) {
+    console.error('导出失败:', error);
+  } finally {
+    element.style.cssText = originalStyle;
+  }
+}
+
+// 添加同步函数
+function syncLatestProducts() {
+  const currentCustomerId = sampleStore.sampleQuery.customer_id;
+  sampleStore.$reset();
+  sampleStore.sampleQuery.customer_id = currentCustomerId;
+  sampleStore.querySample();
+}
 </script>
 
 <template>
@@ -96,7 +189,6 @@ function onCustomerChange(value: any) {
           placeholder="请选择"
           @change="onCustomerChange"
         >
-          <!-- <Option :key="-1">{{ $t('all') }}</Option> -->
           <SelectOption
             v-for="customer in customerStore.agencyCustomers?.data || []"
             :key="customer.id"
@@ -105,30 +197,50 @@ function onCustomerChange(value: any) {
             {{ customer.code }}
           </SelectOption>
         </Select>
+        <Button
+          :disabled="sampleStore.sampleList.length === 0"
+          class="ml-4"
+          type="primary"
+          @click="exportToPDF"
+        >
+          {{ $t('download') }}
+        </Button>
+        <Button class="ml-4" type="primary" @click="syncLatestProducts">
+          {{ $t('sync_latest_products') }}
+        </Button>
       </div>
     </template>
 
     <template #content>
       <div class="flex flex-1 flex-col">
-        <RecycleScroller
-          v-if="sampleStore.sampleList.length > 0"
-          ref="scroller"
-          v-slot="{ item }"
-          :emit-update="true"
-          :grid-items="2"
-          :item-secondary-size="itemWidth"
-          :item-size="250"
-          :items="sampleStore.sampleList"
-          :page-mode="true"
-          class="scroller"
-          key-field="id"
-          @resize="onResize"
-          @scroll-end="onBottom"
-          @scroll-start="onTop"
-          @update="onUpdate"
-        >
-          <SampleCard :sample="item" />
-        </RecycleScroller>
+        <div v-if="sampleStore.sampleList.length > 0" class="sample-list">
+          <div
+            v-for="(item, index) in sampleStore.sampleList"
+            :key="item.id"
+            class="sample-item"
+          >
+            <div class="sample-container">
+              <div class="sample-number-wrapper">
+                <div class="sample-number">{{ index + 1 }}</div>
+              </div>
+              <div class="sample-content">
+                <SampleCard :hide-ksp="true" :sample="item" />
+                <div class="sample-selling-points">
+                  <h3>{{ $t('product_ksp') }}</h3>
+                  <div
+                    class="selling-points-content"
+                    v-html="item.product_ksp || $t('no_product_ksp')"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="load-more-container">
+            <Button :loading="isLoadingMore" type="primary" @click="onBottom">
+              {{ isLoadingMore ? '加载中...' : '加载更多' }}
+            </Button>
+          </div>
+        </div>
         <Empty
           v-else
           :loading="sampleStore.sampleQueryLoading"
@@ -136,7 +248,8 @@ function onCustomerChange(value: any) {
           description="暂无样本数据，请选择客户或添加新样本"
         />
       </div>
-      <SampleForm />
+      <SampleKspForm :allow-edit="true" />
+      <OSSFileForm :allow-edit="true" />
     </template>
 
     <!-- <template #footer> 123 </template> -->
@@ -173,5 +286,88 @@ function onCustomerChange(value: any) {
 .header-container {
   display: flex;
   align-items: center;
+}
+
+.sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+}
+
+.sample-item {
+  width: 100%;
+}
+
+.sample-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+}
+
+.sample-number-wrapper {
+  padding-top: 90px;
+}
+
+.sample-number {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background-color: #1890ff;
+  border-radius: 50%;
+}
+
+.sample-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sample-selling-points {
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.sample-selling-points h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+.selling-points-content {
+  line-height: 1.5;
+  color: #666;
+}
+
+.selling-points-content :deep(p) {
+  margin-bottom: 8px;
+}
+
+.selling-points-content :deep(ul),
+.selling-points-content :deep(ol) {
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.selling-points-content :deep(li) {
+  margin-bottom: 4px;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
 }
 </style>

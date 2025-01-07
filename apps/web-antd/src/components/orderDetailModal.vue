@@ -144,8 +144,8 @@ async function exportToPDF() {
 
   // 获取订单里商品脚本文件路径
   // files结构为：{sample_id:[{name,path}]}
-  const files = await ossfileStore.fetchFileFromOrder(
-    orderStore.currentSelectedOrder!.id!,
+  const files = await ossfileStore.listFilesFromIds(
+    orderSamples.value.map((sample) => sample.id!),
   );
 
   // 创建PDF
@@ -227,6 +227,21 @@ async function exportToPDF() {
             console.error(`下载文件失败: ${folderName}/${file.name}`, error);
           }
         }
+      }
+    }
+
+    // 下载客户头像（如果存在）
+    console.log('下载客户头像');
+    console.log(orderStore.currentSelectedOrder?.customer);
+    const customerAvatar =
+      orderStore.currentSelectedOrder?.customer?.user.avatar;
+    if (customerAvatar) {
+      try {
+        const response = await fetch(customerAvatar);
+        const avatarBlob = await response.blob();
+        zip.file('customer-brand.png', avatarBlob);
+      } catch (error) {
+        console.error('下载客户头像失败:', error);
       }
     }
 
@@ -353,7 +368,7 @@ async function exportToPDF() {
                 <div class="sample-number">{{ index + 1 }}</div>
               </div>
               <div class="sample-content">
-                <SampleCard :sample="item" />
+                <SampleCard :hide-ksp="true" :sample="item" />
                 <div class="sample-selling-points">
                   <h3>{{ $t('product_ksp') }}</h3>
                   <div

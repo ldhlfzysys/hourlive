@@ -174,7 +174,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingQuery.value = {
         q_id: -1,
         q_order: 'desc',
-        q_size: 5,
+        q_size: 30,
       };
       sampleShippings.value = new Map();
     }

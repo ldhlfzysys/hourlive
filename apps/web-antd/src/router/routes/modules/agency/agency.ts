@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
       title: $t('store'),
     },
     name: 'AgencySample',
-    path: '/agency/sample',
+    path: '/agencysample',
     children: [
       {
         component: () => import('#/views/agency/sample.vue'),
@@ -72,7 +72,7 @@ const routes: RouteRecordRaw[] = [
           title: $t('store'),
         },
         name: 'AgencySampleIndex',
-        path: '/agency/sample/index',
+        path: '/agencysample/index',
       },
     ],
   },

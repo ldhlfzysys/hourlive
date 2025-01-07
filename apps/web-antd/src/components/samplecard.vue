@@ -18,10 +18,12 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     allowEdit?: boolean;
+    hideKsp?: boolean;
     sample: Sample;
   }>(),
   {
     allowEdit: false,
+    hideKsp: false,
   },
 );
 
@@ -107,7 +109,7 @@ const confirmDelete = async () => {
 
           <div class="mt-3 flex items-center space-x-4 text-sm">
             <span class="text-gray-500">ID: {{ props.sample.product_id }}</span>
-            <div class="flex space-x-3">
+            <div v-if="!hideKsp" class="flex space-x-3">
               <Tooltip
                 placement="top"
                 title="卖点是主播在介绍商品时会额外关注的内容，保证主播在介绍商品时，不错过重要内容。"

@@ -6,7 +6,6 @@ import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
-
 /*
 文件管理（目前只有商品脚本）
 根据商品id获取文件列表
@@ -16,6 +15,7 @@ import { $t } from '#/locales';
 
 // types
 import type {
+  IdsQuery,
   OSSFile,
   OSSFileDelete,
   OSSFileUpload,
@@ -48,6 +48,13 @@ function _fetchFile(product_id: number) {
 function _fetchFileFromOrder(order_id: number) {
   return requestClient.get<StanderResult<OSSFile[]>>(
     `oss/listorderfiles/${order_id}`,
+  );
+}
+
+function _listfilesfromids(params: IdsQuery) {
+  return requestClient.post<StanderResult<OSSFile[]>>(
+    `oss/listfilesfromids`,
+    params,
   );
 }
 
@@ -123,6 +130,11 @@ export const useOSSFileStore = defineStore('file-store', () => {
 
   function getFileList(product_id: number) {
     return Object.values(ossfiles.value[product_id] || {});
+  }
+
+  async function listFilesFromIds(ids: number[]) {
+    const result = await _listfilesfromids({ ids });
+    return result;
   }
 
   async function showOSSFileModal(product_id: number) {
@@ -211,6 +223,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     fetchFileFromOrder,
     fetching,
     getFileList,
+    listFilesFromIds,
     ossfiles,
     removeFile,
     removing,

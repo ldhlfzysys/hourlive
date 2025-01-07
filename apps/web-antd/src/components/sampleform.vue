@@ -105,7 +105,7 @@ function handleOk() {
             <div class="mt-2 flex">
               <Select
                 v-model:value="sampleStore.sampleUpdate.is_main"
-                class="w-[100px]"
+                class="w-[150px]"
               >
                 <SelectOption value="0">
                   {{ $t('sample_welfare') }}

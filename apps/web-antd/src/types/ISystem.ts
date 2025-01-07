@@ -22,6 +22,10 @@ export interface IdQuery {
   id: number;
 }
 
+export interface IdsQuery {
+  ids: number[];
+}
+
 export interface PageQuery {
   page: number;
   page_size: number;

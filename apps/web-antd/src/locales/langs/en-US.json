@@ -361,5 +361,6 @@
   "delete_confirm_content": "After deletion, the sample will be removed from the session and the logistics order will also be affected",
   "select_all": "Select All",
   "profile": "Personal Center",
-  "brand_logo": "Brand Logo"
+  "brand_logo": "Brand Logo",
+  "sync_latest_products": "Sync Latest Products"
 }

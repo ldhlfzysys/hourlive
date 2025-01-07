@@ -361,5 +361,6 @@
   "delete_confirm_content": "删除样品后，样品将被移出，且场次、物流单中也会受到影响",
   "select_all": "全选",
   "profile": "个人中心",
-  "brand_logo": "品牌Logo"
+  "brand_logo": "品牌Logo",
+  "sync_latest_products": "同步最新产品"
 }

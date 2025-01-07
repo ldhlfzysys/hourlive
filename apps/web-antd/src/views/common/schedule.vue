@@ -83,8 +83,11 @@ const events = computed(() => {
       const eventClass = orderStore.getEventClass(order.id, isPast);
 
       let content = '';
+      console.log('xxx');
+      console.log(order);
+      console.log(order.customer);
       content =
-        selectedAgencies.value.length === 1
+        selectedAgencies.value.length === 1 || hasAccessByRoles(['agency'])
           ? `
          <div class="event-content">
             <div>${$t('customer')}:${order.customer?.code}</div>

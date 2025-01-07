@@ -85,7 +85,7 @@ export const useShippingAddressStore = defineStore(
         agency_id: -1,
         q_id: -1,
         q_order: 'desc',
-        q_size: 5,
+        q_size: 30,
       };
       shippingAddresses.value = new Map();
     }
