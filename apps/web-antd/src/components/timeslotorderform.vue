@@ -56,6 +56,10 @@ const roomOptions = computed(() => {
 function generateTimelineText(timeslot: TimeslotModel) {
   return `${timeslot.date.format('YYYY-MM-DD')}  ${timeslot.slot[0].format('HH:mm')} - ${timeslot.slot[1].format('HH:mm')}`;
 }
+
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
 </script>
 
 <template>
@@ -82,6 +86,7 @@ function generateTimelineText(timeslot: TimeslotModel) {
             <Select
               v-model:value="orderStore.formState.agency"
               :disabled="!enableEdit"
+              :filter-option="filterOption"
               :options="agencyStore.agencyOptions"
               :placeholder="$t('selectagency')"
               show-search
@@ -98,6 +103,7 @@ function generateTimelineText(timeslot: TimeslotModel) {
             <Select
               v-model:value="orderStore.formState.roomId"
               :disabled="!enableEdit"
+              :filter-option="filterOption"
               :options="roomOptions"
               :placeholder="$t('selectroom')"
               show-search
@@ -114,6 +120,7 @@ function generateTimelineText(timeslot: TimeslotModel) {
             <Select
               v-model:value="orderStore.formState.contentId"
               :disabled="!enableEdit"
+              :filter-option="filterOption"
               :options="customerStore.contentOptions"
               :placeholder="$t('selectcontent')"
               show-search

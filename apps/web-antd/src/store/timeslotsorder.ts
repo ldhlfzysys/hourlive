@@ -316,26 +316,29 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       return;
     }
     const allTimeslots = formState.value.timeslots;
-    // 检测时间冲突
-    for (let i = 0; i < allTimeslots.length; i++) {
-      for (let j = i + 1; j < allTimeslots.length; j++) {
-        const slotA = allTimeslots[i]!;
-        const slotB = allTimeslots[j]!;
 
-        const startA = slotA.slot![0];
-        const endA = slotA.slot![1];
-        const startB = slotB.slot![0];
-        const endB = slotB.slot![1];
+    if (allTimeslots.length > 1) {
+      // 检测时间冲突
+      for (let i = 0; i < allTimeslots.length; i++) {
+        for (let j = i + 1; j < allTimeslots.length; j++) {
+          const slotA = allTimeslots[i]!;
+          const slotB = allTimeslots[j]!;
 
-        if (
-          (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition
-          (startB.isBefore(endA) && endB.isAfter(startA))
-        ) {
-          notification.error({
-            description: $t('时间段冲突'),
-            message: $t('error'),
-          });
-          return;
+          const startA = slotA.slot![0];
+          const endA = slotA.slot![1];
+          const startB = slotB.slot![0];
+          const endB = slotB.slot![1];
+
+          if (
+            (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition
+            (startB.isBefore(endA) && endB.isAfter(startA))
+          ) {
+            notification.error({
+              description: $t('时间段冲突'),
+              message: $t('error'),
+            });
+            return;
+          }
         }
       }
     }
@@ -375,10 +378,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     params.id =
       formState.value.orderId === undefined ? -1 : formState.value.orderId;
 
-    // timeslotOrderCreate.value = params;
-    // createTimeslotOrder();
-    // showApendModal.value = false;
-    // isEditing.value = false;
+    timeslotOrderCreate.value = params;
+    createTimeslotOrder();
+    showApendModal.value = false;
+    isEditing.value = false;
   }
 
   async function createTimeslotOrder() {
