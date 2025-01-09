@@ -17,6 +17,7 @@ import type {
 import { computed, ref } from 'vue';
 
 import { notification } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -311,6 +312,12 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     );
   });
 
+  function _getSlot(slot: TimeslotModel, index: number) {
+    return dayjs(
+      `${slot.date.format('YYYY-MM-DD')} ${slot.slot![index]!.format('HH:mm')}`,
+    );
+  }
+
   async function makeOrders() {
     if (formState.value.timeslots === undefined) {
       return;
@@ -324,10 +331,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
           const slotA = allTimeslots[i]!;
           const slotB = allTimeslots[j]!;
 
-          const startA = slotA.slot![0];
-          const endA = slotA.slot![1];
-          const startB = slotB.slot![0];
-          const endB = slotB.slot![1];
+          const startA = _getSlot(slotA, 0);
+          const endA = _getSlot(slotA, 1);
+          const startB = _getSlot(slotB, 0);
+          const endB = _getSlot(slotB, 1);
 
           if (
             (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition

@@ -15,10 +15,14 @@ function addTimeslot() {
   }
   const lastTimeslot =
     orderStore.formState.timeslots![orderStore.formState.timeslots!.length - 1];
+  const newSlot = [
+    lastTimeslot!.slot![0].add(1, 'day'),
+    lastTimeslot!.slot![1].add(1, 'day'),
+  ];
   orderStore.formState.timeslots!.push({
     canEdit: true,
     date: lastTimeslot!.date.add(1, 'day'),
-    slot: lastTimeslot!.slot,
+    slot: newSlot,
   });
 }
 
@@ -48,6 +52,7 @@ function deleteTimeslot(index: number) {
               v-model:value="item.slot"
               :allow-clear="false"
               :disabled="!item.canEdit"
+              :minute-step="30"
               format="HH:mm"
             />
             <span
