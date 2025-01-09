@@ -42,6 +42,13 @@ const rules: Record<string, Rule[]> = {
       trigger: 'blur',
     },
   ],
+  address: [
+    {
+      message: $t('请输入地址'),
+      required: true,
+      trigger: 'blur',
+    },
+  ],
   checkpass: [{ required: true, trigger: 'change', validator: validatePass }],
   password: [
     {
@@ -68,6 +75,7 @@ const formData = reactive({
   email: '',
   mobile: '',
   password: '',
+  shipping_address: '',
   user_type: 1,
 });
 
@@ -149,6 +157,12 @@ function goToLogin() {
           <Radio :value="1">{{ $t('agency') }}</Radio>
           <Radio :value="2">{{ $t('customer') }}</Radio>
         </RadioGroup>
+      </FormItem>
+      <FormItem v-if="formData.user_type === 1" name="shipping_address">
+        <Input
+          v-model:value="formData.shipping_address"
+          :placeholder="$t('shipping_desc')"
+        />
       </FormItem>
       <FormItem>
         <div class="mb-4 flex items-center gap-4">
