@@ -74,7 +74,7 @@ const events = computed(() => {
         })
         .join(',');
 
-      const agencyName = agencyStore.agencyById(order.agency_id)?.name;
+      const agencyName = order.agency?.name;
 
       const startTimeStr = timeslot.begin_date.replace('T', ' ');
       const endTimeStr = timeslot.finish_date.replace('T', ' ');
@@ -181,6 +181,17 @@ const localeStr = computed(() => {
 
 // Life Time
 onMounted(() => {
+  // 设置初始月份的查询范围
+  const currentDate = dayjs();
+  const startOfMonth = currentDate.startOf('month');
+  const endOfMonth = currentDate.endOf('month');
+
+  orderStore.timeslotOrderQuery = {
+    ...orderStore.timeslotOrderQuery,
+    begin_date: startOfMonth.format('YYYY-MM-DD'),
+    finish_date: endOfMonth.format('YYYY-MM-DD'),
+  };
+
   useAgencyStore().fetchAgency();
   fetchCustomerData();
   useTimeslotOrderStore().queryTimeslotOrder();
@@ -246,6 +257,18 @@ function handleApendOrder() {
   orderStore.isEditing = false;
   orderStore.showApendModal = true;
 }
+
+// 添加新的函数处理月份变化
+function handleViewChange({ endDate, startDate }) {
+  // 设置查询时间范围
+  orderStore.timeslotOrderQuery = {
+    ...orderStore.timeslotOrderQuery,
+    begin_date: dayjs(startDate).format('YYYY-MM-DD'),
+    finish_date: dayjs(endDate).format('YYYY-MM-DD'),
+  };
+  // 重新请求数据
+  orderStore.queryTimeslotOrder();
+}
 </script>
 
 <template>
@@ -289,8 +312,14 @@ function handleApendOrder() {
         <div class="flex h-full flex-1 flex-row space-x-4">
           <div
             v-if="orderStore.timeslotOrderList.length > 0"
-            class="flex h-full flex-1 flex-col"
+            class="relative flex h-full flex-1 flex-col"
           >
+            <div
+              v-if="orderStore.timeslotOrderLoading"
+              class="absolute inset-0 z-10 flex items-center justify-center bg-white/60"
+            >
+              <div class="loading-spinner"></div>
+            </div>
             <VueCal
               v-model:active-view="activeView"
               :disable-views="['years', 'year']"
@@ -304,6 +333,7 @@ function handleApendOrder() {
               }"
               :events="events"
               :events-on-month-view="true"
+              :loading="orderStore.timeslotOrderLoading"
               :locale="localeStr"
               :selected-date="selectDate.format('YYYY-MM-DD')"
               :snap-to-time="15"
@@ -316,6 +346,7 @@ function handleApendOrder() {
               @event-click="handleEventClick"
               @event-drag-create="handleEventChange"
               @event-duration-change="handleEventChange"
+              @view-change="handleViewChange"
             />
           </div>
 
