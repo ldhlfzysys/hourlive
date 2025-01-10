@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-import { AccessControl } from '@vben/access';
+import { AccessControl, useAccess } from '@vben/access';
 import { SvgShopeeIcon, SvgTiktokIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
@@ -37,6 +37,8 @@ const orderStore = useTimeslotOrderStore();
 const sampleStore = useSampleStore();
 const agencyStore = useAgencyStore();
 const ossfileStore = useOSSFileStore();
+
+const { hasAccessByRoles } = useAccess();
 
 const itemWidth = ref(300);
 const loading = ref(false);
@@ -280,7 +282,10 @@ async function exportToPDF() {
               ?.name
           }}
         </DescriptionsItem>
-        <DescriptionsItem :label="$t('customer')">
+        <DescriptionsItem
+          v-if="hasAccessByRoles(['super', 'agency'])"
+          :label="$t('customer')"
+        >
           {{ orderStore.currentSelectedOrder!.customer?.code }}
         </DescriptionsItem>
 
