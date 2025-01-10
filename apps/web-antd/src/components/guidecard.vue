@@ -20,6 +20,7 @@ interface Props {
   title: string;
   items: GuideItem[];
   tooltip?: string;
+  docurl?: string;
 }
 </script>
 
@@ -36,8 +37,9 @@ interface Props {
           />
         </Tooltip>
         <a
+          v-if="docurl"
+          :href="docurl"
           class="flex-1 text-end text-sm text-gray-400 transition-colors hover:text-gray-600"
-          href="https://mcn1fj4mlkm2.feishu.cn/mindnotes/J2Uzbv0acmYLDBnWoMJc3MHqnmd"
           target="_blank"
         >
           {{ $t('guide_doc') }}

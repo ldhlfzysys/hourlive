@@ -65,17 +65,19 @@ const orderguide = computed(() => [
         :items="sampleguide"
         :title="$t('guide_sample')"
         :tooltip="$t('guide_sample_tooltip')"
+        docurl="https://mcn1fj4mlkm2.feishu.cn/docx/Z00TdqI6Wo29FNxSjMDcJSSCnLb"
       />
       <GuideCard
         :items="contentguide"
         :title="$t('guide_content')"
         :tooltip="$t('guide_content_tooltip')"
+        docurl="https://mcn1fj4mlkm2.feishu.cn/docx/Z00TdqI6Wo29FNxSjMDcJSSCnLb"
       />
-      <GuideCard
+      <!-- <GuideCard
         :items="orderguide"
         :title="$t('guide_order')"
         :tooltip="$t('guide_order_tooltip')"
-      />
+      /> -->
     </div>
   </div>
 </template>
