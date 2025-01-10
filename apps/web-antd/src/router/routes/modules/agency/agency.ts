@@ -17,14 +17,15 @@ const routes: RouteRecordRaw[] = [
     path: '/home',
     children: [
       {
-        component: () => import('#/views/agency/home.vue'),
+        component: () => import('#/views/common/home.vue'),
         meta: {
           affixTab: false,
+          authority: ['agency'],
           icon: 'lucide:calendar',
           title: $t('home'),
         },
         name: 'AgencyHomeIndex',
-        path: '/home/index',
+        path: '/home',
       },
     ],
   },
