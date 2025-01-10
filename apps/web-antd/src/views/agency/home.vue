@@ -8,7 +8,6 @@ import { Calendar, Eye, Podcast, Truck, Users, Video } from 'lucide-vue-next';
 
 import GuideCard from '#/components/guidecard.vue';
 import { useAgencyStore } from '#/store/agency';
-import HourLivePage from '#/views/template/common.vue';
 
 const agencyStore = useAgencyStore();
 
@@ -63,55 +62,47 @@ const agencyGuide = computed(() => [
 </script>
 
 <template>
-  <HourLivePage :content-overflow="true">
-    <template #header></template>
+  <div class="flex flex-col p-3">
+    <div class="grid grid-cols-[1fr_2fr] gap-4">
+      <GuideCard :items="agencyGuide" :title="$t('guide')" />
 
-    <template #content>
-      <div class="flex flex-col p-3">
-        <div class="grid grid-cols-[1fr_2fr] gap-4">
-          <GuideCard :items="agencyGuide" :title="$t('guide')" />
-
-          <div class="grid grid-cols-2 gap-4">
-            <Card :title="$t('today_content')" class="shrink-0">
-              <div class="flex flex-col items-center py-4">
-                <span
-                  class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
-                  @click="$router.push('/schedule')"
-                >
-                  {{ agencyStore.agencyHomeInfo?.today_content }}
-                </span>
-                <span class="mt-2 text-gray-500">{{ $t('one_live') }}</span>
-              </div>
-            </Card>
-            <Card :title="$t('onroute_shipping')" class="shrink-0">
-              <div class="flex flex-col items-center py-4">
-                <span
-                  class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
-                  @click="$router.push('/shippings')"
-                >
-                  {{ agencyStore.agencyHomeInfo?.onroute_shipping }}
-                </span>
-                <span class="mt-2 text-gray-500">{{ $t('one_shipping') }}</span>
-              </div>
-            </Card>
-            <Card :title="$t('new_order')" class="shrink-0">
-              <div class="flex flex-col items-center py-4">
-                <span
-                  class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
-                  @click="$router.push('/sales')"
-                >
-                  {{ agencyStore.agencyHomeInfo?.new_order }}
-                </span>
-                <span class="mt-2 text-gray-500">{{ $t('one_order') }}</span>
-              </div>
-            </Card>
+      <div class="grid grid-cols-2 gap-4">
+        <Card :title="$t('today_content')" class="shrink-0">
+          <div class="flex flex-col items-center py-4">
+            <span
+              class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
+              @click="$router.push('/schedule')"
+            >
+              {{ agencyStore.agencyHomeInfo?.today_content }}
+            </span>
+            <span class="mt-2 text-gray-500">{{ $t('one_live') }}</span>
           </div>
-        </div>
+        </Card>
+        <Card :title="$t('onroute_shipping')" class="shrink-0">
+          <div class="flex flex-col items-center py-4">
+            <span
+              class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
+              @click="$router.push('/shippings')"
+            >
+              {{ agencyStore.agencyHomeInfo?.onroute_shipping }}
+            </span>
+            <span class="mt-2 text-gray-500">{{ $t('one_shipping') }}</span>
+          </div>
+        </Card>
+        <Card :title="$t('new_order')" class="shrink-0">
+          <div class="flex flex-col items-center py-4">
+            <span
+              class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
+              @click="$router.push('/sales')"
+            >
+              {{ agencyStore.agencyHomeInfo?.new_order }}
+            </span>
+            <span class="mt-2 text-gray-500">{{ $t('one_order') }}</span>
+          </div>
+        </Card>
       </div>
-    </template>
-
-    <template #footer> </template>
-  </HourLivePage>
+    </div>
+  </div>
 </template>
 
 <style scoped>

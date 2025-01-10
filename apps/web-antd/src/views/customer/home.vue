@@ -12,7 +12,6 @@ import {
 } from 'lucide-vue-next';
 
 import GuideCard from '#/components/guidecard.vue';
-import HourLivePage from '#/views/template/common.vue';
 
 const sampleguide = computed(() => [
   {
@@ -60,33 +59,25 @@ const orderguide = computed(() => [
 </script>
 
 <template>
-  <HourLivePage :content-overflow="true">
-    <template #header> </template>
-
-    <template #content>
-      <div class="flex flex-col p-3">
-        <div class="flex flex-row gap-4">
-          <GuideCard
-            :items="sampleguide"
-            :title="$t('guide_sample')"
-            :tooltip="$t('guide_sample_tooltip')"
-          />
-          <GuideCard
-            :items="contentguide"
-            :title="$t('guide_content')"
-            :tooltip="$t('guide_content_tooltip')"
-          />
-          <GuideCard
-            :items="orderguide"
-            :title="$t('guide_order')"
-            :tooltip="$t('guide_order_tooltip')"
-          />
-        </div>
-      </div>
-    </template>
-
-    <template #footer></template>
-  </HourLivePage>
+  <div class="flex flex-col p-3">
+    <div class="flex flex-row gap-4">
+      <GuideCard
+        :items="sampleguide"
+        :title="$t('guide_sample')"
+        :tooltip="$t('guide_sample_tooltip')"
+      />
+      <GuideCard
+        :items="contentguide"
+        :title="$t('guide_content')"
+        :tooltip="$t('guide_content_tooltip')"
+      />
+      <GuideCard
+        :items="orderguide"
+        :title="$t('guide_order')"
+        :tooltip="$t('guide_order_tooltip')"
+      />
+    </div>
+  </div>
 </template>
 
 <style scoped>

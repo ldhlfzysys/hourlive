@@ -8,7 +8,6 @@ import { Calendar, UserRoundSearch, Users } from 'lucide-vue-next';
 
 import GuideCard from '#/components/guidecard.vue';
 import { useSuperStore } from '#/store/super';
-import HourLivePage from '#/views/template/common.vue';
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
@@ -44,32 +43,24 @@ const superGuide = computed(() => [
 </script>
 
 <template>
-  <HourLivePage :content-overflow="true">
-    <template #header> </template>
+  <div class="flex flex-col p-3">
+    <div class="grid grid-cols-[1fr_2fr] gap-4">
+      <GuideCard :items="superGuide" :title="$t('guide')" />
 
-    <template #content>
-      <div class="flex flex-col p-3">
-        <div class="grid grid-cols-[1fr_2fr] gap-4">
-          <GuideCard :items="superGuide" :title="$t('guide')" />
-
-          <div class="grid grid-cols-1 gap-4">
-            <Card :title="$t('today_content')" class="shrink-0">
-              <div class="flex flex-col items-center py-4">
-                <span
-                  class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
-                >
-                  {{ superStore.superHomeInfo?.today_content }}
-                </span>
-                <span class="mt-2 text-gray-500">{{ $t('one_live') }}</span>
-              </div>
-            </Card>
+      <div class="grid grid-cols-1 gap-4">
+        <Card :title="$t('today_content')" class="shrink-0">
+          <div class="flex flex-col items-center py-4">
+            <span
+              class="cursor-pointer text-4xl font-bold text-blue-500 hover:text-blue-600"
+            >
+              {{ superStore.superHomeInfo?.today_content }}
+            </span>
+            <span class="mt-2 text-gray-500">{{ $t('one_live') }}</span>
           </div>
-        </div>
+        </Card>
       </div>
-    </template>
-
-    <template #footer> </template>
-  </HourLivePage>
+    </div>
+  </div>
 </template>
 
 <style scoped>

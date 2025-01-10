@@ -83,22 +83,42 @@ const events = computed(() => {
       const eventClass = orderStore.getEventClass(order.id, isPast);
 
       let content = '';
-      console.log('xxx');
-      console.log(order);
-      console.log(order.customer);
-      content =
-        selectedAgencies.value.length === 1 || hasAccessByRoles(['agency'])
-          ? `
+
+      if (hasAccessByRoles(['customer'])) {
+        content = `
+         <div class="event-content">
+            <div>${$t('agency')}:${agencyName}</div>
+          </div>
+        `;
+      } else if (hasAccessByRoles(['agency'])) {
+        content = `
          <div class="event-content">
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
-        `
-          : `
+        `;
+      } else {
+        // 选中了一个机构，则隐藏机构
+        if (selectedAgencies.value.length === 1) {
+          content = `
+         <div class="event-content">
+            <div>${$t('customer')}:${order.customer?.code}</div>
+          </div>
+        `;
+        } else if (selectedCustomers.value.length === 1) {
+          content = `
+         <div class="event-content">
+            <div>${$t('agency')}:${agencyName}</div>
+          </div>
+        `;
+        } else {
+          content = `
          <div class="event-content">
             <div>${$t('agency')}:${agencyName}</div>
             <div>${$t('customer')}:${order.customer?.code}</div>
           </div>
         `;
+        }
+      }
 
       allEvents.push({
         background: true,
