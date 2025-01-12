@@ -17,7 +17,6 @@ import type {
 import { computed, ref } from 'vue';
 
 import { notification } from 'ant-design-vue';
-import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -313,9 +312,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   });
 
   function _getSlot(slot: TimeslotModel, index: number) {
-    return dayjs(
-      `${slot.date.format('YYYY-MM-DD')} ${slot.slot![index]!.format('HH:mm')}`,
-    );
+    return slot.slot![index]!;
   }
 
   async function makeOrders() {
@@ -354,14 +351,14 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
     formState.value.timeslots.forEach((slot) => {
       if (slot.canEdit) {
-        const startDate = Array.isArray(slot.date) ? slot.date[0] : slot.date;
-        const endDate = Array.isArray(slot.date) ? slot.date[1] : slot.date;
+        const startDate = slot.slot![0]!;
+        const endDate = slot.slot![1]!;
         const timeslot: TimeslotCreateInMany = {
           date: startDate.format('YYYY-MM-DD'),
           end_date: endDate.format('YYYY-MM-DD'),
-          end_time: slot.slot[1].format('HH:mm'),
+          end_time: endDate.format('HH:mm'),
           hourlive_money_cost: 0,
-          start_time: slot.slot[0].format('HH:mm'),
+          start_time: startDate.format('HH:mm'),
         };
         timeslots.push(timeslot);
       }

@@ -61,6 +61,14 @@
     "update:deps": "pnpm update --latest --recursive",
     "version": "pnpm exec changeset version && pnpm install --no-frozen-lockfile"
   },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@schedule-x/calendar": "^2.3.1",
+    "@schedule-x/theme-default": "^2.3.1",
+    "@schedule-x/vue": "^2.3.1",
+    "v-calendar": "^3.1.2",
+    "vue-cal": "^4.10.0"
+  },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.8",
@@ -81,9 +89,11 @@
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "cspell": "^8.14.4",
+    "exceljs": "^4.4.0",
     "husky": "^9.1.6",
     "is-ci": "^3.0.1",
     "jsdom": "^25.0.0",
+    "jszip": "^3.10.1",
     "lint-staged": "^15.2.10",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.12",
@@ -93,15 +103,7 @@
     "vite": "^5.4.6",
     "vitest": "^2.1.1",
     "vue": "^3.5.6",
-    "vue-tsc": "^2.1.6",
-    "exceljs": "^4.4.0",
-    "jszip": "^3.10.1"
-  },
-  "dependencies": {
-    "vue-cal": "^4.10.0",
-    "@schedule-x/calendar": "^2.3.1",
-    "@schedule-x/theme-default": "^2.3.1",
-    "@schedule-x/vue": "^2.3.1"
+    "vue-tsc": "^2.1.6"
   },
   "engines": {
     "node": ">=20",
