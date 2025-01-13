@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import type { TimeslotModel } from '#/types';
+
 import { computed, ref } from 'vue';
 
 import {
+  Button,
   Divider,
   List,
   ListItem,
@@ -25,13 +28,15 @@ const orderStore = useTimeslotOrderStore();
 const format = 'HH:mm';
 
 const batchSlots = ref<{ end: dayjs.Dayjs; start: dayjs.Dayjs }>({
-  end: dayjs().endOf('day'),
+  end: dayjs().startOf('day'),
   start: dayjs().startOf('day'),
 });
 
+const batchTimeslots = ref<TimeslotModel[]>([]);
+
 const batchAddTimeslot = ref(false);
 const attributes = computed(() => {
-  return orderStore.formState.timeslots!.map((timeslot) => ({
+  return batchTimeslots.value.map((timeslot) => ({
     dates: { end: timeslot.date, start: timeslot.date },
     highlight: true,
     key: timeslot.date.toISOString(),
@@ -59,7 +64,7 @@ function deleteTimeslot(index: number) {
 }
 function handleDateClick(day: any) {
   const date = dayjs(day.date);
-  const index = orderStore.formState.timeslots!.findIndex((timeslot) =>
+  const index = batchTimeslots.value.findIndex((timeslot) =>
     timeslot.date.isSame(date, 'day'),
   );
 
@@ -74,34 +79,52 @@ function handleDateClick(day: any) {
       : date.format('YYYY-MM-DD');
     const endSlot = dayjs(`${endDate} ${batchSlots.value.end.format(format)}`);
 
-    orderStore.formState.timeslots!.push({
+    batchTimeslots.value.push({
       canEdit: true,
       date,
       slot: [startSlot, endSlot],
     });
   } else {
     // If the date exists, remove the timeslot
-    orderStore.formState.timeslots!.splice(index, 1);
+    batchTimeslots.value.splice(index, 1);
   }
 }
 
 function handleBatchAddTimeslot() {
+  if (!orderStore.formState.timeslots) {
+    orderStore.formState.timeslots = [];
+  }
   batchAddTimeslot.value = true;
-  const lastTimeslot =
-    orderStore.formState.timeslots![orderStore.formState.timeslots!.length - 1];
-  batchSlots.value = {
-    end: lastTimeslot!.slot![1],
-    start: lastTimeslot!.slot![0],
-  };
 }
 
 const showOverDay = computed(() => {
   return batchSlots.value.start.isAfter(batchSlots.value.end);
 });
+
+function addTimeslots() {
+  batchTimeslots.value.forEach((timeslot) => {
+    orderStore.formState.timeslots!.push(timeslot);
+  });
+  batchAddTimeslot.value = false;
+  batchTimeslots.value = [];
+  batchSlots.value = {
+    end: dayjs().startOf('day'),
+    start: dayjs().startOf('day'),
+  };
+}
+
+function handleStartChange(time: any) {
+  batchSlots.value.start = dayjs(time);
+  batchSlots.value.end = batchSlots.value.start.add(2, 'hour');
+}
+
+function handleEndChange(time: any) {
+  batchSlots.value.end = dayjs(time);
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex w-full flex-col gap-2">
     <div
       v-if="!batchAddTimeslot"
       class="flex w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-4 transition-colors hover:border-blue-500"
@@ -122,6 +145,8 @@ const showOverDay = computed(() => {
           :format="format"
           :minute-step="30"
           :show-now="false"
+          popup-class-name="custom-time-picker"
+          @select="handleStartChange"
         />
         -
         <TimePicker
@@ -130,6 +155,8 @@ const showOverDay = computed(() => {
           :format="format"
           :minute-step="30"
           :show-now="false"
+          popup-class-name="custom-time-picker"
+          @select="handleEndChange"
         />
         <Tag
           v-if="showOverDay"
@@ -138,6 +165,14 @@ const showOverDay = computed(() => {
         >
           跨天
         </Tag>
+        <Button
+          :disabled="batchTimeslots.length === 0"
+          ghost
+          type="primary"
+          @click="addTimeslots"
+        >
+          批量添加
+        </Button>
         <button
           class="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-100"
           style="margin-left: auto"
@@ -158,54 +193,63 @@ const showOverDay = computed(() => {
           </svg>
         </button>
       </div>
-      <VCalendar :attributes="attributes" @dayclick="handleDateClick" />
+      <div class="w-full">
+        <VCalendar
+          :attributes="attributes"
+          style="width: 100%"
+          @dayclick="handleDateClick"
+        />
+      </div>
     </div>
-    <Divider orientation="left"> 时段列表 </Divider>
 
-    <List
-      :bordered="true"
-      :data-source="orderStore.formState.timeslots"
-      item-layout="horizontal"
-      size="small"
-      style="max-height: 400px; overflow: auto"
+    <div
+      v-if="
+        orderStore.formState.timeslots &&
+        orderStore.formState.timeslots!.length > 0
+      "
     >
-      <template #renderItem="{ item, index }">
-        <ListItem>
-          <div class="flex gap-2">
-            <RangePicker
-              v-model:value="item.slot"
-              :allow-clear="false"
-              :disabled="!item.canEdit"
-              :minute-step="30"
-              :show-now="false"
-              format="YYYY-MM-DD HH:mm"
-              show-time
-            />
-            <!-- <DatePicker
-              v-model:value="item.date"
-              :allow-clear="false"
-              :disabled="!item.canEdit"
-            />
-            <TimeRangePicker
-              v-model:value="item.slot"
-              :allow-clear="false"
-              :disabled="!item.canEdit"
-              :minute-step="30"
-              format="HH:mm"
-            /> -->
-            <span
-              v-if="orderStore.formState.timeslots!.length > 1 && item.canEdit"
-              class="icon-[mdi--minus] size-6"
-              @click="deleteTimeslot(index)"
-            ></span>
-            <span
-              v-if="index === orderStore.formState.timeslots!.length - 1"
-              class="icon-[mdi--plus] size-6"
-              @click="addTimeslot"
-            ></span>
-          </div>
-        </ListItem>
-      </template>
-    </List>
+      <Divider orientation="left"> 时段列表 </Divider>
+
+      <List
+        :bordered="true"
+        :data-source="orderStore.formState.timeslots"
+        item-layout="horizontal"
+        size="small"
+        style="max-height: 400px; overflow: auto"
+      >
+        <template #renderItem="{ item, index }">
+          <ListItem>
+            <div class="flex gap-2">
+              <RangePicker
+                v-model:value="item.slot"
+                :allow-clear="false"
+                :disabled="!item.canEdit"
+                :minute-step="30"
+                :show-now="false"
+                format="YYYY-MM-DD HH:mm"
+                show-time
+              />
+              <span
+                v-if="
+                  orderStore.formState.timeslots!.length > 1 && item.canEdit
+                "
+                class="icon-[mdi--minus] size-6"
+                @click="deleteTimeslot(index)"
+              ></span>
+              <span
+                v-if="index === orderStore.formState.timeslots!.length - 1"
+                class="icon-[mdi--plus] size-6"
+                @click="addTimeslot"
+              ></span>
+            </div>
+          </ListItem>
+        </template>
+      </List>
+    </div>
   </div>
 </template>
+<style>
+.custom-time-picker .ant-picker-footer {
+  display: none;
+}
+</style>

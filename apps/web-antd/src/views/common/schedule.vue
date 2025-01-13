@@ -183,8 +183,8 @@ const localeStr = computed(() => {
 onMounted(() => {
   // 设置初始月份的查询范围
   const currentDate = dayjs();
-  const startOfMonth = currentDate.startOf('month');
-  const endOfMonth = currentDate.endOf('month');
+  const startOfMonth = currentDate.startOf('month').subtract(1, 'month');
+  const endOfMonth = currentDate.endOf('month').add(1, 'month');
 
   orderStore.timeslotOrderQuery = {
     ...orderStore.timeslotOrderQuery,
@@ -203,6 +203,15 @@ function fetchCustomerData() {
   } else if (hasAccessByRoles(['agency'])) {
     useCustomerStore().getAgencyCustomers();
   }
+}
+
+function handleCreateOrder() {
+  orderStore.isEditing = true;
+  orderStore.formState = {
+    enableEdit: true,
+    formType: 'add',
+    timeslots: [],
+  };
 }
 
 // CalendarEvent
@@ -260,11 +269,23 @@ function handleApendOrder() {
 
 // 添加新的函数处理月份变化
 function handleViewChange({ endDate, startDate }) {
+  const currentStartDate = dayjs(orderStore.timeslotOrderQuery.begin_date);
+  const currentEndDate = dayjs(orderStore.timeslotOrderQuery.finish_date);
+
+  if (
+    (dayjs(startDate).isAfter(currentStartDate) ||
+      dayjs(startDate).isSame(currentStartDate)) &&
+    (dayjs(endDate).isBefore(currentEndDate) ||
+      dayjs(endDate).isSame(currentEndDate))
+  ) {
+    return;
+  }
+
   // 设置查询时间范围
   orderStore.timeslotOrderQuery = {
     ...orderStore.timeslotOrderQuery,
-    begin_date: dayjs(startDate).format('YYYY-MM-DD'),
-    finish_date: dayjs(endDate).format('YYYY-MM-DD'),
+    begin_date: dayjs(startDate).subtract(1, 'month').format('YYYY-MM-DD'),
+    finish_date: dayjs(endDate).add(1, 'month').format('YYYY-MM-DD'),
   };
   // 重新请求数据
   orderStore.queryTimeslotOrder();
@@ -305,6 +326,22 @@ function handleViewChange({ endDate, startDate }) {
               :title="$t('content')"
             />
           </AccessControl>
+
+          <AccessControl :codes="['super']">
+            <div class="flex items-center space-x-2">
+              <Button
+                v-if="!orderStore.isEditing"
+                ghost
+                type="primary"
+                @click="handleCreateOrder"
+              >
+                新增订单
+              </Button>
+              <!-- <Button type="primary" @click="handleDownload">
+                {{ $t('download') }}
+              </Button> -->
+            </div>
+          </AccessControl>
         </div>
       </template>
 
@@ -323,7 +360,6 @@ function handleViewChange({ endDate, startDate }) {
             <VueCal
               v-model:active-view="activeView"
               :disable-views="['years', 'year']"
-              :drag-to-create-threshold="0"
               :editable-events="{
                 title: false,
                 drag: false,

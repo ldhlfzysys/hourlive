@@ -14,7 +14,7 @@ import type {
   TimeslotOrderSubsidy,
 } from '#/types';
 
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
@@ -80,6 +80,12 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   const currentSelectedOrder = ref<TimeslotOrder | undefined>();
 
   const isEditing = ref(false);
+  watch(isEditing, (newVal) => {
+    if (!newVal) {
+      formState.value = {};
+    }
+  });
+
   const downloadLoading = ref(false);
   const timeslotOrders = ref<Map<number, TimeslotOrder>>(new Map());
 
