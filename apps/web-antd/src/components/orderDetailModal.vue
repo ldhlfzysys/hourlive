@@ -176,7 +176,7 @@ async function exportToPDF() {
     );
 
     const opt = {
-      filename: `订单详情-${orderStore.currentSelectedOrder!.id}.pdf`,
+      filename: `订单详情-${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}.pdf`,
       html2canvas: {
         logging: true,
         scale: 1.5,
@@ -197,7 +197,10 @@ async function exportToPDF() {
 
     // 生成PDF并添加到zip
     const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-    zip.file(`订单详情-${orderStore.currentSelectedOrder!.id}.pdf`, pdfBlob);
+    zip.file(
+      `订单详情-${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}.pdf`,
+      pdfBlob,
+    );
 
     // 下载额外文件并按商品编号组织
     if (files.success && files.data) {
@@ -248,7 +251,10 @@ async function exportToPDF() {
 
     // 生成并下载zip文件
     const zipBlob = await zip.generateAsync({ type: 'blob' });
-    saveAs(zipBlob, `订单${orderStore.currentSelectedOrder!.id}-完整资料.zip`);
+    saveAs(
+      zipBlob,
+      `订单${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}-完整资料.zip`,
+    );
   } catch (error) {
     console.error('导出失败:', error);
   } finally {
