@@ -98,7 +98,9 @@ function handleBatchAddTimeslot() {
 }
 
 const showOverDay = computed(() => {
-  return batchSlots.value.start.isAfter(batchSlots.value.end);
+  const start = batchSlots.value.start;
+  const end = batchSlots.value.end;
+  return start.isAfter(end) || !start.isSame(end, 'day');
 });
 
 function addTimeslots() {
