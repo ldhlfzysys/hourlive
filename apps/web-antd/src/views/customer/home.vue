@@ -3,13 +3,7 @@ import { computed } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import {
-  Package,
-  Podcast,
-  Truck,
-  TvMinimalPlay,
-  UserRound,
-} from 'lucide-vue-next';
+import { Package, Truck, TvMinimalPlay, UserRound } from 'lucide-vue-next';
 
 import GuideCard from '#/components/guidecard.vue';
 
@@ -18,14 +12,14 @@ const sampleguide = computed(() => [
     description: $t('addsampledesc'),
     icon: Package,
     leftText: $t('addsample'),
-    routerPath: '/sample',
+    routerPath: '/customersample/index',
     title: $t('createsample'),
   },
   {
     description: $t('shippingsampledesc'),
     icon: Truck,
     leftText: $t('shippingsample'),
-    routerPath: '/content',
+    routerPath: '/customersampleshipping/index',
     title: $t('shippingsample'),
   },
 ]);
@@ -35,25 +29,15 @@ const contentguide = computed(() => [
     description: $t('createliveaccountdesc'),
     icon: UserRound,
     leftText: $t('createliveaccount'),
-    routerPath: '/liveaccount',
+    routerPath: '/customerliveaccount/index',
     title: $t('createliveaccount'),
   },
   {
     description: $t('createcontentdesc'),
     icon: TvMinimalPlay,
     leftText: $t('createcontent'),
-    routerPath: '/content',
+    routerPath: '/customercontent/index',
     title: $t('createcontent'),
-  },
-]);
-
-const orderguide = computed(() => [
-  {
-    description: $t('pick_package_des'),
-    icon: Podcast,
-    leftText: $t('pick_package'),
-    routerPath: '/content',
-    title: $t('hourlivepackage'),
   },
 ]);
 </script>

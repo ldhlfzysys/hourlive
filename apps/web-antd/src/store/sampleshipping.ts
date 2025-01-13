@@ -163,7 +163,7 @@ export const useSampleShippingStore = defineStore(
     const sampleShippingQuery = ref<SampleShippingQuery>({
       q_id: -1,
       q_order: 'desc',
-      q_size: 30,
+      q_size: 9999,
     });
 
     function $reset() {
@@ -174,7 +174,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingQuery.value = {
         q_id: -1,
         q_order: 'desc',
-        q_size: 30,
+        q_size: 9999,
       };
       sampleShippings.value = new Map();
     }
@@ -190,10 +190,10 @@ export const useSampleShippingStore = defineStore(
         const res = await _getAllSampleShipping(sampleShippingQuery.value);
         if (res && res.success) {
           if (res.data.length > 0) {
-            const lastSampleShipping = res.data.at(-1);
-            if (lastSampleShipping && lastSampleShipping.id) {
-              sampleShippingQuery.value.q_id = lastSampleShipping.id;
-            }
+            // const lastSampleShipping = res.data.at(-1);
+            // if (lastSampleShipping && lastSampleShipping.id) {
+            //   sampleShippingQuery.value.q_id = lastSampleShipping.id;
+            // }
           }
           res.data.forEach((sampleShipping) => {
             if (sampleShipping.id) {
