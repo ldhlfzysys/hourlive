@@ -86,7 +86,6 @@ const liveAccountInfo = computed(() => {
 const contentInfo = computed(() => {
   const content = orderStore.currentSelectedOrder?.contents[0];
   return {
-    content_desc: content?.content_desc,
     content_link: content?.content_link,
     content_text: content?.content_text,
     customer_id: content?.customer_id,
@@ -282,10 +281,7 @@ async function exportToPDF() {
               ?.name
           }}
         </DescriptionsItem>
-        <DescriptionsItem
-          v-if="hasAccessByRoles(['super', 'agency'])"
-          :label="$t('customer')"
-        >
+        <DescriptionsItem :label="$t('customer')">
           {{ orderStore.currentSelectedOrder!.customer?.code }}
         </DescriptionsItem>
 
@@ -301,27 +297,29 @@ async function exportToPDF() {
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('subsidy')" :span="3">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex items-center">
-              <strong>{{ $t('tts_subsidy') }}: </strong>
-              <span class="ml-1 text-red-500"
-                >${{ orderStore.currentSelectedOrder!.tts_subsidy }}</span
-              >
-            </div>
-            <div class="flex items-center">
-              <strong>{{ $t('ads_subsidy') }}: </strong>
-              <span class="ml-1 text-red-500"
-                >${{ orderStore.currentSelectedOrder!.ads_subsidy }}</span
-              >
+          <div class="flex flex-col gap-2">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex items-center">
+                <strong>{{ $t('tts_subsidy') }}: </strong>
+                <span class="ml-1 text-red-500"
+                  >${{ orderStore.currentSelectedOrder!.tts_subsidy }}</span
+                >
+              </div>
+              <div class="flex items-center">
+                <strong>{{ $t('ads_subsidy') }}: </strong>
+                <span class="ml-1 text-red-500"
+                  >${{ orderStore.currentSelectedOrder!.ads_subsidy }}</span
+                >
+              </div>
             </div>
 
             <div class="flex items-center">
-              <strong>{{ $t('tts_subsidy_remark') }}: </strong
-              >{{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
+              <strong>{{ $t('tts_subsidy_remark') }}: </strong>
+              {{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
             </div>
             <div class="flex items-center">
-              <strong>{{ $t('ads_subsidy_remark') }}: </strong
-              >{{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
+              <strong>{{ $t('ads_subsidy_remark') }}: </strong>
+              {{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
             </div>
           </div>
         </DescriptionsItem>
@@ -335,6 +333,19 @@ async function exportToPDF() {
             >
               <strong>{{ $t(key) }}: </strong>
               <div class="ml-2" v-html="value"></div>
+            </div>
+          </div>
+        </DescriptionsItem>
+
+        <DescriptionsItem :label="$t('content_desc')" :span="3">
+          <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
+            <div class="flex items-center">
+              <div
+                class="ml-2"
+                v-html="
+                  orderStore.currentSelectedOrder?.contents[0].content_desc
+                "
+              ></div>
             </div>
           </div>
         </DescriptionsItem>
