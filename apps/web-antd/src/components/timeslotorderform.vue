@@ -129,12 +129,12 @@ const filterOption = (input: string, option: any) => {
         </FormItem>
 
         <FormItem :label="$t('livetime')" required>
-          <!-- <div v-if="orderStore.formState.formType === 'add'"> -->
-          <div class="flex gap-2">
-            <TimeslotsControl />
+          <div v-if="orderStore.formState.formType === 'add'">
+            <div class="flex gap-2">
+              <TimeslotsControl />
+            </div>
+            <br />
           </div>
-          <br />
-          <!-- </div> -->
 
           <div v-if="orderStore.formState.formType === 'apend'">
             <TimeslotsControl />
