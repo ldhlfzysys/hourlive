@@ -9,16 +9,8 @@ import type { Agency, AgencyHomeInfo, StanderResult } from '#/types';
 
 // Model
 
-// API
-const API_PREFIX = '/agency';
-enum AgencyApi {
-  AllAgency = 'query',
-}
-
 async function getAllAgency() {
-  return requestClient.get<StanderResult<Agency[]>>(
-    `${API_PREFIX}/${AgencyApi.AllAgency}`,
-  );
+  return requestClient.get<StanderResult<Agency[]>>(`agency/query`);
 }
 
 async function _hideAgency(id: number) {

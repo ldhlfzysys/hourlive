@@ -9,6 +9,7 @@ import {
   Button,
   Descriptions,
   DescriptionsItem,
+  Image,
   Modal,
   Tag,
 } from 'ant-design-vue';
@@ -19,7 +20,6 @@ import JSZip from 'jszip';
 import Empty from '#/components/empty.vue';
 import OrderApendModal from '#/components/orderApendModal.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
-import SampleCard from '#/components/samplecard.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
 import SubsidyForm from '#/components/subsidyform.vue';
 import {
@@ -42,6 +42,7 @@ const { hasAccessByRoles } = useAccess();
 
 const itemWidth = ref(300);
 const loading = ref(false);
+const downloadLoading = ref(false);
 
 // const maxHeight = computed(() => {
 //   return window.innerHeight * 0.8;
@@ -141,6 +142,7 @@ const subsidyTypeText = computed(() => {
 });
 
 async function exportToPDF() {
+  downloadLoading.value = true;
   const zip = new JSZip();
 
   // 获取订单里商品脚本文件路径
@@ -154,11 +156,11 @@ async function exportToPDF() {
   if (!element) return;
 
   // 临时调整样式以确保内容完整显示
-  const originalStyle = element.style.cssText;
-  element.style.width = '1000px';
-  element.style.maxHeight = 'none';
-  element.style.margin = '0 auto';
-  element.style.padding = '20px';
+  // const originalStyle = element.style.cssText;
+  // element.style.width = '1000px';
+  // element.style.maxHeight = 'none';
+  // element.style.margin = '0 auto';
+  // element.style.padding = '20px';
 
   try {
     // 等待图片加载
@@ -258,10 +260,36 @@ async function exportToPDF() {
   } catch (error) {
     console.error('导出失败:', error);
   } finally {
-    // 恢复原始样式
-    element.style.cssText = originalStyle;
+    downloadLoading.value = false;
   }
 }
+
+const getType = (isMain: string) => {
+  switch (isMain) {
+    case '0': {
+      return 'sample_welfare';
+    }
+    case '1': {
+      return 'sample_main';
+    }
+    case '2': {
+      return 'sample_deal';
+    }
+    case '3': {
+      return 'sample_normal';
+    }
+    case '4': {
+      return 'sample_new';
+    }
+    default: {
+      return '';
+    }
+  }
+};
+
+const getTypeClass = (isMain: string) => {
+  return isMain === '1' ? 'bg-red-500/60' : 'bg-black/60';
+};
 </script>
 
 <template>
@@ -387,23 +415,54 @@ async function exportToPDF() {
         <br />
         <h1>{{ $t('sample') }}</h1>
         <div class="sample-list">
-          <div
-            v-for="(item, index) in orderSamples"
-            :key="item.id"
-            class="sample-item"
-          >
+          <div v-for="item in orderSamples" :key="item.id" class="sample-item">
             <div class="sample-container">
-              <div class="sample-number-wrapper">
-                <div class="sample-number">{{ index + 1 }}</div>
-              </div>
-              <div class="sample-content">
-                <SampleCard :sample="item" />
-                <div class="sample-selling-points">
-                  <h3>{{ $t('product_ksp') }}</h3>
-                  <div
-                    class="selling-points-content"
-                    v-html="item.product_ksp || $t('no_product_ksp')"
-                  ></div>
+              <div class="product-wrapper">
+                <div class="product-info">
+                  <div class="image-wrapper">
+                    <Image
+                      :alt="item.product_name"
+                      :src="item.product_image"
+                      class="product-image"
+                    />
+                    <div
+                      :class="[getTypeClass(item.is_main)]"
+                      class="product-type"
+                    >
+                      {{ $t(getType(item.is_main)) }}
+                    </div>
+                  </div>
+
+                  <div class="product-details">
+                    <h2 class="product-name">
+                      <a
+                        :href="item.product_link"
+                        class="hover:text-blue-600"
+                        target="_blank"
+                      >
+                        {{ item.product_name }}
+                      </a>
+                    </h2>
+                    <div class="product-id">ID: {{ item.product_id }}</div>
+
+                    <div class="price-info">
+                      <span class="final-price">{{
+                        item.product_final_price
+                      }}</span>
+                      <span class="original-price">{{ item.product_srp }}</span>
+                      <span class="discount">{{ item.product_discount }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="content-sections">
+                  <div class="section">
+                    <h3>{{ $t('product_ksp') }}</h3>
+                    <div
+                      class="section-content"
+                      v-html="item.product_ksp || $t('no_product_ksp')"
+                    ></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -433,7 +492,7 @@ async function exportToPDF() {
       <Button
         key="download"
         :disabled="sampleStore.sampleQueryLoading || orderStore.downloadLoading"
-        :loading="orderStore.downloadLoading"
+        :loading="downloadLoading"
         type="primary"
         @click="exportToPDF"
       >
@@ -481,70 +540,128 @@ async function exportToPDF() {
 }
 
 .sample-container {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
   padding: 20px;
-  background-color: #fff;
+  margin-bottom: 20px;
+  background: white;
   border: 1px solid #e8e8e8;
   border-radius: 8px;
 }
 
-.sample-number-wrapper {
-  padding-top: 90px;
-}
-
-.sample-number {
+.product-wrapper {
   display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  background-color: #1890ff;
-  border-radius: 50%;
+  gap: 24px;
 }
 
-.sample-content {
+.product-info {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 16px;
+  width: 20%;
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product-type {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: white;
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+}
+
+.product-details {
+  padding: 8px 0;
+}
+
+.product-name {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #333;
+}
+
+.product-id {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.final-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.original-price {
+  font-size: 12px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.discount {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #ff4d4f;
+  background: #fff1f0;
+  border-radius: 4px;
+}
+
+.content-sections {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 16px;
 }
 
-.sample-selling-points {
-  padding-top: 16px;
-  margin-top: 8px;
-  border-top: 1px solid #e8e8e8;
+.section {
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
 }
 
-.sample-selling-points h3 {
-  margin-bottom: 8px;
+.section h3 {
+  margin-bottom: 12px;
   font-size: 16px;
+  font-weight: 500;
   color: #333;
 }
 
-.selling-points-content {
-  line-height: 1.5;
+.section-content {
+  font-size: 14px;
+  line-height: 1.6;
   color: #666;
+  white-space: pre-wrap;
 }
 
-/* 确保 HTML 内容中的样式正确显示 */
-.selling-points-content :deep(p) {
-  margin-bottom: 8px;
-}
-
-.selling-points-content :deep(ul),
-.selling-points-content :deep(ol) {
-  padding-left: 20px;
-  margin-bottom: 8px;
-}
-
-.selling-points-content :deep(li) {
-  margin-bottom: 4px;
+.section-content:empty {
+  font-style: italic;
+  color: #999;
 }
 
 .customer-avatar {
