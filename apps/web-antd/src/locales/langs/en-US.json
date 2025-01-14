@@ -363,5 +363,7 @@
   "profile": "Personal Center",
   "brand_logo": "Brand Logo",
   "sync_latest_products": "Sync Latest Products",
-  "no_avatar_text": "No Brand Logo"
+  "no_avatar_text": "No Brand Logo",
+  "total_time": "Total Time",
+  "hour": "Hour"
 }

@@ -363,5 +363,7 @@
   "profile": "个人中心",
   "brand_logo": "品牌Logo",
   "sync_latest_products": "同步最新产品",
-  "no_avatar_text": "暂无品牌Logo"
+  "no_avatar_text": "暂无品牌Logo",
+  "total_time": "总时长",
+  "hour": "小时"
 }

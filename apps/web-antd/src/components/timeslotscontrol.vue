@@ -210,7 +210,9 @@ function handleEndChange(time: any) {
         orderStore.formState.timeslots!.length > 0
       "
     >
-      <Divider orientation="left"> 时段列表 </Divider>
+      <Divider orientation="right">
+        {{ $t('total_time') }}: {{ orderStore.orderTotalTime }} h
+      </Divider>
 
       <List
         :bordered="true"

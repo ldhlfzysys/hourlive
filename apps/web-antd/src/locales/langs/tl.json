@@ -265,5 +265,7 @@
   "accountexist": "Umiiral na ang username",
   "accountnoexist": "Ang username ay wala",
   "passworderror": "Maling password",
-  "registerfail": "Nabigo ang pagpaparehistro"
+  "registerfail": "Nabigo ang pagpaparehistro",
+  "total_time": "Total na panahon",
+  "hour": "oras"
 }

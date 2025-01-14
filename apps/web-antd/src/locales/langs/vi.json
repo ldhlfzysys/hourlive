@@ -265,5 +265,7 @@
   "accountexist": "Tên người dùng đã tồn tại",
   "accountnoexist": "Tên người dùng không tồn tại",
   "passworderror": "Mật khẩu sai",
-  "registerfail": "Đăng ký không thành công"
+  "registerfail": "Đăng ký không thành công",
+  "total_time": "Tổng thời gian",
+  "hour": "giờ"
 }

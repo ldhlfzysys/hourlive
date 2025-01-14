@@ -97,8 +97,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   const orderOptions = computed(() => {
     return [...timeslotOrders.value.entries()].map(([_, timeslotOrder]) => {
+      const customer = timeslotOrder.customer;
+      if (customer) {
+        return {
+          label: `${timeslotOrder.id} - ${customer.code}`,
+          value: timeslotOrder.id,
+        };
+      }
       return {
-        label: timeslotOrder.id,
+        label: `${timeslotOrder.id}`,
         value: timeslotOrder.id,
       };
     });
@@ -178,6 +185,19 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
         (timeslot) => timeslot.canEdit && timeslot.id === undefined,
       )
     );
+  });
+
+  const orderTotalTime = computed(() => {
+    if (!formState.value.timeslots) {
+      return 0;
+    }
+    return (
+      formState.value.timeslots?.reduce((acc, timeslot) => {
+        return (
+          acc + Math.abs(timeslot.slot![1]!.diff(timeslot.slot![0]!, 'minutes'))
+        );
+      }, 0) / 60
+    ).toFixed(2);
   });
 
   const formState = ref<TimeslotOrderFormState>({});
@@ -630,6 +650,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     orderById,
     orderFilters,
     orderOptions,
+    orderTotalTime,
     queryTimeslotOrder,
     setCurrentSelectedOrder,
     showApendModal,

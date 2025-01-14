@@ -265,5 +265,7 @@
   "accountexist": "Nama pengguna sudah ada",
   "accountnoexist": "Nama pengguna tidak ada",
   "passworderror": "Kata sandi salah",
-  "registerfail": "Pendaftaran gagal"
+  "registerfail": "Pendaftaran gagal",
+  "total_time": "Total na panahon",
+  "hour": "oras"
 }

@@ -415,9 +415,9 @@ function handleViewChange({ endDate, startDate }) {
               </button>
 
               <div class="flex space-x-2">
-                <Button type="primary" @click="handleApendOrder">
+                <!-- <Button type="primary" @click="handleApendOrder">
                   {{ $t('apendorder') }}
-                </Button>
+                </Button> -->
                 <Button
                   :disabled="!orderStore.enableOrder"
                   type="primary"

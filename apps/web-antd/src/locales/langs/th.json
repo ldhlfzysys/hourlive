@@ -265,5 +265,7 @@
   "accountexist": "มีชื่อผู้ใช้อยู่แล้ว",
   "accountnoexist": "ไม่มีชื่อผู้ใช้",
   "passworderror": "รหัสผ่านผิด",
-  "registerfail": "การลงทะเบียนล้มเหลว"
+  "registerfail": "การลงทะเบียนล้มเหลว",
+  "total_time": "ระยะเวลาทั้งหมด",
+  "hour": "ชั่วโมง"
 }

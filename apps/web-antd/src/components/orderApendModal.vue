@@ -95,13 +95,14 @@ function onModalCancel() {
     @cancel="orderStore.showApendModal = false"
     @on-cancel="onModalCancel"
   >
-    <div class="flex h-full flex-1 flex-col">
+    <div class="flex h-full w-full flex-1 flex-col">
       <SelectFilter
         v-if="orderStore.currentSelectedOrder === undefined"
         v-model="selectedOrder"
         :options="orderStore.orderOptions"
         :title="$t('selectorder')"
         mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+        width="min-w-[300px]"
       />
       <TimeslotOrderForm v-if="selectedOrder !== undefined" />
     </div>
