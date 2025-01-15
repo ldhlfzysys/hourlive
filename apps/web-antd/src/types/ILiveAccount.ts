@@ -12,6 +12,7 @@ export interface LiveAccount {
   name?: string; // 店铺名
   code?: string; // 店铺code
   platform?: string;
+  platform_account?: string; // 平台账号
   live_account?: string; // 直播账号
   live_uid?: string; // 直播uid
   mobile?: string;

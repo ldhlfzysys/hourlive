@@ -57,7 +57,7 @@ const showPassword = ref(false);
           <div class="space-y-3">
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('mobile')
+                $t('livephone')
               }}</span>
               <span class="text-sm text-gray-900">{{
                 props.liveaccount.mobile
@@ -65,7 +65,7 @@ const showPassword = ref(false);
             </div>
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('email')
+                $t('liveemail')
               }}</span>
               <span class="text-sm text-gray-900">{{
                 props.liveaccount.email
@@ -78,15 +78,15 @@ const showPassword = ref(false);
           <div class="space-y-3">
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('liveaccount')
+                $t('platform_name')
               }}</span>
               <span class="text-sm text-gray-900">{{
-                props.liveaccount.live_account
+                props.liveaccount.platform_account
               }}</span>
             </div>
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('password')
+                $t('livepassword')
               }}</span>
               <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-900">
@@ -108,18 +108,18 @@ const showPassword = ref(false);
           <div class="space-y-3">
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('live_uid')
+                $t('live_account')
               }}</span>
               <span class="text-sm text-gray-900">{{
-                props.liveaccount.live_uid
+                props.liveaccount.live_account
               }}</span>
             </div>
             <div class="flex flex-col gap-1.5">
               <span class="text-sm font-medium text-gray-500">{{
-                $t('platform')
+                $t('live_uid')
               }}</span>
               <span class="text-sm text-gray-900">{{
-                props.liveaccount.platform
+                props.liveaccount.live_uid
               }}</span>
             </div>
           </div>

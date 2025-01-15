@@ -60,9 +60,17 @@ export const useSampleStore = defineStore('sample-store', () => {
   const samples = ref<Map<number, Sample>>(new Map());
 
   const sampleList = computed(() => {
-    return [...samples.value.entries()]
+    const list = [...samples.value.entries()]
       .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
       .map(([_, sample]) => sample); // 转换为Sample的list
+
+    // 如果有搜索关键词，进行过滤
+    if (searchProductId.value) {
+      return list.filter((sample) =>
+        sample.product_id?.toString().includes(searchProductId.value),
+      );
+    }
+    return list;
   });
 
   const sampleUpdate = ref<Sample>({});
@@ -75,8 +83,12 @@ export const useSampleStore = defineStore('sample-store', () => {
     q_size: 30,
   });
 
+  // 添加搜索相关状态
+  const searchProductId = ref('');
+
   function clearSamples() {
     samples.value = new Map();
+    searchProductId.value = '';
     sampleQuery.value = {
       is_main: '-1',
       q_id: -1,
@@ -254,6 +266,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     samples,
     sampleUpdate,
     sampleUpdateLoading,
+    searchProductId,
     showKSPModal,
     showModal,
     showSampleList,

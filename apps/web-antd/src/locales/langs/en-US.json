@@ -51,7 +51,7 @@
   "shop_name": "Shop Name",
   "shop_code": "Shop Code",
   "liveaccount_id": "Live Account ID",
-  "liveaccount": "Live Account",
+  "liveaccount": "Live Account(TThandle)",
   "content_link": "Live Content Link",
   "content_text": "Live Notes",
   "pay_time": "Payment Time",
@@ -105,7 +105,7 @@
   "customscript": "Custom Script",
   "scripfile": "Script File",
   "hourlive_account": "Hourlive Account",
-  "live_uid": "Live Account UID",
+  "live_uid": "Live Account UID(User ID)",
   "customer_source": "Hourlive Account Source",
   "isHide": "Hidden",
   "hide": "Hide",
@@ -365,5 +365,10 @@
   "sync_latest_products": "Sync Latest Products",
   "no_avatar_text": "No Brand Logo",
   "total_time": "Total Time",
-  "hour": "Hour"
+  "hour": "Hour",
+  "platform_name": "Live Account Username",
+  "livephone": "Live Account Binded Phone",
+  "liveemail": "Live Account Binded Email",
+  "livepassword": "Live Account Password",
+  "phoneoremail": "Phone or Email Optional"
 }

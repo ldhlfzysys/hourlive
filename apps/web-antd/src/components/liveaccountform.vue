@@ -44,17 +44,10 @@ function handleOk() {
       </div>
       <div class="flex flex-row justify-between">
         <div class="flex w-full flex-col border-t border-gray-200 px-4 py-5">
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
-              {{ $t('mobile') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.mobile"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
               {{ $t('live_account') }}
             </span>
             <Input
@@ -63,27 +56,10 @@ function handleOk() {
               class="flex-1 text-sm text-gray-900"
             />
           </div>
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
-              {{ $t('email') }}
-            </span>
-            <Input
-              v-model:value="liveaccountStore.liveaccountCreate.email"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="mb-4 flex flex-row items-center">
-            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
-              {{ $t('password') }}
-            </span>
-            <Input.Password
-              v-model:value="liveaccountStore.liveaccountCreate.password"
-              autocomplete="new-password"
-              class="flex-1 text-sm text-gray-900"
-            />
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="mr-2 flex w-[100px] text-sm font-medium text-gray-500">
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
               {{ $t('live_uid') }}
             </span>
             <Input
@@ -92,11 +68,61 @@ function handleOk() {
             />
             <Select
               v-model:value="liveaccountStore.liveaccountCreate.platform"
-              class="ml-3 w-[120px]"
+              class="ml-3 w-[160px]"
             >
               <SelectOption value="TikTok">TikTok</SelectOption>
               <SelectOption value="Shopee">Shopee</SelectOption>
             </Select>
+          </div>
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
+              {{ $t('platform_name') }}
+            </span>
+            <Input
+              v-model:value="
+                liveaccountStore.liveaccountCreate.platform_account
+              "
+              autocomplete="new-username"
+              class="flex-1 text-sm text-gray-900"
+            />
+          </div>
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
+              {{ $t('livephone') }}
+            </span>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.mobile"
+              :placeholder="$t('phoneoremail')"
+              class="flex-1 text-sm text-gray-900"
+            />
+          </div>
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
+              {{ $t('liveemail') }}
+            </span>
+            <Input
+              v-model:value="liveaccountStore.liveaccountCreate.email"
+              :placeholder="$t('phoneoremail')"
+              class="flex-1 text-sm text-gray-900"
+            />
+          </div>
+          <div class="mb-5 flex flex-row items-center">
+            <span
+              class="flex w-[160px] justify-end pr-3 text-sm font-medium text-gray-500"
+            >
+              {{ $t('livepassword') }}
+            </span>
+            <Input.Password
+              v-model:value="liveaccountStore.liveaccountCreate.password"
+              autocomplete="new-password"
+              class="flex-1 text-sm text-gray-900"
+            />
           </div>
         </div>
       </div>

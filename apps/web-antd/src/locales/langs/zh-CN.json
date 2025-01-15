@@ -84,7 +84,7 @@
   "delivery_approval": "机构收件确认",
   "allsamples": "所有样品",
   "platform": "平台",
-  "live_account": "直播账户",
+  "live_account": "直播账户(TThandle)",
   "mobile": "手机号",
   "email": "邮箱",
   "live_mobile": "直播账户绑定手机",
@@ -105,7 +105,7 @@
   "customscript": "填写的脚本",
   "scripfile": "脚本文件",
   "hourlive_account": "小时播账户",
-  "live_uid": "直播账户UID",
+  "live_uid": "直播账户UID(User ID)",
   "customer_source": "小时播账户来源",
   "isHide": "是否隐藏",
   "hide": "隐藏",
@@ -365,5 +365,10 @@
   "sync_latest_products": "同步最新产品",
   "no_avatar_text": "暂无品牌Logo",
   "total_time": "总时长",
-  "hour": "小时"
+  "hour": "小时",
+  "platform_name": "直播账户用户名",
+  "livephone": "直播账户绑定的手机号",
+  "liveemail": "直播账户绑定的邮箱",
+  "livepassword": "直播账户密码",
+  "phoneoremail": "手机号或邮箱选填其一"
 }

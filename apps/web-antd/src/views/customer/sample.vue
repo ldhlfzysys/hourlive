@@ -8,7 +8,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 import { AccessControl } from '@vben/access';
 
 import { useElementBounding } from '@vueuse/core';
-import { Button } from 'ant-design-vue';
+import { Button, Input } from 'ant-design-vue';
 
 import Empty from '#/components/empty.vue';
 import OSSFileForm from '#/components/ossfileform.vue';
@@ -79,11 +79,18 @@ function onUpdate(
 <template>
   <HourLivePage :content-overflow="true">
     <template #header>
-      <AccessControl :codes="['customer']">
-        <Button type="primary" @click="sampleStore.makeCreate()">
-          {{ $t('createsample') }}
-        </Button>
-      </AccessControl>
+      <div class="flex items-center gap-4">
+        <Input
+          v-model:value="sampleStore.searchProductId"
+          :placeholder="$t('product_id')"
+          class="w-64"
+        />
+        <AccessControl :codes="['customer']">
+          <Button type="primary" @click="sampleStore.makeCreate()">
+            {{ $t('createsample') }}
+          </Button>
+        </AccessControl>
+      </div>
     </template>
 
     <template #content>
