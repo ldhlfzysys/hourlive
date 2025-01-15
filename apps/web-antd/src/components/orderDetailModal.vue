@@ -70,18 +70,8 @@ const orderSamples = computed(() => {
   return sampleStore.sampleList.filter((sample) => ids.includes(sample.id));
 });
 
-const liveAccountInfo = computed(() => {
-  const liveAccount = orderStore.currentSelectedOrder?.contents[0]?.liveaccount;
-  return {
-    code: liveAccount?.code,
-    customer_id: liveAccount?.customer_id,
-    live_account: liveAccount?.live_account,
-    live_uid: liveAccount?.live_uid,
-    liveaccount_id: liveAccount?.id,
-    mobile: liveAccount?.mobile,
-    name: liveAccount?.name,
-    platform: liveAccount?.platform,
-  };
+const liveaccount = computed(() => {
+  return orderStore.currentSelectedOrder?.contents[0]?.liveaccount;
 });
 
 const contentInfo = computed(() => {
@@ -178,7 +168,7 @@ async function exportToPDF() {
     );
 
     const opt = {
-      filename: `订单详情-${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}.pdf`,
+      filename: `订单详情-${orderStore.currentSelectedOrder!.id}-${liveaccount.value?.name}-${liveaccount.value?.code}.pdf`,
       html2canvas: {
         logging: true,
         scale: 1.5,
@@ -200,7 +190,7 @@ async function exportToPDF() {
     // 生成PDF并添加到zip
     const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
     zip.file(
-      `订单详情-${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}.pdf`,
+      `订单详情-${orderStore.currentSelectedOrder!.id}-${liveaccount.value?.name}-${liveaccount.value?.code}.pdf`,
       pdfBlob,
     );
 
@@ -255,7 +245,7 @@ async function exportToPDF() {
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     saveAs(
       zipBlob,
-      `订单${orderStore.currentSelectedOrder!.id}-${liveAccountInfo.value.name}-${liveAccountInfo.value.code}-完整资料.zip`,
+      `订单${orderStore.currentSelectedOrder!.id}-${liveaccount.value?.name}-${liveaccount.value?.code}-完整资料.zip`,
     );
   } catch (error) {
     console.error('导出失败:', error);
@@ -302,7 +292,7 @@ const getTypeClass = (isMain: string) => {
   >
     <div class="order-detail-content flex h-full flex-1 flex-col">
       <Descriptions :column="3" bordered>
-        <DescriptionsItem :label="$t('id')">
+        <DescriptionsItem :label="$t('timeslotorder_id')">
           {{ orderStore.currentSelectedOrder!.id }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('timeslot')">
@@ -316,7 +306,9 @@ const getTypeClass = (isMain: string) => {
           }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('customer')">
-          {{ orderStore.currentSelectedOrder!.customer?.code }}
+          ({{ orderStore.currentSelectedOrder!.customer?.id }}){{
+            orderStore.currentSelectedOrder!.customer?.code
+          }}
         </DescriptionsItem>
 
         <DescriptionsItem :label="$t('content')">
@@ -345,15 +337,14 @@ const getTypeClass = (isMain: string) => {
                   >${{ orderStore.currentSelectedOrder!.ads_subsidy }}</span
                 >
               </div>
-            </div>
-
-            <div class="flex items-center">
-              <strong>{{ $t('tts_subsidy_remark') }}: </strong>
-              {{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
-            </div>
-            <div class="flex items-center">
-              <strong>{{ $t('ads_subsidy_remark') }}: </strong>
-              {{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
+              <div class="flex items-center">
+                <strong>{{ $t('tts_subsidy_remark') }}: </strong>
+                {{ orderStore.currentSelectedOrder!.tts_subsidy_remark }}
+              </div>
+              <div class="flex items-center">
+                <strong>{{ $t('ads_subsidy_remark') }}: </strong>
+                {{ orderStore.currentSelectedOrder!.ads_subsidy_remark }}
+              </div>
             </div>
           </div>
         </DescriptionsItem>
@@ -386,26 +377,41 @@ const getTypeClass = (isMain: string) => {
 
         <DescriptionsItem :label="$t('liveaccount')" :span="3">
           <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
-            <div
-              v-for="[key, value] in Object.entries(liveAccountInfo)"
-              :key="key"
-              class="flex items-center"
-            >
-              <strong>{{ $t(key) }}: </strong>
-              <div v-if="key === 'platform'" class="ml-2">
+            <div class="flex items-center">
+              <strong>{{ $t('live_account') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.live_account }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('live_uid') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.live_uid }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('platform_name') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.platform_account }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('livephone') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.mobile }}</div>
+            </div>
+            <div v-if="liveaccount?.email" class="flex items-center">
+              <strong>{{ $t('liveemail') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.email }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('platform') }}: </strong>
+              <div class="ml-2">
                 <SvgTiktokIcon
-                  v-if="value?.toString().toLowerCase() === 'tiktok'"
+                  v-if="liveaccount?.platform === 'tiktok'"
                   class="size-8"
                 />
                 <SvgShopeeIcon
-                  v-else-if="value?.toString().toLowerCase() === 'shopee'"
+                  v-else-if="liveaccount?.platform === 'shopee'"
                   class="size-8"
                 />
                 <Tag v-else>
-                  {{ value }}
+                  {{ liveaccount?.platform }}
                 </Tag>
               </div>
-              <div v-else class="ml-2" v-html="value"></div>
             </div>
           </div>
         </DescriptionsItem>
