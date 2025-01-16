@@ -113,7 +113,10 @@ const getTypeClass = (isMain: string) => {
   <Modal
     v-model:open="sampleShippingStore.showShippingSample"
     :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
-    :title="$t('shippingsampleinfo')"
+    :title="
+      `${$t('shippingsampleinfo')} - ` +
+      `总数量: ${sampleShippingStore.currentSelectedShipping?.samples?.reduce((sum, item) => sum + (item.sample_count || 1), 0) || 0}`
+    "
     style="top: 10px; width: 85%"
     @cancel="sampleShippingStore.showShippingSample = false"
   >
@@ -158,7 +161,10 @@ const getTypeClass = (isMain: string) => {
                     </h2>
                     <div class="product-id">ID: {{ item.product_id }}</div>
                     <div class="sample-quantity">
-                      {{ $t('sample_count') }}: {{ item.sample_count || 1 }}
+                      {{ $t('sample_count') }}:
+                      <span class="quantity-highlight">{{
+                        item.sample_count || 1
+                      }}</span>
                     </div>
                   </div>
                 </div>
@@ -274,5 +280,11 @@ const getTypeClass = (isMain: string) => {
   margin-bottom: 4px;
   font-size: 12px;
   color: #666;
+}
+
+.quantity-highlight {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1890ff;
 }
 </style>
