@@ -53,6 +53,9 @@ export const useSampleShippingStore = defineStore(
     // 更新物流单
     const sampleShippingUpdateLoading = ref(false);
 
+    // 显示物流单详情
+    const showShippingDetails = ref(false);
+
     // 当前选中的物流单
     const currentSampleShipping = ref<SampleShipping>({
       samples: [],
@@ -260,6 +263,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingUpdateLoading,
       showModal,
       showSampleShippingForm,
+      showShippingDetails,
     };
   },
 );

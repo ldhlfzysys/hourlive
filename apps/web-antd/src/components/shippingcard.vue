@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import type { Sample, SampleShipping } from '#/types';
+import type { SampleShipping } from '#/types';
 
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 import { AccessControl, useAccess } from '@vben/access';
 import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
 
-import SampleList from '#/components/samplelist.vue';
+import ShippingDetailModal from '#/components/shippingDetailModal.vue';
 import { useAgencyStore, useSampleShippingStore } from '#/store';
 
 defineOptions({
@@ -25,14 +25,9 @@ const agency = computed(() => {
   return agencyStore.agencyById(props.sampleshipping.agency_id!);
 });
 
-const sampleArray = ref<Sample[]>(props.sampleshipping.samples || []);
-
-// 添加本地状态来控制弹窗
-const showSampleList = ref(false);
-
-// 修改点击事件处理
-const handleShowSampleList = () => {
-  showSampleList.value = true;
+const handleShowShippingDetail = () => {
+  sampleShippingStore.showShippingDetails = true;
+  sampleShippingStore.currentSelectedShipping = props.sampleshipping;
 };
 
 const { hasAccessByRoles } = useAccess();
@@ -71,7 +66,7 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
       <div class="flex items-center gap-3">
         <a
           class="cursor-pointer text-blue-600 hover:text-blue-800"
-          @click="handleShowSampleList"
+          @click="handleShowShippingDetail"
         >
           {{ $t('checksample') }}
         </a>
@@ -173,7 +168,7 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
       </div>
     </div>
 
-    <!-- 修改 SampleList 组件的使用 -->
-    <SampleList v-model:open="showSampleList" :samples="sampleArray" />
+    <!-- 修改 Modal 组件的使用 -->
+    <ShippingDetailModal />
   </div>
 </template>
