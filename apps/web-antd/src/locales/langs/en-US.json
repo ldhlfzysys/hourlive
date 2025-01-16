@@ -370,5 +370,7 @@
   "livephone": "Live Account Binded Phone",
   "liveemail": "Live Account Binded Email",
   "livepassword": "Live Account Password",
-  "phoneoremail": "Phone or Email Optional"
+  "phoneoremail": "Phone or Email Optional",
+  "shippingdetailinfo": "Complete Details",
+  "shippingsampleinfo": "Sample Pairs"
 }

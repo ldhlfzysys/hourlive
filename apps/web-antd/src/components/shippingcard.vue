@@ -9,6 +9,7 @@ import { $t } from '@vben/locales';
 import { Button } from 'ant-design-vue';
 
 import ShippingDetailModal from '#/components/shippingDetailModal.vue';
+import ShippingSampleModal from '#/components/shippingSampleModal.vue';
 import { useAgencyStore, useSampleShippingStore } from '#/store';
 
 defineOptions({
@@ -27,6 +28,11 @@ const agency = computed(() => {
 
 const handleShowShippingDetail = () => {
   sampleShippingStore.showShippingDetails = true;
+  sampleShippingStore.currentSelectedShipping = props.sampleshipping;
+};
+
+const handleShowShippingSample = () => {
+  sampleShippingStore.showShippingSample = true;
   sampleShippingStore.currentSelectedShipping = props.sampleshipping;
 };
 
@@ -68,7 +74,13 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
           class="cursor-pointer text-blue-600 hover:text-blue-800"
           @click="handleShowShippingDetail"
         >
-          {{ $t('checksample') }}
+          {{ $t('shippingdetailinfo') }}
+        </a>
+        <a
+          class="cursor-pointer text-blue-600 hover:text-blue-800"
+          @click="handleShowShippingSample"
+        >
+          {{ $t('shippingsampleinfo') }}
         </a>
         <AccessControl :codes="['super', 'agency']">
           <Button
@@ -170,5 +182,6 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
 
     <!-- 修改 Modal 组件的使用 -->
     <ShippingDetailModal />
+    <ShippingSampleModal />
   </div>
 </template>

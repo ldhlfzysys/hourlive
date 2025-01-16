@@ -55,6 +55,7 @@ export const useSampleShippingStore = defineStore(
 
     // 显示物流单详情
     const showShippingDetails = ref(false);
+    const showShippingSample = ref(false);
 
     // 当前选中的物流单
     const currentSampleShipping = ref<SampleShipping>({
@@ -264,6 +265,7 @@ export const useSampleShippingStore = defineStore(
       showModal,
       showSampleShippingForm,
       showShippingDetails,
+      showShippingSample,
     };
   },
 );
