@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import { Button, Image, Modal } from 'ant-design-vue';
+import { Button, Modal } from 'ant-design-vue';
 import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
 
@@ -43,7 +43,10 @@ onUnmounted(() => {
 async function exportToPDF() {
   downloadLoading.value = true;
   const element = document.querySelector('.shipping-detail-content');
-  if (!element) return;
+  if (!element) {
+    downloadLoading.value = false;
+    return;
+  }
 
   try {
     await Promise.all(
@@ -59,23 +62,33 @@ async function exportToPDF() {
       ),
     );
 
+    const customerCode =
+      sampleShippingStore.currentSelectedShipping?.customer?.code || '';
+    const fileName = `物流单详情-${customerCode}-${sampleShippingStore.currentSelectedShipping!.id}.pdf`;
+
     const opt = {
-      filename: `物流单详情-${sampleShippingStore.currentSelectedShipping!.id}.pdf`,
-      html2canvas: { scale: 1.5, useCORS: true },
-      jsPDF: { format: 'a4', orientation: 'landscape' },
-      margin: [5, 5, 5, 5],
-      pagebreak: {
-        mode: ['avoid-all'],
+      filename: fileName,
+      html2canvas: {
+        imageTimeout: 0,
+        logging: true,
+        scale: 2,
+        useCORS: true,
+        windowHeight: element.scrollHeight,
+        windowWidth: element.scrollWidth,
       },
+      jsPDF: {
+        format: 'a4',
+        hotfixes: ['px_scaling'],
+        orientation: 'landscape',
+        unit: 'px',
+      },
+      margin: 0,
     };
 
     const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-    saveAs(
-      pdfBlob,
-      `物流单详情-${sampleShippingStore.currentSelectedShipping!.id}.pdf`,
-    );
+    saveAs(pdfBlob, fileName);
   } catch (error) {
-    console.error('导出失败:', error);
+    console.error('导出PDF失败:', error);
   } finally {
     downloadLoading.value = false;
   }
@@ -112,63 +125,68 @@ const getTypeClass = (isMain: string) => {
 <template>
   <Modal
     v-model:open="sampleShippingStore.showShippingSample"
-    :body-style="{ overflowY: 'auto', maxHeight: `${maxHeight}px` }"
-    :title="
-      `${$t('shippingsampleinfo')} - ` +
-      `总数量: ${sampleShippingStore.currentSelectedShipping?.samples?.reduce((sum, item) => sum + (item.sample_count || 1), 0) || 0}`
-    "
+    :body-style="{
+      overflowY: 'auto',
+      maxHeight: `${maxHeight}px`,
+      padding: '16px',
+    }"
+    :title="$t('shippingsampleinfo')"
     style="top: 10px; width: 85%"
     @cancel="sampleShippingStore.showShippingSample = false"
   >
-    <div class="shipping-detail-content flex h-full flex-1 flex-col">
+    <div class="shipping-detail-content">
+      <!-- 头部信息 -->
+      <div class="mb-4 space-y-2">
+        <div class="text-lg font-medium">
+          总数量:
+          {{
+            sampleShippingStore.currentSelectedShipping?.samples?.reduce(
+              (sum, item) => sum + (item.sample_count || 1),
+              0,
+            ) || 0
+          }}
+        </div>
+        <div class="text-base">
+          代理商:
+          {{
+            agencyStore.agencyById(
+              sampleShippingStore.currentSelectedShipping?.agency_id!,
+            )?.name
+          }}
+        </div>
+        <div class="text-base">
+          客户代码:
+          {{ sampleShippingStore.currentSelectedShipping?.customer?.code }}
+        </div>
+      </div>
+
       <!-- 商品列表 -->
       <div
         v-if="sampleShippingStore.currentSelectedShipping?.samples?.length > 0"
-        class="flex h-full flex-1 flex-col"
+        class="sample-grid"
       >
-        <div class="sample-list">
-          <div
-            v-for="item in sampleShippingStore.currentSelectedShipping?.samples"
-            :key="item.id"
-            class="sample-item"
-          >
-            <div class="sample-container">
-              <div class="product-wrapper">
-                <div class="product-info">
-                  <div class="image-wrapper">
-                    <Image
-                      :alt="item.product_name"
-                      :src="item.product_image"
-                      class="product-image"
-                    />
-                    <div
-                      :class="[getTypeClass(item.is_main)]"
-                      class="product-type"
-                    >
-                      {{ $t(getType(item.is_main)) }}
-                    </div>
-                  </div>
-
-                  <div class="product-details">
-                    <h2 class="product-name">
-                      <a
-                        :href="item.product_link"
-                        class="hover:text-blue-600"
-                        target="_blank"
-                      >
-                        {{ item.product_name }}
-                      </a>
-                    </h2>
-                    <div class="product-id">ID: {{ item.product_id }}</div>
-                    <div class="sample-quantity">
-                      {{ $t('sample_count') }}:
-                      <span class="quantity-highlight">{{
-                        item.sample_count || 1
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div
+          v-for="item in sampleShippingStore.currentSelectedShipping?.samples"
+          :key="item.id"
+          class="sample-grid-item"
+        >
+          <div class="image-container">
+            <img
+              :alt="item.product_id"
+              :src="item.product_image"
+              class="product-image"
+            />
+            <div :class="[getTypeClass(item.is_main)]" class="product-type">
+              {{ $t(getType(item.is_main)) }}
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="product-id">ID: {{ item.product_id }}</div>
+            <div class="sample-quantity">
+              {{ $t('sample_count') }}:
+              <span class="quantity-highlight">{{
+                item.sample_count || 1
+              }}</span>
             </div>
           </div>
         </div>
@@ -177,7 +195,6 @@ const getTypeClass = (isMain: string) => {
       <Empty
         v-else
         :loading="sampleStore.sampleQueryLoading"
-        class="flex-1"
         description="暂无商品信息"
       />
     </div>
@@ -194,54 +211,41 @@ const getTypeClass = (isMain: string) => {
     </template>
   </Modal>
 </template>
+
 <style scoped>
-/* 修改样式部分 */
-.sample-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px;
-}
-
-.sample-item {
-  width: 100%;
-  min-width: unset;
-}
-
-.sample-container {
-  padding: 8px;
-  margin-bottom: 0;
+.shipping-detail-content {
+  padding: 16px;
   background: white;
+}
+
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.sample-grid-item {
+  overflow: hidden;
+  background: #fff;
   border: 1px solid #e8e8e8;
   border-radius: 4px;
 }
 
-.product-wrapper {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-}
-
-.product-info {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.image-wrapper {
+.image-container {
   position: relative;
-  flex-shrink: 0;
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
+  width: 100%;
+  padding-bottom: 100%; /* 保持1:1的宽高比 */
   background: #f5f5f5;
-  border-radius: 4px;
 }
 
 .product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  padding: 8px; /* 添加内边距避免图片贴边 */
+  object-fit: contain; /* 保持图片比例 */
 }
 
 .product-type {
@@ -249,42 +253,42 @@ const getTypeClass = (isMain: string) => {
   top: 4px;
   right: 4px;
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: 12px;
   color: white;
   backdrop-filter: blur(4px);
   border-radius: 12px;
 }
 
-.product-details {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  padding: 4px 0;
+.product-info {
+  padding: 4px;
+  text-align: center;
+  background: #fff;
 }
 
-.product-name {
-  display: -webkit-box;
-  margin-bottom: 4px;
-  overflow: hidden;
+.product-id {
   font-size: 14px;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 2;
-  word-break: break-all;
-  -webkit-box-orient: vertical;
+  color: #666;
 }
 
-.product-id,
 .sample-quantity {
-  margin-bottom: 4px;
-  font-size: 12px;
+  font-size: 16px;
   color: #666;
 }
 
 .quantity-highlight {
-  font-size: 16px;
+  font-size: 24px;
   font-weight: bold;
   color: #1890ff;
+}
+
+@media print {
+  .sample-grid-item {
+    break-inside: avoid; /* 防止在打印时被分页 */
+  }
+
+  .product-image {
+    -webkit-print-color-adjust: exact; /* 确保打印时保持图片质量 */
+    print-color-adjust: exact;
+  }
 }
 </style>

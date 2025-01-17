@@ -372,5 +372,6 @@
   "livepassword": "Live Account Password",
   "phoneoremail": "Phone or Email Optional",
   "shippingdetailinfo": "Complete Details",
-  "shippingsampleinfo": "Sample Pairs"
+  "shippingsampleinfo": "Sample Pairs",
+  "total_count": "Total Count"
 }

@@ -372,5 +372,6 @@
   "livepassword": "直播账户密码",
   "phoneoremail": "手机号或邮箱选填其一",
   "shippingdetailinfo": "完整详情",
-  "shippingsampleinfo": "样品对数"
+  "shippingsampleinfo": "样品对数",
+  "total_count": "总数量"
 }
