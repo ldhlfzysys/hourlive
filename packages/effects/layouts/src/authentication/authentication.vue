@@ -27,7 +27,8 @@ withDefaults(defineProps<Props>(), {
   pageTitle: '',
   sloganImage: '',
   toolbar: true,
-  toolbarList: () => ['color', 'language', 'layout', 'theme'],
+  // toolbarList: () => ['color', 'language', 'layout', 'theme'],
+  toolbarList: () => ['language'],
 });
 
 const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
@@ -39,7 +40,7 @@ const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
     :class="[isDark]"
     class="flex min-h-full flex-1 select-none overflow-x-hidden"
   >
-    <template v-if="toolbar">
+    <template v-if="true">
       <slot name="toolbar">
         <Toolbar :toolbar-list="toolbarList" />
       </slot>
