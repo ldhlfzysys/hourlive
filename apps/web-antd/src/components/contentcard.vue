@@ -48,7 +48,7 @@ const liveaccount = computed(() => {
             class="min-w-[80px]"
             @click="contentStore.makeSampleManagerUpdate(props.content.id!)"
           >
-            {{ $t('contentsample') }}
+            {{ $t('contentsamplemanager') }}
           </Button>
           <Button
             class="min-w-[80px]"
@@ -56,6 +56,16 @@ const liveaccount = computed(() => {
             @click="contentStore.makeUpdate(props.content.id!)"
           >
             {{ $t('edit') }}
+          </Button>
+        </div>
+      </AccessControl>
+      <AccessControl :codes="['super']">
+        <div class="flex gap-2">
+          <Button
+            class="min-w-[80px]"
+            @click="contentStore.makeSampleManagerUpdate(props.content.id!)"
+          >
+            {{ $t('contentsample') }}
           </Button>
         </div>
       </AccessControl>

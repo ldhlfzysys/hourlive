@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 import { $t } from '@vben/locales';
+import { useUserStore } from '@vben/stores';
 
 import { useElementBounding } from '@vueuse/core';
 import { Button, Checkbox, Image, InputSearch, Modal } from 'ant-design-vue';
@@ -20,6 +21,7 @@ defineOptions({
 
 const sampleStore = useSampleStore();
 const contentStore = useContentStore();
+const userStore = useUserStore();
 
 const scroller = ref();
 const itemWidth = ref(300);
@@ -165,13 +167,20 @@ onMounted(() => {
   <Modal
     v-model:open="contentStore.showSampleManagerModal"
     :footer="null"
-    :title="$t('sample_management')"
+    :title="
+      userStore.userRoles.includes('customer')
+        ? $t('sample_management')
+        : $t('contentsample')
+    "
     centered
     width="1200px"
   >
     <div class="flex h-[600px] gap-4">
       <!-- 左侧可选样品列表 -->
-      <div class="flex w-1/2 flex-col overflow-hidden rounded-lg border">
+      <div
+        v-if="userStore.userRoles.includes('customer')"
+        class="flex w-1/2 flex-col overflow-hidden rounded-lg border"
+      >
         <div class="flex items-center justify-between border-b p-4 font-medium">
           <div class="flex items-center gap-2">
             <span>{{ $t('available_samples') }}</span>
@@ -331,6 +340,7 @@ onMounted(() => {
               </div>
             </div>
             <Button
+              v-if="userStore.userRoles.includes('customer')"
               class="flex items-center"
               danger
               type="link"

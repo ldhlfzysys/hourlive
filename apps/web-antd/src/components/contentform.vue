@@ -81,7 +81,7 @@ function handleOk() {
               :key="account.id"
               :value="account.id"
             >
-              {{ account.name }}
+              {{ account.live_account }}
             </SelectOption>
           </Select>
         </div>
