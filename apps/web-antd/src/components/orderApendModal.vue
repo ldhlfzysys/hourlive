@@ -65,7 +65,7 @@ watch(selectedOrder, (newVal) => {
         id: timeslot.id,
         slot: [
           dayjs(`${timeslot.date} ${timeslot.start_time}`),
-          dayjs(`${timeslot.date} ${timeslot.end_time}`),
+          dayjs(`${timeslot.end_date} ${timeslot.end_time}`),
         ],
       };
     });

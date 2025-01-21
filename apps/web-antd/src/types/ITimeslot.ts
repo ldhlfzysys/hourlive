@@ -7,6 +7,7 @@ export interface Timeslot {
   create_time: string; // DateTime in ISO format
   update_time: string; // DateTime in ISO format
   date: string; // deprecated Format YYYY-MM-DD
+  end_date: string; // deprecated Format YYYY-MM-DD
   start_time: string; // Format HH:MM
   end_time: string; // Format HH:MM
   hourlive_money_cost: number;

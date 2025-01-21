@@ -120,6 +120,16 @@ const events = computed(() => {
         }
       }
 
+      const overday = timeslot.end_date !== timeslot.date;
+      const startTime = overday
+        ? dayjs(`${timeslot.date} ${timeslot.start_time}`).format('MM/DD HH:mm')
+        : timeslot.start_time;
+      const endTime = overday
+        ? dayjs(`${timeslot.end_date} ${timeslot.end_time}`).format(
+            'MM/DD HH:mm',
+          )
+        : timeslot.end_time;
+
       allEvents.push({
         background: true,
         class: eventClass,
@@ -134,10 +144,12 @@ const events = computed(() => {
         title: `
           <div class="event-container">
             <div class="flex justify-between items-center text-sm" >
-              <span style="font-size: 12px;margin-left: 10px;font-weight: 500;">${timeslot.start_time}-${timeslot.end_time}</span>
+              <span style="font-size: 12px;font-weight: 500;text-align: left;">
+                ${startTime}-${endTime}
+                ${overday ? '<span style="color: red;border: 1px solid red;border-radius: 4px;padding: 1px;font-size: 10px;">跨日</span>' : ''}
+              </span>
               <span style="font-size: 11px;margin-right: 10px;">ID:${order.id}</span>
             </div>
-           
           </div>
         `,
       });
