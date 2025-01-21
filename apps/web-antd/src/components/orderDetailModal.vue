@@ -97,6 +97,22 @@ async function handleDeleteOrder() {
   });
 }
 
+async function handleCancelOrder() {
+  Modal.confirm({
+    onOk: async () => {
+      loading.value = true;
+      await orderStore.deleteOrders({
+        timeslot_ids: orderStore.currentSelectedOrder!.timeslots.map(
+          (timeslot) => timeslot.id,
+        ),
+        timeslotorder_id: orderStore.currentSelectedOrder!.id!,
+      });
+      loading.value = false;
+    },
+    title: $t('deleteallorder'),
+  });
+}
+
 function handleSubsidy() {
   orderStore.showSubsidyModal = true;
   orderStore.timeslotOrderSubsidyForm.ids = [
@@ -511,6 +527,14 @@ const getTypeClass = (isMain: string) => {
           @click="orderStore.showApendModal = true"
         >
           {{ $t('apendorder') }}
+        </Button>
+        <Button
+          key="submit"
+          :loading="loading"
+          type="primary"
+          @click="handleCancelOrder"
+        >
+          {{ $t('deleteall') }}
         </Button>
         <Button
           key="submit"

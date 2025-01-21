@@ -267,5 +267,7 @@
   "passworderror": "Mật khẩu sai",
   "registerfail": "Đăng ký không thành công",
   "total_time": "Tổng thời gian",
-  "hour": "giờ"
+  "hour": "giờ",
+  "deleteallorder": "Xác nhận xóa tất cả đơn hàng",
+  "deleteall": "Xóa tất cả"
 }

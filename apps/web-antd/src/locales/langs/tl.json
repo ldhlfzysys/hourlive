@@ -267,5 +267,7 @@
   "passworderror": "Maling password",
   "registerfail": "Nabigo ang pagpaparehistro",
   "total_time": "Total na panahon",
-  "hour": "oras"
+  "hour": "oras",
+  "deleteallorder": "Kumpirmahin ang pagtanggal ng lahat ng mga order",
+  "deleteall": "Tanggalin ang lahat"
 }

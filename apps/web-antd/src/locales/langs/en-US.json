@@ -374,5 +374,7 @@
   "phoneoremail": "Phone or Email Optional",
   "shippingdetailinfo": "Complete Details",
   "shippingsampleinfo": "Sample Pairs",
-  "total_count": "Total Count"
+  "total_count": "Total Count",
+  "deleteallorder": "Confirm Delete All Orders",
+  "deleteall": "Delete All"
 }

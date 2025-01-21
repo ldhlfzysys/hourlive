@@ -374,5 +374,7 @@
   "phoneoremail": "手机号或邮箱选填其一",
   "shippingdetailinfo": "完整详情",
   "shippingsampleinfo": "样品对数",
-  "total_count": "总数量"
+  "total_count": "总数量",
+  "deleteallorder": "确认删除所有订单",
+  "deleteall": "删除全部"
 }
