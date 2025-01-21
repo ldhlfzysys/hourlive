@@ -34,8 +34,32 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['super'],
       hideChildrenInMenu: true,
-      icon: 'lucide:calendar',
+      icon: 'lucide:menu',
       order: 2,
+      title: $t('orderdetail'),
+    },
+    name: 'SuperOrderDetails',
+    path: '/superorderdetails',
+    children: [
+      {
+        component: () => import('#/views/super/orderdetails.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:menu',
+          title: $t('orderdetail'),
+        },
+        name: 'SuperOrderDetailsIndex',
+        path: '/superorderdetails/index',
+      },
+    ],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:calendar',
+      order: 3,
       title: $t('schedule'),
     },
     name: 'SuperSchedule',
