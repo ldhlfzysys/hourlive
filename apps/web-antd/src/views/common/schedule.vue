@@ -75,10 +75,22 @@ const events = computed(() => {
         .join(',');
 
       const agencyName = order.agency?.name;
+      const overday = timeslot.end_date !== timeslot.date;
 
       const startTimeStr = timeslot.begin_date.replace('T', ' ');
-      const endTimeStr = timeslot.finish_date.replace('T', ' ');
+      const endTimeStr = overday
+        ? dayjs(startTimeStr).endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : timeslot.finish_date.replace('T', ' ');
       const isPast = dayjs(endTimeStr).isBefore(dayjs());
+
+      const startTime = overday
+        ? dayjs(`${timeslot.date} ${timeslot.start_time}`).format('MM/DD HH:mm')
+        : timeslot.start_time;
+      const endTime = overday
+        ? dayjs(`${timeslot.end_date} ${timeslot.end_time}`).format(
+            'MM/DD HH:mm',
+          )
+        : timeslot.end_time;
 
       const eventClass = orderStore.getEventClass(order.id, isPast);
 
@@ -119,16 +131,6 @@ const events = computed(() => {
         `;
         }
       }
-
-      const overday = timeslot.end_date !== timeslot.date;
-      const startTime = overday
-        ? dayjs(`${timeslot.date} ${timeslot.start_time}`).format('MM/DD HH:mm')
-        : timeslot.start_time;
-      const endTime = overday
-        ? dayjs(`${timeslot.end_date} ${timeslot.end_time}`).format(
-            'MM/DD HH:mm',
-          )
-        : timeslot.end_time;
 
       allEvents.push({
         background: true,
