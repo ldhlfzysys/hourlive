@@ -394,8 +394,20 @@ const getTypeClass = (isMain: string) => {
         <DescriptionsItem :label="$t('liveaccount')" :span="3">
           <div class="grid h-full grid-cols-2 gap-4 md:grid-cols-3">
             <div class="flex items-center">
+              <strong>{{ $t('shop_name') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.name }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('shop_code') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.code }}</div>
+            </div>
+            <div class="flex items-center">
               <strong>{{ $t('live_account') }}: </strong>
               <div class="ml-2">{{ liveaccount?.live_account }}</div>
+            </div>
+            <div class="flex items-center">
+              <strong>{{ $t('live_password') }}: </strong>
+              <div class="ml-2">{{ liveaccount?.password }}</div>
             </div>
             <div class="flex items-center">
               <strong>{{ $t('live_uid') }}: </strong>
@@ -417,11 +429,11 @@ const getTypeClass = (isMain: string) => {
               <strong>{{ $t('platform') }}: </strong>
               <div class="ml-2">
                 <SvgTiktokIcon
-                  v-if="liveaccount?.platform === 'tiktok'"
+                  v-if="liveaccount?.platform!.toLowerCase() === 'tiktok'"
                   class="size-8"
                 />
                 <SvgShopeeIcon
-                  v-else-if="liveaccount?.platform === 'shopee'"
+                  v-else-if="liveaccount?.platform!.toLowerCase() === 'shopee'"
                   class="size-8"
                 />
                 <Tag v-else>

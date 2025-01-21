@@ -104,6 +104,7 @@
   "customscript": "Isi skrip",
   "scripfile": "fail skrip",
   "hourlive_account": "Akaun siaran jam",
+  "live_password": "Kata laluan akaun siaran langsung",
   "live_uid": "UID akaun siaran langsung",
   "customer_source": "Sumber akaun siaran jam",
   "isHide": "Sama ada hendak bersembunyi",

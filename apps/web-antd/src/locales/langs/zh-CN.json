@@ -85,6 +85,7 @@
   "allsamples": "所有样品",
   "platform": "平台",
   "live_account": "直播账户(TThandle)",
+  "live_password": "直播账户密码",
   "mobile": "手机号",
   "email": "邮箱",
   "live_mobile": "直播账户绑定手机",
