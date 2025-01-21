@@ -73,6 +73,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   });
   const timeslotOrderCreate = ref<TimeslotOrderCreate>({
     content_id: 0,
+    order_price: 0,
+    order_title: '',
     room_id: 0,
     timeslots: [],
   });
@@ -401,6 +403,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
     const params: TimeslotOrderCreate = {
       content_id: formState.value.contentId ?? -1,
+      order_price: 0,
+      order_title: formState.value.orderTitle ?? '',
       room_id: formState.value.roomId ?? -1,
       timeslots,
     };
@@ -431,6 +435,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
         showModal.value = false;
         timeslotOrderCreate.value = {
           content_id: -1,
+          order_price: 0,
+          order_title: '',
           room_id: -1,
           timeslots: [],
         };

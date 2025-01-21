@@ -6,7 +6,7 @@ import { computed, onMounted } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import { Card, Form, FormItem, Select, Tag } from 'ant-design-vue';
+import { Card, Form, FormItem, Input, Select, Tag } from 'ant-design-vue';
 
 import {
   useAgencyStore,
@@ -124,6 +124,20 @@ const filterOption = (input: string, option: any) => {
               :options="customerStore.contentOptions"
               :placeholder="$t('selectcontent')"
               show-search
+            />
+          </div>
+        </FormItem>
+
+        <FormItem
+          :label="$t('order_title')"
+          :rules="[{ required: true, message: $t('order_title_required') }]"
+          name="orderTitle"
+        >
+          <div class="w-[80%] max-w-[400px]">
+            <Input
+              v-model:value="orderStore.formState.orderTitle"
+              :disabled="!enableEdit"
+              :placeholder="$t('input_order_title')"
             />
           </div>
         </FormItem>

@@ -32,6 +32,7 @@ export interface TimeslotOrderFormState {
   formType?: 'add' | 'apend'; // 表单类型
   streamerId?: number; // 主播id
   price?: number; // 价格
+  orderTitle?: string; // 订单标题
 }
 
 export interface TimeslotOrder {
@@ -56,6 +57,8 @@ export interface TimeslotOrder {
   ads_subsidy: number;
   ads_subsidy_remark: string;
   subsidy_type: string;
+
+  order_title?: string;
 
   // 前端使用的字段
   start?: string;
@@ -132,6 +135,7 @@ export interface TimeslotOrderCreate {
   content_id?: number;
   timeslots?: TimeslotCreateInMany[];
   order_price: number;
+  order_title: string;
 }
 
 export interface TimeslotOrderSubsidy {

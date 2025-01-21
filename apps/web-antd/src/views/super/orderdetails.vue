@@ -1,19 +1,18 @@
 /* eslint-disable n/no-extraneous-import */
 <script lang="ts" setup>
-import type { TimeslotModel, TimeslotOrder } from '#/types';
+import type { TimeslotOrder } from '#/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
 
-import { AccessControl, useAccess } from '@vben/access';
+import { useAccess } from '@vben/access';
 import { $t, i18n } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { DatePicker } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import Empty from '#/components/empty.vue';
 import OrderDetailCard from '#/components/orderdetailcard.vue';
-import SelectFilter from '#/components/selectfilter.vue';
 import {
   useAgencyStore,
   useContentStore,
@@ -146,29 +145,18 @@ const events = computed(() => {
 });
 const activeView = ref('month');
 const selectedAgencies = ref([]);
-const selectedCustomers = ref([]);
+const selectedCustomers = ref('');
 const selectedContents = ref([]);
 const selectedRooms = ref([]);
 
-watch(
-  [selectedAgencies, selectedCustomers, selectedContents, selectedRooms],
-  () => {
-    const filters: { key: string; value: number[] }[] = [];
-    if (selectedAgencies.value.length > 0) {
-      filters.push({ key: 'agency', value: selectedAgencies.value });
-    }
-    if (selectedCustomers.value.length > 0) {
-      filters.push({ key: 'customer', value: selectedCustomers.value });
-    }
-    if (selectedContents.value.length > 0) {
-      filters.push({ key: 'content', value: selectedContents.value });
-    }
-    if (selectedRooms.value.length > 0) {
-      filters.push({ key: 'room', value: selectedRooms.value });
-    }
-    orderStore.orderFilters = filters;
-  },
-);
+watch([selectedCustomers], () => {
+  if (selectedCustomers.value) {
+    console.log(selectedCustomers.value);
+    orderStore.$reset();
+    orderStore.timeslotOrderQuery.customer_id = selectedCustomers.value;
+    orderStore.queryTimeslotOrder();
+  }
+});
 
 // Function
 const localeStr = computed(() => {
@@ -178,20 +166,8 @@ const localeStr = computed(() => {
 // Life Time
 onMounted(() => {
   // 设置初始月份的查询范围
-  const currentDate = dayjs();
-  const startOfMonth = currentDate.startOf('month');
-  const endOfMonth = currentDate.endOf('month');
-
-  orderStore.timeslotOrderQuery = {
-    ...orderStore.timeslotOrderQuery,
-    begin_date: startOfMonth.format('YYYY-MM-DD'),
-    finish_date: endOfMonth.format('YYYY-MM-DD'),
-  };
-
-  useAgencyStore().fetchAgency();
+  orderStore.$reset();
   fetchCustomerData();
-
-  useTimeslotOrderStore().queryTimeslotOrder();
 });
 
 function fetchCustomerData() {
@@ -201,90 +177,6 @@ function fetchCustomerData() {
     useCustomerStore().getAgencyCustomers();
   }
 }
-
-function handleCreateOrder() {
-  orderStore.isEditing = true;
-  orderStore.formState = {
-    enableEdit: true,
-    formType: 'add',
-    timeslots: [],
-  };
-}
-
-// CalendarEvent
-function handleEventChange(event: any) {
-  if (hasAccessByRoles(['super'])) {
-    let actualEvent = event;
-    if (Object.hasOwn(actualEvent, 'event')) {
-      actualEvent = actualEvent.event;
-    }
-
-    const startTime = dayjs(actualEvent.start);
-    const endTime = dayjs(actualEvent.end);
-    orderStore.isEditing = true;
-    const initTimeModel: TimeslotModel = {
-      canEdit: true,
-      date: startTime,
-      slot: [startTime, endTime],
-    };
-    orderStore.formState = {
-      enableEdit: true,
-      formType: 'add',
-      liveTime: [startTime, endTime],
-      timeslot: [startTime, endTime],
-      timeslots: [initTimeModel],
-    };
-  }
-}
-
-function handleCellClick(event: any) {
-  if (activeView.value === 'month') {
-    activeView.value = 'day';
-  }
-}
-
-function handleEventClick(event: Event, e: MouseEvent) {
-  const order = orderStore.orderById(event.id);
-  if (order) {
-    orderStore.setCurrentSelectedOrder(event.id);
-    orderStore.isEditing = false;
-    orderStore.currentSelectedOrder!.end = dayjs(event.end).format(
-      'MM/DD HH:mm',
-    );
-    orderStore.currentSelectedOrder!.start = dayjs(event.start).format(
-      'MM/DD HH:mm',
-    );
-    orderStore.currentSelectedOrder!.slotId = event.slotId;
-    orderStore.showEventDetails = true;
-  }
-}
-
-function handleApendOrder() {
-  orderStore.isEditing = false;
-  orderStore.showApendModal = true;
-}
-
-// 添加处理月份变化的函数
-function handleMonthChange(date: dayjs.Dayjs) {
-  if (!date) return;
-
-  selectedMonth.value = date;
-  const startOfMonth = date.startOf('month');
-  const endOfMonth = date.endOf('month');
-
-  // 清空现有数据
-  orderStore.$reset();
-
-  // 设置查询时间范围
-  orderStore.timeslotOrderQuery = {
-    ...orderStore.timeslotOrderQuery,
-    begin_date: startOfMonth.format('YYYY-MM-DD'),
-    finish_date: endOfMonth.format('YYYY-MM-DD'),
-  };
-
-  // 重新请求数据
-  orderStore.queryTimeslotOrder();
-}
 </script>
 
 <template>
@@ -292,43 +184,12 @@ function handleMonthChange(date: dayjs.Dayjs) {
     <HourLivePage :content-overflow="true">
       <template #header>
         <div class="flex w-[full] flex-wrap">
-          <div class="mr-4">
-            <DatePicker
-              v-model:value="selectedMonth"
-              :placeholder="$t('selectmonth')"
-              format="YYYY-MM"
-              picker="month"
-              @change="handleMonthChange"
-            />
-          </div>
-          <AccessControl :codes="['super', 'customer']">
-            <SelectFilter
-              v-model="selectedAgencies"
-              :options="agencyStore.agencyOptions"
-              :placeholder="$t('selectagency')"
-              :title="$t('agency')"
-            />
-          </AccessControl>
-          <AccessControl :codes="['super', 'agency']">
-            <SelectFilter
-              v-model="selectedRooms"
-              :options="agencyStore.roomOptionsByAgencyIds(selectedAgencies)"
-              :placeholder="$t('selectroom')"
-              :title="$t('room')"
-            />
-            <SelectFilter
-              v-model="selectedCustomers"
-              :options="customerStore.customerOptions ?? []"
-              :placeholder="$t('selectcustomer')"
-              :title="$t('hourlive_account')"
-            />
-            <SelectFilter
-              v-model="selectedContents"
-              :options="customerStore.contentOptions ?? []"
-              :placeholder="$t('selectcontent')"
-              :title="$t('content')"
-            />
-          </AccessControl>
+          <Select
+            v-model:value="selectedCustomers"
+            :options="customerStore.customerOptions ?? []"
+            :placeholder="$t('selectcustomer')"
+            style="width: 200px"
+          />
         </div>
       </template>
 

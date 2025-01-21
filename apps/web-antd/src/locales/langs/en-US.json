@@ -377,5 +377,12 @@
   "shippingsampleinfo": "Sample Pairs",
   "total_count": "Total Count",
   "deleteallorder": "Confirm Delete All Orders",
-  "deleteall": "Delete All"
+  "deleteall": "Delete All",
+  "total_duration": "Total Duration",
+  "hours": "Hours",
+  "played": "Played",
+  "unplayed": "Unplayed",
+  "input_order_title": "Please Enter Order Title",
+  "order_title_required": "Please Enter Order Title",
+  "order_title": "Order Title"
 }

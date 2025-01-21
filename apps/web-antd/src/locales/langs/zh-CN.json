@@ -377,5 +377,12 @@
   "shippingsampleinfo": "样品对数",
   "total_count": "总数量",
   "deleteallorder": "确认删除所有订单",
-  "deleteall": "删除全部"
+  "deleteall": "删除全部",
+  "total_duration": "总时长",
+  "hours": "小时",
+  "played": "已播",
+  "unplayed": "未播",
+  "input_order_title": "请输入订单标题",
+  "order_title_required": "请输入订单标题",
+  "order_title": "订单标题"
 }
