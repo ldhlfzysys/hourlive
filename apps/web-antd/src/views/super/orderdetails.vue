@@ -186,8 +186,16 @@ function fetchCustomerData() {
         <div class="flex w-[full] flex-wrap">
           <Select
             v-model:value="selectedCustomers"
+            :filter-option="
+              (input, option) => {
+                return (
+                  option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                );
+              }
+            "
             :options="customerStore.customerOptions ?? []"
             :placeholder="$t('selectcustomer')"
+            show-search
             style="width: 200px"
           />
         </div>

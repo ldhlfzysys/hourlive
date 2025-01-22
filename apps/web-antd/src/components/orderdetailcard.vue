@@ -7,7 +7,7 @@ import { $t } from '@vben/locales';
 
 import { Input, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import { Edit } from 'lucide-vue-next';
+import { Edit, Trash2 } from 'lucide-vue-next';
 
 import { useTimeslotOrderStore } from '#/store';
 
@@ -198,6 +198,28 @@ const handleUpdateTitle = async () => {
     editLoading.value = false;
   }
 };
+
+const handleDelete = async () => {
+  try {
+    Modal.confirm({
+      cancelText: $t('取消'),
+      content: $t('确定要删除该订单吗？'),
+      okText: $t('确定'),
+      async onOk() {
+        const timeslot_ids = props.timeslotOrder.timeslots.map(
+          (slot) => slot.id,
+        );
+        await orderStore.deleteOrders({
+          timeslot_ids,
+          timeslotorder_id: props.timeslotOrder.id,
+        });
+      },
+      title: $t('确认删除'),
+    });
+  } catch (error) {
+    console.error('Delete order failed:', error);
+  }
+};
 </script>
 
 <template>
@@ -216,6 +238,12 @@ const handleUpdateTitle = async () => {
             @click="handleEditTitle"
           >
             <Edit class="h-4 w-4" />
+          </button>
+          <button
+            class="flex items-center text-gray-500 hover:text-red-600"
+            @click="handleDelete"
+          >
+            <Trash2 class="h-4 w-4" />
           </button>
         </div>
       </div>
