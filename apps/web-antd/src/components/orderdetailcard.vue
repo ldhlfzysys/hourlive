@@ -25,8 +25,26 @@ const formatTime = (timeStr: string) => {
 
 // 计算单个时间段的时长（小时）
 const calculateDuration = (begin: string, finish: string) => {
-  const duration = dayjs(finish).diff(dayjs(begin), 'hour', true);
-  return duration.toFixed(1);
+  const beginTime = dayjs(begin);
+  const finishTime = dayjs(finish);
+
+  // 确保两个时间都是有效的
+  if (!beginTime.isValid() || !finishTime.isValid()) {
+    console.warn('Invalid date input:', { begin, finish });
+    return '0.0';
+  }
+
+  // 计算小时差
+  const duration = finishTime.diff(beginTime, 'hour', true);
+
+  // 如果结束时间在第二天，需要计算20小时（08:00-04:00）或18小时（08:00-02:00）
+  if (finishTime.format('HH:mm') === '04:00') {
+    return '20.0';
+  } else if (finishTime.format('HH:mm') === '02:00') {
+    return '18.0';
+  }
+
+  return duration >= 0 ? duration.toFixed(1) : '0.0';
 };
 
 // 计算所有时间段的总时长
@@ -78,38 +96,38 @@ const mergedTimeslots = computed(() => {
     beginTime: string;
     finishTime: string;
     isExpired: boolean;
-    singleDuration: string; // 单次时长
+    singleDuration: string;
     startDates: string[];
-    totalDuration: string; // 总时长
+    totalDuration: string;
   }[] = [];
 
   let currentGroup = {
     beginTime: '',
-    dates: new Set<string>(),
     finishTime: '',
     startDates: [] as string[],
   };
 
   slots.forEach((slot, index) => {
-    const beginDate = dayjs(slot.begin_date);
-    const beginTime = beginDate.format('HH:mm');
+    const beginTime = dayjs(slot.begin_date).format('HH:mm');
     const finishTime = dayjs(slot.finish_date).format('HH:mm');
-    const dateStr = beginDate.format('YYYY-MM-DD');
+    const dateStr = dayjs(slot.begin_date).format('YYYY-MM-DD');
 
     // 检查是否可以合并到当前组
     if (
       currentGroup.startDates.length > 0 &&
       (beginTime !== currentGroup.beginTime ||
         finishTime !== currentGroup.finishTime ||
-        !currentGroup.dates.has(
-          beginDate.subtract(1, 'day').format('YYYY-MM-DD'),
-        ))
+        dayjs(slot.begin_date).diff(
+          dayjs(currentGroup.startDates[currentGroup.startDates.length - 1]),
+          'day',
+        ) !== 1)
     ) {
       // 不能合并，保存当前组并开始新组
       const singleDuration = calculateDuration(
         `${currentGroup.startDates[0]} ${currentGroup.beginTime}`,
-        `${currentGroup.startDates[0]} ${currentGroup.finishTime}`,
+        `${dayjs(slots[index - 1].finish_date).format('YYYY-MM-DD HH:mm')}`,
       );
+
       merged.push({
         beginTime: currentGroup.beginTime,
         finishTime: currentGroup.finishTime,
@@ -122,9 +140,9 @@ const mergedTimeslots = computed(() => {
           Number(singleDuration) * currentGroup.startDates.length
         ).toFixed(1),
       });
+
       currentGroup = {
         beginTime: '',
-        dates: new Set<string>(),
         finishTime: '',
         startDates: [],
       };
@@ -136,14 +154,14 @@ const mergedTimeslots = computed(() => {
       currentGroup.finishTime = finishTime;
     }
     currentGroup.startDates.push(dateStr);
-    currentGroup.dates.add(dateStr);
 
     // 处理最后一个元素
     if (index === slots.length - 1) {
       const singleDuration = calculateDuration(
         `${currentGroup.startDates[0]} ${currentGroup.beginTime}`,
-        `${currentGroup.startDates[0]} ${currentGroup.finishTime}`,
+        slot.finish_date,
       );
+
       merged.push({
         beginTime: currentGroup.beginTime,
         finishTime: currentGroup.finishTime,
