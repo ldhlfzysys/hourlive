@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 
 import { useUserStore } from '@vben/stores';
 
@@ -31,11 +31,18 @@ const removing = computed(() => ossFileStore.removing);
 
 const userStore = useUserStore();
 const canUpload = computed(() => {
-  return userStore.userRoles.includes('customer');
+  return (
+    userStore.userRoles.includes('customer') ||
+    userStore.userRoles.includes('super')
+  );
 });
 
 const columns = [
   {
+    customRender: ({ record, text }: { record: any; text: string }) => {
+      const cleanPath = record.path.split('?')[0];
+      return h('a', { href: cleanPath, target: '_blank' }, text);
+    },
     dataIndex: 'name',
     key: 'name',
     title: '文件名',
@@ -54,9 +61,6 @@ const columns = [
 
 const fileTableData = computed(() => {
   const files = ossFileStore.ossfiles[ossFileStore.currentProductId];
-
-  console.log(ossFileStore.ossfiles);
-  console.log(files);
   if (!files) return [];
 
   return Object.entries(files).map(([name, path]) => ({

@@ -9,9 +9,9 @@ import {
 } from '#/store';
 
 // @ts-ignore
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 
-import { Button, Image, InputNumber, Transfer } from 'ant-design-vue';
+import { Button, Image, message, Transfer } from 'ant-design-vue';
 
 import HourLivePage from '#/views/template/common.vue';
 
@@ -26,11 +26,22 @@ function getData() {
 
 const targetKeys = ref<string[]>([]);
 function createShipping() {
+  // 检查右侧样品数量
+  const selectedSamples = sampleStore.sampleList.filter((sample) =>
+    targetKeys.value.includes(sample.id),
+  );
+
+  if (
+    selectedSamples.some(
+      (sample) => !sample.sample_count || sample.sample_count <= 0,
+    )
+  ) {
+    message.warning('请正确填写所有样品数量，数量必须大于0');
+    return;
+  }
+
   sampleShippingStore.makeCreate();
-  sampleShippingStore.currentSampleShipping.samples =
-    sampleStore.sampleList.filter((sample) =>
-      targetKeys.value.includes(sample.id),
-    );
+  sampleShippingStore.currentSampleShipping.samples = selectedSamples;
 }
 
 const searchValue = ref('');
@@ -53,14 +64,28 @@ function handleSearch(dir: string, value: string) {
 
 // 处理数量变化
 function handleQuantityChange(item: Sample, value: number) {
+  if (value <= 0) {
+    // 如果输入值小于等于0，提示用户并重置为0
+    message.warning('样品数量不能小于0');
+    item.sample_count = 0;
+    return;
+  }
   item.sample_count = value;
 }
 
-// 确保新添加的项目默认数量为1
+// 将新添加项目的默认数量改为0
 function handleChange(keys: string[]) {
+  const addedKeys = new Set(
+    keys.filter((key) => !targetKeys.value.includes(key)),
+  );
   sampleStore.sampleList.forEach((item) => {
-    if (keys.includes(item.id) && !item.sample_count) {
-      item.sample_count = 1;
+    if (addedKeys.has(item.id)) {
+      // 确保明确设置为数字 0
+      item.sample_count = 0;
+      // 强制更新
+      nextTick(() => {
+        item.sample_count = 0;
+      });
     }
   });
   targetKeys.value = keys;
@@ -110,13 +135,20 @@ function handleChange(keys: string[]) {
                 {{ item?.product_name }}
               </h3>
               <div v-if="targetKeys.includes(item.id)" class="mr-2" @click.stop>
-                <InputNumber
-                  v-model:value="item.sample_count"
-                  :min="1"
+                <input
+                  v-model="item.sample_count"
                   :placeholder="$t('sample_count')"
-                  size="small"
+                  class="ant-input ant-input-sm border-black"
+                  min="0"
                   style="width: 80px; margin-left: 3px"
-                  @change="(value) => handleQuantityChange(item, value)"
+                  type="number"
+                  @input="
+                    (e) =>
+                      handleQuantityChange(
+                        item,
+                        Number((e.target as HTMLInputElement).value),
+                      )
+                  "
                 />
               </div>
             </div>
@@ -161,5 +193,9 @@ function handleChange(keys: string[]) {
   /* padding: 0 12px; */
   display: flex;
   align-items: center;
+}
+
+.border-black {
+  border: 1px solid black !important;
 }
 </style>

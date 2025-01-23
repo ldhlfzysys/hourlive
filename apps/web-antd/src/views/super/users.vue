@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 
@@ -9,9 +9,17 @@ import {
   Collapse,
   CollapsePanel,
   Input,
+  message,
   Modal,
 } from 'ant-design-vue';
-import { Building2, MapPin, Search, Trash2, UserRound } from 'lucide-vue-next';
+import {
+  Building2,
+  KeyRound,
+  MapPin,
+  Search,
+  Trash2,
+  UserRound,
+} from 'lucide-vue-next';
 
 import { useAgencyStore } from '#/store/agency';
 import { useCustomerStore } from '#/store/customer';
@@ -71,6 +79,38 @@ const handleDeleteAgency = (agency: any) => {
       await agencyStore.hideAgency(agency.id);
     },
     title: $t('confirmDelete'),
+  });
+};
+
+// 添加重置密码的处理方法
+const handleResetPassword = (customer: any) => {
+  let newPassword = '';
+  Modal.confirm({
+    cancelText: $t('cancel'),
+    content: h('div', [
+      h(Input, {
+        onChange: (e: any) => {
+          newPassword = e.target.value;
+        },
+        placeholder: $t('enterNewPassword'),
+      }),
+    ]),
+    okText: $t('confirm'),
+    async onOk() {
+      if (!newPassword) {
+        return;
+      }
+      try {
+        await customerStore.resetPassword({
+          id: customer.id,
+          password: newPassword,
+        });
+        message.success($t('passwordResetSuccess'));
+      } catch {
+        message.error($t('passwordResetFailed'));
+      }
+    },
+    title: $t('resetPassword'),
   });
 };
 </script>
@@ -143,12 +183,19 @@ const handleDeleteAgency = (agency: any) => {
                     alt="avatar"
                     class="h-6 w-auto rounded-full object-cover"
                   />
-                  {{ customer.code }}
-                </div>
-                <div class="flex items-center gap-2">
+                  <span>{{ customer.code }}</span>
                   <span class="text-sm text-gray-500">{{
                     customer.source
                   }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Button
+                    class="!p-0"
+                    type="link"
+                    @click="handleResetPassword(customer)"
+                  >
+                    <KeyRound class="text-primary size-4" />
+                  </Button>
                   <Button
                     class="!p-0"
                     type="link"

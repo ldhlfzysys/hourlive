@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 
 import Empty from '#/components/empty.vue';
 import OrderDetailCard from '#/components/orderdetailcard.vue';
+import OSSFileForm from '#/components/ossfileform.vue';
 import {
   useAgencyStore,
   useContentStore,
@@ -224,6 +225,7 @@ function fetchCustomerData() {
     </HourLivePage>
 
     <OrderDetailModal v-if="orderStore.showEventDetails" />
+    <OSSFileForm :allow-edit="true" />
   </div>
 </template>
 

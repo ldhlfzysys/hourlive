@@ -7,12 +7,9 @@ import { requestClient } from '#/api/request';
 // Model
 import type {
   IdQuery,
-  LiveAccount,
-  LiveAccountCreate,
-  LiveAccountDelete,
-  LiveAccountUpdate,
   OSSFile,
   OSSFileDelete,
+  ResetPasswordParams,
   StanderResult,
 } from '#/types';
 import type { Content } from '#/types/IContent';
@@ -58,29 +55,9 @@ function _hideCustomer(id: number) {
   });
 }
 
-function getLiveAccount() {
-  return requestClient.post<StanderResult<LiveAccount[]>>(
-    CustomerApi.GetLiveAccount,
-  );
-}
-
-function createLiveAccount(params: LiveAccountCreate) {
-  return requestClient.post<StanderResult<LiveAccount>>(
-    CustomerApi.CreateLiveAccount,
-    params,
-  );
-}
-
-function updateLiveAccount(params: LiveAccountUpdate) {
-  return requestClient.post<StanderResult<LiveAccount>>(
-    CustomerApi.UpdateLiveAccount,
-    params,
-  );
-}
-
-function deleteLiveAccount(params: LiveAccountDelete) {
-  return requestClient.post<StanderResult<any>>(
-    CustomerApi.DeleteLiveAccount,
+function _resetPassword(params: ResetPasswordParams) {
+  return requestClient.post<StanderResult<Customer>>(
+    `super/resetUserPassword`,
     params,
   );
 }
@@ -122,6 +99,10 @@ export const useCustomerStore = defineStore('customer-store', () => {
       value: item.id,
     }));
   });
+
+  async function resetPassword(params: ResetPasswordParams) {
+    return _resetPassword(params);
+  }
 
   async function hideCustomer(id: number) {
     hideCustomerLoading.value = true;
@@ -187,5 +168,6 @@ export const useCustomerStore = defineStore('customer-store', () => {
     getAgencyCustomers,
     hideCustomer,
     hideCustomerLoading,
+    resetPassword,
   };
 });

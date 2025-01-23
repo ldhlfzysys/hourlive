@@ -149,3 +149,8 @@ export interface UserUpdate {
   mobile?: string; // Optional, max length 15
   email?: string; // Optional, max length 100
 }
+
+export interface ResetPasswordParams {
+  id: number;
+  password: string; // base64 encoded
+}

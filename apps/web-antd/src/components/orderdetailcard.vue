@@ -9,7 +9,7 @@ import { Input, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { Edit, Trash2 } from 'lucide-vue-next';
 
-import { useTimeslotOrderStore } from '#/store';
+import { useOSSFileStore, useTimeslotOrderStore } from '#/store';
 
 defineOptions({
   name: 'OrderDetailCard',
@@ -238,6 +238,8 @@ const handleDelete = async () => {
     console.error('Delete order failed:', error);
   }
 };
+
+const ossFileStore = useOSSFileStore();
 </script>
 
 <template>
@@ -251,8 +253,14 @@ const handleDelete = async () => {
           <span class="text-lg font-medium text-blue-600">{{
             timeslotOrder.order_title
           }}</span>
+          <span
+            class="ml-auto transform cursor-pointer text-blue-600 transition-colors hover:text-blue-800"
+            @click="ossFileStore.showOSSFileModal(`order_${timeslotOrder.id}`)"
+          >
+            {{ $t('contract_files') }}
+          </span>
           <button
-            class="ml-auto flex items-center text-gray-500 hover:text-blue-600"
+            class="flex items-center text-gray-500 hover:text-blue-600"
             @click="handleEditTitle"
           >
             <Edit class="h-4 w-4" />
@@ -275,6 +283,16 @@ const handleDelete = async () => {
             <div class="font-medium">{{ timeslotOrder.customer?.code }}</div>
             <div class="mt-1 text-sm text-gray-500">
               {{ $t('content_id') }}: {{ timeslotOrder.contents[0]?.id }}
+            </div>
+            <div class="mt-2">
+              <span
+                class="transform cursor-pointer text-blue-600 transition-colors hover:text-blue-800"
+                @click="
+                  ossFileStore.showOSSFileModal(`order_${timeslotOrder.id}`)
+                "
+              >
+                {{ $t('contract_files') }}
+              </span>
             </div>
           </div>
           <div class="px-4 py-2">
