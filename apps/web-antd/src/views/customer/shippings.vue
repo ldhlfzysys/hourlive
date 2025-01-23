@@ -7,6 +7,8 @@ import OSSFileForm from '#/components/ossfileform.vue';
 import SampleKspForm from '#/components/samplekspform.vue';
 import SampleShippingForm from '#/components/sampleshippingform.vue';
 import ShippingCard from '#/components/shippingcard.vue';
+import ShippingDetailModal from '#/components/shippingDetailModal.vue';
+import ShippingSampleModal from '#/components/shippingSampleModal.vue';
 import { useAgencyStore, useSampleShippingStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -90,6 +92,9 @@ function onUpdate(
       <SampleKspForm />
       <OSSFileForm />
       <SampleShippingForm />
+      <!-- 修改 Modal 组件的使用 -->
+      <ShippingDetailModal />
+      <ShippingSampleModal />
     </template>
   </HourLivePage>
 </template>

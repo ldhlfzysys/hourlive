@@ -262,6 +262,9 @@ const getTypeClass = (isMain: string) => {
                     <div class="sample-quantity">
                       {{ $t('sample_count') }}: {{ item.sample_count || 1 }}
                     </div>
+                    <div class="sample-remark">
+                      {{ $t('sample_mark') }}: {{ item.sample_mark || '-' }}
+                    </div>
                   </div>
                 </div>
 
@@ -410,7 +413,8 @@ const getTypeClass = (isMain: string) => {
   color: #999;
 }
 
-.sample-quantity {
+.sample-quantity,
+.sample-remark {
   margin-bottom: 8px;
   font-size: 12px;
   color: #666;

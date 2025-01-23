@@ -8,8 +8,6 @@ import { $t } from '@vben/locales';
 
 import { Button } from 'ant-design-vue';
 
-import ShippingDetailModal from '#/components/shippingDetailModal.vue';
-import ShippingSampleModal from '#/components/shippingSampleModal.vue';
 import { useAgencyStore, useSampleShippingStore } from '#/store';
 
 defineOptions({
@@ -179,9 +177,5 @@ const isAgency = computed(() => hasAccessByRoles(['agency']));
         </div>
       </div>
     </div>
-
-    <!-- 修改 Modal 组件的使用 -->
-    <ShippingDetailModal />
-    <ShippingSampleModal />
   </div>
 </template>
