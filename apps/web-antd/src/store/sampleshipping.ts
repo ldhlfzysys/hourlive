@@ -81,6 +81,7 @@ export const useSampleShippingStore = defineStore(
     // 创建物流单
     function makeCreate() {
       showSampleShippingForm.value = true;
+      currentSampleShipping.value.id = undefined;
       currentSampleShipping.value.tracking_number = '';
     }
 
@@ -134,12 +135,21 @@ export const useSampleShippingStore = defineStore(
     async function customerUpdate() {
       try {
         sampleShippingUpdateLoading.value = true;
+        // 简化 samples 数据
+        const simplifiedSamples = currentSampleShipping.value.samples.map(
+          (sample) => ({
+            id: sample.id,
+            sample_count: sample.sample_count,
+            sample_mark: sample.sample_mark ?? '',
+          }),
+        );
+
         const updateData = {
           agency_id: currentSampleShipping.value.agency_id,
           express_company: currentSampleShipping.value.express_company,
           id: currentSampleShipping.value.id,
           receiver_address: currentSampleShipping.value.receiver_address,
-          samples: [],
+          samples: simplifiedSamples,
           sender_name: currentSampleShipping.value.sender_name,
           sender_time: currentSampleShipping.value.sender_time,
           tracking_number: currentSampleShipping.value.tracking_number,
@@ -218,6 +228,7 @@ export const useSampleShippingStore = defineStore(
           (sample) => ({
             id: sample.id,
             sample_count: sample.sample_count,
+            sample_mark: sample.sample_mark,
           }),
         );
 

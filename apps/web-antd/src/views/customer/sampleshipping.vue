@@ -119,38 +119,62 @@ function handleChange(keys: string[]) {
               class="flex h-[100px] w-full flex-row items-center rounded-lg border"
             >
               <div
-                class="m-[1px] flex h-[98px] w-[98px] rounded-l-lg bg-gray-200"
+                class="m-[1px] flex h-[98px] min-w-[98px] max-w-[98px] items-center justify-center rounded-l-lg bg-gray-200"
               >
-                <Image :src="item?.product_image" />
-              </div>
-              <h3
-                class="flex-1 whitespace-normal break-words pl-2 text-base font-semibold text-gray-800"
-                style="
-                  display: -webkit-box;
-                  overflow: hidden;
-                  -webkit-line-clamp: 3;
-                  -webkit-box-orient: vertical;
-                "
-              >
-                {{ item?.product_name }}
-              </h3>
-              <div v-if="targetKeys.includes(item.id)" class="mr-2" @click.stop>
-                <input
-                  v-model="item.sample_count"
-                  :placeholder="$t('sample_count')"
-                  class="ant-input ant-input-sm border-black"
-                  min="0"
-                  style="width: 80px; margin-left: 3px"
-                  type="number"
-                  @input="
-                    (e) =>
-                      handleQuantityChange(
-                        item,
-                        Number((e.target as HTMLInputElement).value),
-                      )
-                  "
+                <Image
+                  :preview="false"
+                  :src="item?.product_image"
+                  class="h-[98px] w-[98px] object-contain"
                 />
               </div>
+              <div
+                v-if="!targetKeys.includes(item.id)"
+                class="flex flex-1 flex-col justify-center px-3"
+              >
+                <h3
+                  class="multi-line whitespace-normal break-words text-base font-semibold text-gray-800"
+                >
+                  {{ item?.product_name }}
+                </h3>
+              </div>
+              <template v-else>
+                <div
+                  class="flex min-w-0 flex-1 flex-col justify-center gap-2 px-3"
+                  style="max-width: calc(100% - 200px)"
+                >
+                  <h3
+                    class="single-line whitespace-normal break-words text-base font-semibold text-gray-800"
+                  >
+                    {{ item?.product_name }}
+                  </h3>
+                  <div class="flex items-center" @click.stop>
+                    <input
+                      v-model="item.sample_mark"
+                      :placeholder="$t('sample_mark')"
+                      class="ant-input ant-input-sm border-black"
+                      style="width: 200px"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="flex min-w-[100px] items-center px-3" @click.stop>
+                  <input
+                    v-model="item.sample_count"
+                    :placeholder="$t('sample_count')"
+                    class="ant-input ant-input-sm border-black"
+                    min="0"
+                    style="width: 80px"
+                    type="number"
+                    @input="
+                      (e) =>
+                        handleQuantityChange(
+                          item,
+                          Number((e.target as HTMLInputElement).value),
+                        )
+                    "
+                  />
+                </div>
+              </template>
             </div>
           </template>
           <template #footer="{ direction }">
@@ -197,5 +221,20 @@ function handleChange(keys: string[]) {
 
 .border-black {
   border: 1px solid black !important;
+}
+
+.single-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: initial;
+  white-space: nowrap;
+  -webkit-box-orient: initial;
+}
+
+.multi-line {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 </style>

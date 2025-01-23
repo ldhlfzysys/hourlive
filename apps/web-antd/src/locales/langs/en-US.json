@@ -385,5 +385,6 @@
   "input_order_title": "Please Enter Order Title",
   "order_title_required": "Please Enter Order Title",
   "order_title": "Order Title",
-  "contract_files": "Contract Files"
+  "contract_files": "Contract Files",
+  "sample_mark": "Sample Mark"
 }

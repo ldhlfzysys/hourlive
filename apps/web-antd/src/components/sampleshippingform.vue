@@ -84,7 +84,8 @@ const handleCancel = () => {
 
 const getTotalSamples = () => {
   return sampleShippingStore.currentSampleShipping.samples.reduce(
-    (total, item) => total + (item.sample_count ?? 0),
+    // eslint-disable-next-line no-constant-binary-expression
+    (total, item) => total + (Number(item.sample_count) ?? 0),
     0,
   );
 };
@@ -247,8 +248,22 @@ const handleAgencyChange = (value) => {
                   <img :src="item.product_image" class="sample-image" />
                   <div class="sample-info">
                     <div class="sample-name">{{ item.product_name }}</div>
+                    <div class="sample-mark">
+                      备注:
+                      <Input
+                        v-model:value="item.sample_mark"
+                        :style="{ width: '200px' }"
+                        placeholder="请输入备注"
+                      />
+                    </div>
                     <div class="sample-quantity">
-                      数量: {{ item.sample_count }}
+                      数量:
+                      <Input
+                        v-model:value="item.sample_count"
+                        :style="{ width: '100px' }"
+                        placeholder="请输入数量"
+                        type="number"
+                      />
                     </div>
                   </div>
                 </div>
@@ -296,7 +311,12 @@ const handleAgencyChange = (value) => {
   font-weight: 500;
 }
 
+.sample-mark,
 .sample-quantity {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
   font-size: 14px;
   color: #666;
 }

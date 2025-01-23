@@ -33,5 +33,6 @@ export interface Sample {
   agencys?: Agency[];
   customer?: Customer;
   sample_count?: number; // 样品数量
+  sample_mark?: string; // 样品标记
   isInAgency?: number; // 0没有， 1在途， 2有
 }
