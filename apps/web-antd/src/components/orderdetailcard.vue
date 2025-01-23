@@ -28,23 +28,73 @@ const calculateDuration = (begin: string, finish: string) => {
   const beginTime = dayjs(begin);
   const finishTime = dayjs(finish);
 
+  console.log('计算时长 - 输入参数:', {
+    begin,
+    beginTimeFormat: beginTime.format('YYYY-MM-DD HH:mm'),
+    finish,
+    finishTimeFormat: finishTime.format('YYYY-MM-DD HH:mm'),
+  });
+
   // 确保两个时间都是有效的
   if (!beginTime.isValid() || !finishTime.isValid()) {
     console.warn('Invalid date input:', { begin, finish });
     return '0.0';
   }
 
-  // 计算小时差
-  const duration = finishTime.diff(beginTime, 'hour', true);
+  // 检查是否跨天
+  const isCrossDay = !beginTime.isSame(finishTime, 'day');
+  console.log('是否跨天:', isCrossDay);
 
-  // 如果结束时间在第二天，需要计算20小时（08:00-04:00）或18小时（08:00-02:00）
-  if (finishTime.format('HH:mm') === '04:00') {
-    return '20.0';
-  } else if (finishTime.format('HH:mm') === '02:00') {
-    return '18.0';
+  let hours;
+  if (isCrossDay) {
+    // 跨天，分两段计算
+    const beginHour = beginTime.hour() + beginTime.minute() / 60;
+    const finishHour = finishTime.hour() + finishTime.minute() / 60;
+
+    // 第一天：从开始时间到24:00
+    const firstDayHours = 24 - beginHour;
+    // 第二天：从00:00到结束时间
+    const secondDayHours = finishHour;
+    hours = firstDayHours + secondDayHours;
+
+    console.log('跨天计算过程:', {
+      firstDayHours,
+      secondDayHours,
+      totalHours: hours,
+    });
+  } else {
+    // 不跨天，直接计算当天的时间差
+    const beginHour = beginTime.hour() + beginTime.minute() / 60;
+    const finishHour = finishTime.hour() + finishTime.minute() / 60;
+    hours = finishHour - beginHour;
+
+    // 如果计算结果为负，说明可能是跨天的情况被错误判断了
+    if (hours < 0) {
+      // 重新按跨天计算
+      const firstDayHours = 24 - beginHour;
+      const secondDayHours = finishHour;
+      hours = firstDayHours + secondDayHours;
+    }
+
+    console.log('同一天计算过程:', {
+      beginHour,
+      finishHour,
+      hours,
+    });
   }
 
-  return duration >= 0 ? duration.toFixed(1) : '0.0';
+  console.log('最终计算结果:', hours);
+
+  if (hours < 0) {
+    console.warn('警告：计算结果为负数！', {
+      begin,
+      finish,
+      hours,
+    });
+    return '0.0';
+  }
+
+  return hours.toFixed(1);
 };
 
 // 计算所有时间段的总时长
@@ -123,9 +173,10 @@ const mergedTimeslots = computed(() => {
         ) !== 1)
     ) {
       // 不能合并，保存当前组并开始新组
+      // 计算单天的时长
       const singleDuration = calculateDuration(
         `${currentGroup.startDates[0]} ${currentGroup.beginTime}`,
-        `${dayjs(slots[index - 1].finish_date).format('YYYY-MM-DD HH:mm')}`,
+        `${currentGroup.startDates[0]} ${currentGroup.finishTime}`,
       );
 
       merged.push({
@@ -157,9 +208,10 @@ const mergedTimeslots = computed(() => {
 
     // 处理最后一个元素
     if (index === slots.length - 1) {
+      // 计算单天的时长
       const singleDuration = calculateDuration(
         `${currentGroup.startDates[0]} ${currentGroup.beginTime}`,
-        slot.finish_date,
+        `${currentGroup.startDates[0]} ${currentGroup.finishTime}`,
       );
 
       merged.push({
