@@ -386,5 +386,6 @@
   "order_title_required": "Please Enter Order Title",
   "order_title": "Order Title",
   "contract_files": "Contract Files",
-  "sample_mark": "Sample Mark"
+  "sample_mark": "Sample Mark",
+  "sample_mark_desc": "Note: e.g. color, size, flavor, etc."
 }

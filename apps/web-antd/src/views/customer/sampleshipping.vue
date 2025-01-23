@@ -147,12 +147,11 @@ function handleChange(keys: string[]) {
                   >
                     {{ item?.product_name }}
                   </h3>
-                  <div class="flex items-center" @click.stop>
+                  <div class="flex w-full items-center" @click.stop>
                     <input
                       v-model="item.sample_mark"
-                      :placeholder="$t('sample_mark')"
-                      class="ant-input ant-input-sm border-black"
-                      style="width: 200px"
+                      :placeholder="$t('sample_mark_desc')"
+                      class="ant-input ant-input-sm w-full border-black"
                       type="text"
                     />
                   </div>
