@@ -28,13 +28,6 @@ const calculateDuration = (begin: string, finish: string) => {
   const beginTime = dayjs(begin);
   const finishTime = dayjs(finish);
 
-  console.log('计算时长 - 输入参数:', {
-    begin,
-    beginTimeFormat: beginTime.format('YYYY-MM-DD HH:mm'),
-    finish,
-    finishTimeFormat: finishTime.format('YYYY-MM-DD HH:mm'),
-  });
-
   // 确保两个时间都是有效的
   if (!beginTime.isValid() || !finishTime.isValid()) {
     console.warn('Invalid date input:', { begin, finish });
@@ -43,7 +36,6 @@ const calculateDuration = (begin: string, finish: string) => {
 
   // 检查是否跨天
   const isCrossDay = !beginTime.isSame(finishTime, 'day');
-  console.log('是否跨天:', isCrossDay);
 
   let hours;
   if (isCrossDay) {
@@ -56,12 +48,6 @@ const calculateDuration = (begin: string, finish: string) => {
     // 第二天：从00:00到结束时间
     const secondDayHours = finishHour;
     hours = firstDayHours + secondDayHours;
-
-    console.log('跨天计算过程:', {
-      firstDayHours,
-      secondDayHours,
-      totalHours: hours,
-    });
   } else {
     // 不跨天，直接计算当天的时间差
     const beginHour = beginTime.hour() + beginTime.minute() / 60;
@@ -75,22 +61,9 @@ const calculateDuration = (begin: string, finish: string) => {
       const secondDayHours = finishHour;
       hours = firstDayHours + secondDayHours;
     }
-
-    console.log('同一天计算过程:', {
-      beginHour,
-      finishHour,
-      hours,
-    });
   }
 
-  console.log('最终计算结果:', hours);
-
   if (hours < 0) {
-    console.warn('警告：计算结果为负数！', {
-      begin,
-      finish,
-      hours,
-    });
     return '0.0';
   }
 

@@ -14,14 +14,7 @@ import '@wangeditor/editor/dist/css/style.css';
 defineOptions({
   name: 'RoomDescForm',
 });
-withDefaults(
-  defineProps<{
-    allowEdit?: boolean;
-  }>(),
-  {
-    allowEdit: false,
-  },
-);
+
 const { hasAccessByRoles } = useAccess();
 const editorRef = ref();
 const mode = ref('simple');

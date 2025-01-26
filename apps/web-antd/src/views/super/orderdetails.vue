@@ -152,7 +152,6 @@ const selectedRooms = ref([]);
 
 watch([selectedCustomers], () => {
   if (selectedCustomers.value) {
-    console.log(selectedCustomers.value);
     orderStore.$reset();
     orderStore.timeslotOrderQuery.customer_id = selectedCustomers.value;
     orderStore.queryTimeslotOrder();
@@ -225,7 +224,7 @@ function fetchCustomerData() {
     </HourLivePage>
 
     <OrderDetailModal v-if="orderStore.showEventDetails" />
-    <OSSFileForm :allow-edit="true" />
+    <OSSFileForm />
   </div>
 </template>
 

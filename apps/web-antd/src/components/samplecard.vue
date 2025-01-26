@@ -17,14 +17,9 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    allowEdit?: boolean;
-    hideKsp?: boolean;
     sample: Sample;
   }>(),
-  {
-    allowEdit: false,
-    hideKsp: false,
-  },
+  {},
 );
 
 const sampleStore = useSampleStore();
@@ -55,7 +50,7 @@ const type = computed(() => {
 });
 
 const canEdit = computed(() => {
-  return userStore.userRoles.includes('customer') && props.allowEdit;
+  return userStore.userRoles.includes('customer');
 });
 
 const showDeleteConfirm = ref(false);
@@ -109,15 +104,24 @@ const confirmDelete = async () => {
 
           <div class="mt-3 flex items-center space-x-4 text-sm">
             <span class="text-gray-500">ID: {{ props.sample.product_id }}</span>
-            <div v-if="!hideKsp" class="flex space-x-3">
+            <div class="flex space-x-3">
               <Tooltip
                 placement="top"
                 title="卖点是主播在介绍商品时会额外关注的内容，保证主播在介绍商品时，不错过重要内容。"
               >
                 <span
                   class="transform cursor-pointer text-blue-600 transition-colors hover:text-blue-800"
-                  @click="sampleStore.makeKSPUpdate(props.sample.id!)"
-                  >{{ $t('product_ksp') }}</span
+                  @click="
+                    canEdit
+                      ? sampleStore.makeUpdate(props.sample.id!)
+                      : sampleStore.makeKSPUpdate(props.sample.id!)
+                  "
+                  ><span
+                    v-if="!props.sample.product_ksp?.length"
+                    class="mr-1 text-red-500"
+                    >❗️</span
+                  >{{ $t('product_ksp')
+                  }}{{ !props.sample.product_ksp?.length ? '[无]' : '' }}</span
                 >
               </Tooltip>
               <span

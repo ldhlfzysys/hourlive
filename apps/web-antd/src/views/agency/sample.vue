@@ -272,8 +272,8 @@ function syncLatestProducts() {
           description="暂无样本数据，请选择客户或添加新样本"
         />
       </div>
-      <SampleKspForm :allow-edit="true" />
-      <OSSFileForm :allow-edit="true" />
+      <SampleKspForm />
+      <OSSFileForm />
     </template>
 
     <!-- <template #footer> 123 </template> -->

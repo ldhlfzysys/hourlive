@@ -213,6 +213,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   function $reset() {
     timeslotOrderLoading.value = false;
     timeslotOrderCreateLoading.value = false;
+    orderFilters.value = [];
     timeslotOrderQuery.value = {
       agency_id: -1,
       begin_date: '',

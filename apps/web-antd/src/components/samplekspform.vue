@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 
 import { $t } from '@vben/locales';
+import { useUserStore } from '@vben/stores';
 
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
-import { Modal } from 'ant-design-vue'; // 引入 css
+import { Modal } from 'ant-design-vue';
 
 import { useSampleStore } from '#/store';
 
@@ -14,14 +15,10 @@ defineOptions({
   name: 'SampleKspForm',
 });
 
-withDefaults(
-  defineProps<{
-    allowEdit?: boolean;
-  }>(),
-  {
-    allowEdit: false,
-  },
-);
+const userStore = useUserStore();
+const canEdit = computed(() => {
+  return userStore.userRoles.includes('customer');
+});
 
 const editorRef = ref();
 const mode = ref('simple');
@@ -49,7 +46,7 @@ const handleOk = () => {
   <Modal
     v-model:visible="sampleStore.showKSPModal"
     :confirm-loading="sampleStore.sampleUpdateLoading"
-    :footer="allowEdit ? undefined : null"
+    :footer="canEdit ? undefined : null"
     :title="$t('product_ksp')"
     centered
     width="800px"

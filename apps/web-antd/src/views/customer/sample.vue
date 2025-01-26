@@ -112,7 +112,7 @@ function onUpdate(
           @scroll-start="onTop"
           @update="onUpdate"
         >
-          <SampleCard :allow-edit="true" :sample="item" />
+          <SampleCard :sample="item" />
         </RecycleScroller>
         <Empty
           v-else
@@ -121,9 +121,13 @@ function onUpdate(
           class="flex-1"
         />
       </div>
-      <SampleForm :allow-edit="true" />
-      <SampleKspForm :allow-edit="true" />
-      <OSSFileForm :allow-edit="true" />
+      <AccessControl :codes="['customer']">
+        <SampleForm />
+      </AccessControl>
+      <AccessControl :codes="['super']">
+        <SampleKspForm />
+      </AccessControl>
+      <OSSFileForm />
     </template>
 
     <!-- <template #footer> 123 </template> -->

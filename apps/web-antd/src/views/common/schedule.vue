@@ -195,10 +195,12 @@ const localeStr = computed(() => {
 
 // Life Time
 onMounted(() => {
+  console.log('onmouted !!!!!');
+  orderStore.$reset();
   // 设置初始月份的查询范围
   const currentDate = dayjs();
-  const startOfMonth = currentDate.startOf('month').subtract(1, 'month');
-  const endOfMonth = currentDate.endOf('month').add(1, 'month');
+  const startOfMonth = currentDate.startOf('month');
+  const endOfMonth = currentDate.endOf('month');
 
   orderStore.timeslotOrderQuery = {
     ...orderStore.timeslotOrderQuery,
@@ -283,17 +285,17 @@ function handleApendOrder() {
 
 // 添加新的函数处理月份变化
 function handleViewChange({ endDate, startDate }) {
-  const currentStartDate = dayjs(orderStore.timeslotOrderQuery.begin_date);
-  const currentEndDate = dayjs(orderStore.timeslotOrderQuery.finish_date);
+  // const currentStartDate = dayjs(orderStore.timeslotOrderQuery.begin_date);
+  // const currentEndDate = dayjs(orderStore.timeslotOrderQuery.finish_date);
 
-  if (
-    (dayjs(startDate).isAfter(currentStartDate) ||
-      dayjs(startDate).isSame(currentStartDate)) &&
-    (dayjs(endDate).isBefore(currentEndDate) ||
-      dayjs(endDate).isSame(currentEndDate))
-  ) {
-    return;
-  }
+  // if (
+  //   (dayjs(startDate).isAfter(currentStartDate) ||
+  //     dayjs(startDate).isSame(currentStartDate)) &&
+  //   (dayjs(endDate).isBefore(currentEndDate) ||
+  //     dayjs(endDate).isSame(currentEndDate))
+  // ) {
+  //   return;
+  // }
 
   // 设置查询时间范围
   orderStore.timeslotOrderQuery = {

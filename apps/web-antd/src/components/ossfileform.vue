@@ -12,15 +12,6 @@ defineOptions({
   name: 'OSSFileForm',
 });
 
-const props = withDefaults(
-  defineProps<{
-    allowEdit?: boolean;
-  }>(),
-  {
-    allowEdit: false,
-  },
-);
-
 const emit = defineEmits(['update:visible']);
 
 const ossFileStore = useOSSFileStore();
@@ -130,7 +121,7 @@ onMounted(async () => {
     :width="700"
     @cancel="handleCancel"
   >
-    <div v-if="canUpload && allowEdit" class="mb-6 flex items-center gap-4">
+    <div v-if="canUpload" class="mb-6 flex items-center gap-4">
       <Upload.Dragger
         v-model:file-list="fileList"
         :before-upload="beforeUpload"
