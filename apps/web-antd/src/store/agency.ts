@@ -1,88 +1,122 @@
+import type {
+  AgencyHomeInfo,
+  AgencyRead,
+  BaseQuery,
+  StandardResponse,
+} from '#/types';
+
 import { computed, ref } from 'vue';
 
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
 
-// Model & Query
-import type { Agency, AgencyHomeInfo, StanderResult } from '#/types';
+// API
 
-// Model
-
-async function getAllAgency() {
-  return requestClient.get<StanderResult<Agency[]>>(`agency/query`);
+async function _queryAgency() {
+  return requestClient.get<StandardResponse<AgencyRead[]>>(`agency/query`);
 }
 
-async function _hideAgency(id: number) {
-  return requestClient.post<StanderResult<Agency>>(`agency/hideagency`, { id });
+async function _queryAgencyByIds(params: BaseQuery) {
+  return requestClient.post<StandardResponse<AgencyRead[]>>(
+    `agency/query/ids`,
+    params,
+  );
 }
 
-async function getAgencyHomeInfo() {
-  return requestClient.post<StanderResult<AgencyHomeInfo>>('home/agencyhome');
+async function _hideAgency(params: BaseQuery) {
+  return requestClient.post<StandardResponse<AgencyRead>>(
+    `agency/hide`,
+    params,
+  );
 }
 
-// Store
+async function _getAgencyHomeInfo() {
+  return requestClient.post<StandardResponse<AgencyHomeInfo>>(
+    'home/agencyhome',
+  );
+}
+
 export const useAgencyStore = defineStore('agency-store', () => {
-  const allAgency = ref<Agency[]>([]);
-  const agencyOptions = computed(() => {
-    return allAgency.value.map((item) => ({
-      label: item.name,
-      value: item.id,
-    }));
+  // data
+  const agencyies = ref<Map<number, AgencyRead>>(new Map());
+  const agencyList = computed(() => {
+    return [...agencyies.value.entries()]
+      .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
+      .map(([_, agency]) => agency); // 转换为Agency的list
   });
-
-  const hideAgencyLoading = ref(false);
-
   const agencyHomeInfo = ref<AgencyHomeInfo>();
 
+  // UI - loading
+  const queryAgencyLoading = ref(false);
+  const hideAgencyLoading = ref(false);
+
+  // UI - modal
+
+  // UE - Update
+
+  // API
+  async function agencyById(id: number) {
+    const agency = agencyies.value.get(id);
+    if (agency) {
+      return agency;
+    } else {
+      queryAgencyLoading.value = true;
+      const res = await _queryAgencyByIds({ ids: [id] });
+      if (res.success && res.data && res.data.length > 0) {
+        res.data.forEach((agency) => {
+          if (agency.id) {
+            agencyies.value.set(agency.id, agency);
+          }
+        });
+      }
+      queryAgencyLoading.value = false;
+      return agencyies.value.get(id);
+    }
+  }
+
   async function fetchAgencyHomeInfo() {
-    const res = await getAgencyHomeInfo();
+    const res = await _getAgencyHomeInfo();
     agencyHomeInfo.value = res.data;
-  }
-
-  function roomsByAgencyIds(ids: number[]) {
-    return allAgency.value
-      .filter((agency) => ids.includes(agency.id))
-      .flatMap((agency) => agency.rooms);
-  }
-
-  function roomOptionsByAgencyIds(ids: number[]) {
-    return roomsByAgencyIds(ids)?.map((room) => ({
-      label: `${room.id.toString()}-${room.name}`,
-      value: room.id,
-    }));
   }
 
   async function hideAgency(id: number) {
     hideAgencyLoading.value = true;
-    const res = await _hideAgency(id);
+    const res = await _hideAgency({ id });
     if (res.success) {
-      allAgency.value = allAgency.value.filter((agency) => agency.id !== id);
+      agencyies.value.delete(id);
     }
     hideAgencyLoading.value = false;
   }
 
   async function fetchAgency() {
-    const res = await getAllAgency();
-    allAgency.value = res.data;
+    queryAgencyLoading.value = true;
+    const res = await _queryAgency();
+    if (res.success && res.data) {
+      res.data.forEach((agency) => {
+        if (agency.id) {
+          agencyies.value.set(agency.id, agency);
+        }
+      });
+    }
+    queryAgencyLoading.value = false;
   }
 
-  function agencyById(id: number) {
-    return allAgency.value.find((agency) => agency.id === id);
+  function $reset() {
+    agencyies.value.clear();
+    agencyHomeInfo.value = undefined;
   }
 
-  function $reset() {}
   return {
     $reset,
     agencyById,
     agencyHomeInfo,
-    agencyOptions,
-    allAgency,
+    agencyies,
+    agencyList,
     fetchAgency,
     fetchAgencyHomeInfo,
     hideAgency,
     hideAgencyLoading,
-    roomOptionsByAgencyIds,
-    roomsByAgencyIds,
+    queryAgencyLoading,
   };
 });

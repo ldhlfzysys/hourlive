@@ -8,50 +8,60 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { AddSample, Content, ContentQuery, StanderResult } from '#/types';
+import type {
+  AddSampleToContent,
+  BaseQuery,
+  ContentRead,
+  ContentUpdate,
+  StandardResponse,
+} from '#/types';
 
-function _getAllContent(params?: ContentQuery) {
-  return requestClient.post<StanderResult<Content[]>>('content/query', params);
+async function _getAllContent(params?: BaseQuery) {
+  return requestClient.post<StandardResponse<ContentRead[]>>(
+    'content/query',
+    params,
+  );
 }
 
-function _newContent(params: Content) {
-  return requestClient.post<StanderResult<Content>>('content/create', params);
+async function _queryContentById(params: BaseQuery) {
+  return requestClient.post<StandardResponse<ContentRead[]>>(
+    'content/query/ids',
+    params,
+  );
 }
 
-function _updateContent(params: Content) {
-  return requestClient.post<StanderResult<Content>>('content/update', params);
+async function _updateContent(params: ContentUpdate) {
+  return requestClient.post<StandardResponse<ContentRead>>(
+    'content/update',
+    params,
+  );
 }
 
-function _addSamples(params: AddSample) {
-  return requestClient.post<StanderResult<Content>>(
+async function _addSamples(params: AddSampleToContent) {
+  return requestClient.post<StandardResponse<ContentRead>>(
     'content/addsample',
     params,
   );
 }
 
-function _removeSamples(params: AddSample) {
-  return requestClient.post<StanderResult<Content>>(
+async function _removeSamples(params: AddSampleToContent) {
+  return requestClient.post<StandardResponse<ContentRead>>(
     'content/removesample',
+    params,
+  );
+}
+
+async function _hideContent(params: BaseQuery) {
+  return requestClient.post<StandardResponse<ContentRead>>(
+    'content/hide',
     params,
   );
 }
 
 // store
 export const useContentStore = defineStore('content-store', () => {
-  // loading
-
-  const contentLoading = ref(false);
-  const contentCreateLoading = ref(false);
-  const contentCreate = ref<Content>({
-    content_text: '',
-    liveaccount_id: undefined,
-  });
-  const addSample = ref<AddSample>({
-    content_id: -1,
-    sample_ids: [],
-  });
-  // contents
-  const contents = ref<Map<number, Content>>(new Map());
+  // data
+  const contents = ref<Map<number, ContentRead>>(new Map());
 
   const contentList = computed(() => {
     return [...contents.value.entries()]
@@ -59,22 +69,38 @@ export const useContentStore = defineStore('content-store', () => {
       .map(([_, content]) => content); // 转换为Content的list
   });
 
-  const showModal = ref(false);
+  const currentContent = ref<ContentUpdate>({
+    content_text: '',
+    liveaccount_id: undefined,
+  });
+
+  const addSample = ref<AddSampleToContent>({
+    content_id: -1,
+    sample_ids: [],
+  });
+
+  // UI - loading
+  const queryContentLoading = ref(false);
+  const updateContentLoading = ref(false);
+  const addSamplesLoading = ref(false);
+  const removeSamplesLoading = ref(false);
+  const hideContentLoading = ref(false);
+
+  // UI - modal
+  const showContentUpdateModal = ref(false);
   const showAddSamplesModal = ref(false);
   const showSampleManagerModal = ref(false);
 
+  // methods
   function makeCreate() {
-    showModal.value = true;
-    contentCreate.value = {
-      content_text: '',
-      liveaccount_id: undefined,
-    };
+    showContentUpdateModal.value = true;
+    currentContent.value = {};
   }
   function makeUpdate(id: number) {
-    showModal.value = true;
+    showContentUpdateModal.value = true;
     const content = contents.value.get(id);
     if (content) {
-      contentCreate.value = content;
+      currentContent.value = content;
     }
   }
 
@@ -82,32 +108,44 @@ export const useContentStore = defineStore('content-store', () => {
     showSampleManagerModal.value = true;
     const content = contents.value.get(id);
     if (content) {
-      contentCreate.value = content;
+      currentContent.value = content;
     }
   }
 
-  function contentById(id: number) {
+  async function contentById(id: number) {
+    const content = contents.value.get(id);
+    if (content) {
+      return content;
+    }
+
+    queryContentLoading.value = true;
+    const res = await _queryContentById({ ids: [id] });
+    if (res && res.success && res.data && res.data.length > 0) {
+      res.data.forEach((content) => {
+        if (content.id) {
+          contents.value.set(content.id, content);
+        }
+      });
+    }
+    queryContentLoading.value = false;
     return contents.value.get(id);
   }
 
-  // query
-  const contentQuery = ref<ContentQuery>({
-    q_id: -1,
-    q_order: 'desc',
-    q_size: 100,
-  });
-
   function $reset() {
-    contentLoading.value = false;
-    contentCreateLoading.value = false;
-    contentQuery.value.q_id = -1;
-
-    contentQuery.value = {
-      q_id: -1,
-      q_order: 'desc',
-      q_size: 30,
+    queryContentLoading.value = false;
+    updateContentLoading.value = false;
+    addSamplesLoading.value = false;
+    removeSamplesLoading.value = false;
+    hideContentLoading.value = false;
+    currentContent.value = {
+      content_text: '',
+      liveaccount_id: undefined,
     };
-    contents.value = new Map();
+    addSample.value = {
+      content_id: -1,
+      sample_ids: [],
+    };
+    contents.value.clear();
   }
 
   // methods

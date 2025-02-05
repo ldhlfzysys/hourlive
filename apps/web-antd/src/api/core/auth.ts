@@ -1,5 +1,3 @@
-import type {LoginParams, RegisterParams, StanderResult, User, UserUpdate} from '#/types';
-
 import { baseRequestClient, requestClient } from '#/api/request';
 
 export namespace AuthApi {
@@ -25,24 +23,6 @@ export namespace AuthApi {
 }
 
 /**
- * 注册
- */
-export async function registerApi(data: RegisterParams) {
-  return requestClient.post<StanderResult<any>>('/user/register', data);
-}
-
-export async function updateUserApi(data: UserUpdate) {
-  return requestClient.post<StanderResult<any>>('/user/update_user', data);
-}
-
-/**
- * 登录
- */
-export async function loginApi(data: LoginParams) {
-  return requestClient.post<StanderResult<any>>('/user/login', data);
-}
-
-/**
  * 刷新accessToken
  */
 export async function refreshTokenApi() {
@@ -58,10 +38,6 @@ export async function logoutApi() {
   return baseRequestClient.post('/auth/logout', {
     withCredentials: true,
   });
-}
-
-export async function getUserInfoApi() {
-  return requestClient.get<StanderResult<User>>('/user/userInfo');
 }
 
 /**
