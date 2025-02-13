@@ -154,6 +154,30 @@ const routes: RouteRecordRaw[] = [
     meta: {
       authority: ['agency'],
       hideChildrenInMenu: true,
+      icon: 'lucide:calendar-cog',
+      order: 2,
+      title: $t('scheduling'),
+    },
+    name: 'AgencyScheduling',
+    path: '/agencyscheduling',
+    children: [
+      {
+        component: () => import('#/views/agency/scheduling.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:calendar-cog',
+          title: $t('scheduling'),
+        },
+        name: 'AgencySchedulingIndex',
+        path: '/agencyscheduling/index',
+      },
+    ],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['agency'],
+      hideChildrenInMenu: true,
       icon: 'lucide:calendar',
       order: 7,
       title: $t('schedule'),
