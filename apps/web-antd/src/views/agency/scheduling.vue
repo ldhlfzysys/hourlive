@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
-import { Button, Divider, RangePicker } from 'ant-design-vue';
+import { Avatar, Button, Divider, RangePicker } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import AISchedulingModal from '#/components/aiSchedulingModal.vue';
-import { useSchedulingStore } from '#/store';
+import { useSchedulingStore, useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 const schedulingStore = useSchedulingStore();
-
+const streamerStore = useStreamerStore();
 const ranges = computed(() => {
   const now_date = dayjs();
   return {
@@ -27,6 +27,10 @@ const ranges = computed(() => {
     ],
     Today: [now_date, now_date] as [dayjs.Dayjs, dayjs.Dayjs],
   };
+});
+
+onMounted(() => {
+  streamerStore.queryStreamer();
 });
 </script>
 
@@ -48,13 +52,18 @@ const ranges = computed(() => {
       <template #content>
         <div class="flex">
           <div class="w-1/7">
-            <div class="flex items-center justify-center border">
+            <div class="flex h-full flex-col items-center border p-4">
               <Button type="primary">主播统计排班</Button>
+              <Avatar
+                v-for="streamer in streamerStore.streamerList"
+                :key="streamer.id"
+                :size="70"
+                :src="streamer.avatar"
+                class="m-2 shadow-md"
+              />
             </div>
           </div>
-          <div class="w-6/7">
-            <!-- Right side content -->
-          </div>
+          <div class="w-6/7 max-h-[800px]"></div>
         </div>
       </template>
     </HourLivePage>
