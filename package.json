@@ -72,6 +72,7 @@
     "@schedule-x/calendar": "^2.3.1",
     "@schedule-x/theme-default": "^2.3.1",
     "@schedule-x/vue": "^2.3.1",
+    "tesseract.js": "^5.1.1",
     "v-calendar": "^3.1.2",
     "vue-cal": "^4.10.0"
   },

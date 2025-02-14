@@ -10,6 +10,7 @@ export * from './ossfile';
 export * from './room';
 export * from './sample';
 export * from './sampleshipping';
+export * from './scheduling';
 export * from './shippingaddress';
 export * from './streamer';
 // export * from './timeslotOrder';
