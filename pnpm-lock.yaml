@@ -17,18 +17,15 @@ importers:
       '@fullcalendar/core':
         specifier: ^6.1.6
         version: 6.1.15
-      '@fullcalendar/daygrid':
-        specifier: ^6.1.6
-        version: 6.1.15(@fullcalendar/core@6.1.15)
       '@fullcalendar/interaction':
         specifier: ^6.1.6
         version: 6.1.15(@fullcalendar/core@6.1.15)
-      '@fullcalendar/timegrid':
+      '@fullcalendar/resource-timegrid':
         specifier: ^6.1.6
-        version: 6.1.15(@fullcalendar/core@6.1.15)
-      '@fullcalendar/timeline':
+        version: 6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))
+      '@fullcalendar/resource-timeline':
         specifier: ^6.1.6
-        version: 6.1.15(@fullcalendar/core@6.1.15)
+        version: 6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))
       '@fullcalendar/vue3':
         specifier: ^6.1.6
         version: 6.1.15(@fullcalendar/core@6.1.15)(vue@3.5.6(typescript@5.6.2))
@@ -3098,6 +3095,29 @@ packages:
 
   '@fullcalendar/premium-common@6.1.15':
     resolution: {integrity: sha512-IwUHptHNzWDOgAsXLoBntGxmbfCKvUy6iYFMCP3F3ahbG58E0PJMYsXvgw+NaA7Cz4gcQoVHioGjIFgQqs3Keg==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.15
+
+  '@fullcalendar/resource-daygrid@6.1.15':
+    resolution: {integrity: sha512-4SVfr2Gf0KtLkW56U9gCXf8Jrug8CDJ81g0KMCTbTsaqrIdQ0DKWc0O5+4UVvibwUeh2jWQNIVXXOoPQ5lDHhQ==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.15
+      '@fullcalendar/resource': ~6.1.15
+
+  '@fullcalendar/resource-timegrid@6.1.15':
+    resolution: {integrity: sha512-nT3aT8WGm4zSek1zcGCm4NRmuBdAhl+Tpod/NH8N5ZcN3A490GdT7J3uDK1KzPb+5kQ/RlW0Pzj0hF4B5BkBwg==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.15
+      '@fullcalendar/resource': ~6.1.15
+
+  '@fullcalendar/resource-timeline@6.1.15':
+    resolution: {integrity: sha512-3bvGNDE84ZEV6RLZcYWvMWaViLm22Uw182PMXmFjvq2Vh/bPrrzeLkmyocPsyiT2Bbv5THxwLyzMd7X3Qi/v3Q==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.15
+      '@fullcalendar/resource': ~6.1.15
+
+  '@fullcalendar/resource@6.1.15':
+    resolution: {integrity: sha512-s9Rz3HNDQWBYCG+V4wqg8x5+UTD5kC3S2poq+5zwbPeyWT8+FEILikQZIgfESX70Z4fn8bBlLJ04Jd/LijfqWw==}
     peerDependencies:
       '@fullcalendar/core': ~6.1.15
 
@@ -12078,6 +12098,34 @@ snapshots:
   '@fullcalendar/premium-common@6.1.15(@fullcalendar/core@6.1.15)':
     dependencies:
       '@fullcalendar/core': 6.1.15
+
+  '@fullcalendar/resource-daygrid@6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))':
+    dependencies:
+      '@fullcalendar/core': 6.1.15
+      '@fullcalendar/daygrid': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/premium-common': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/resource': 6.1.15(@fullcalendar/core@6.1.15)
+
+  '@fullcalendar/resource-timegrid@6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))':
+    dependencies:
+      '@fullcalendar/core': 6.1.15
+      '@fullcalendar/premium-common': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/resource': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/resource-daygrid': 6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))
+      '@fullcalendar/timegrid': 6.1.15(@fullcalendar/core@6.1.15)
+
+  '@fullcalendar/resource-timeline@6.1.15(@fullcalendar/core@6.1.15)(@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15))':
+    dependencies:
+      '@fullcalendar/core': 6.1.15
+      '@fullcalendar/premium-common': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/resource': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/scrollgrid': 6.1.15(@fullcalendar/core@6.1.15)
+      '@fullcalendar/timeline': 6.1.15(@fullcalendar/core@6.1.15)
+
+  '@fullcalendar/resource@6.1.15(@fullcalendar/core@6.1.15)':
+    dependencies:
+      '@fullcalendar/core': 6.1.15
+      '@fullcalendar/premium-common': 6.1.15(@fullcalendar/core@6.1.15)
 
   '@fullcalendar/scrollgrid@6.1.15(@fullcalendar/core@6.1.15)':
     dependencies:

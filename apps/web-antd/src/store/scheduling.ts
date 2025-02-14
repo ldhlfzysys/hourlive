@@ -1,6 +1,10 @@
 import { computed, ref } from 'vue';
 
+import timelinePlugin from '@fullcalendar/resource-timeline';
+import dayjs, { Dayjs } from 'dayjs';
 import { defineStore } from 'pinia';
+
+import { useRoomStore } from './room';
 
 function _queryBrand() {
   return {
@@ -62,6 +66,55 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   const brandMap = ref({});
 
+  const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
+
+  const resources = computed(() => {
+    const allDateList = [];
+
+    let startDate = dateRange.value[0];
+    const endDate = dateRange.value[1];
+
+    while (startDate.isBefore(endDate) || startDate.isSame(endDate)) {
+      allDateList.push(startDate.format('YYYY-MM-DD'));
+      startDate = startDate.add(1, 'day');
+    }
+
+    const resourceList = [];
+
+    for (const dateString of allDateList) {
+      for (const room of useRoomStore().roomList) {
+        resourceList.push({
+          date: dateString,
+          id: `${dateString}_${room.id}`,
+          rooms: room.name,
+        });
+      }
+    }
+
+    return resourceList;
+  });
+
+  const calendarOptions = computed(() => ({
+    editable: true,
+    events: [],
+    headerToolbar: {
+      center: '',
+      end: '',
+      start: 'title',
+    },
+    height: 'auto',
+    initialDate: dateRange.value[0].format('YYYY-MM-DD'),
+    initialView: 'resourceTimelineDay',
+    plugins: [timelinePlugin],
+    resourceAreaColumns: [
+      { field: 'date', group: true, headerContent: '日期' },
+      { field: 'rooms', headerContent: '直播间' },
+    ],
+    resourceAreaWidth: '20%',
+    resources: resources.value,
+    slotLabelFormat: { hour: '2-digit', hour12: false }, // 24-hour format
+  }));
+
   const brandList = computed(() => {
     return Object.values(brandMap.value);
   });
@@ -81,6 +134,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     $reset,
     brandList,
     brandMap,
+    calendarOptions,
+    dateRange,
     queryBrand,
     selectedBrandId,
     showAISchedulingModal,

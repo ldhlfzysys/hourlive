@@ -1,15 +1,17 @@
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue';
 
+import FullCalendar from '@fullcalendar/vue3';
 import { Avatar, Button, Divider, RangePicker } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import AISchedulingModal from '#/components/AISchedulingModal.vue';
-import { useSchedulingStore, useStreamerStore } from '#/store';
+import { useRoomStore, useSchedulingStore, useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
 const schedulingStore = useSchedulingStore();
 const streamerStore = useStreamerStore();
+const roomStore = useRoomStore();
 const ranges = computed(() => {
   const now_date = dayjs();
   return {
@@ -37,6 +39,7 @@ function handleBrandClick(brandId: string) {
 onMounted(() => {
   streamerStore.queryStreamer();
   schedulingStore.queryBrand();
+  roomStore.queryRoom();
 });
 </script>
 
@@ -45,7 +48,11 @@ onMounted(() => {
     <HourLivePage :content-overflow="true">
       <template #header>
         <div class="flex items-center justify-between space-x-4 p-1">
-          <RangePicker :ranges="ranges" class="w-[300px]" />
+          <RangePicker
+            v-model:value="schedulingStore.dateRange"
+            :ranges="ranges"
+            class="w-[300px]"
+          />
           <Button
             type="primary"
             @click="schedulingStore.showAISchedulingModal = true"
@@ -98,6 +105,9 @@ onMounted(() => {
             </div>
 
             <div class="ml-4 h-[1px] w-full bg-gray-300"></div>
+            <div class="ml-4 h-full">
+              <FullCalendar :options="schedulingStore.calendarOptions" />
+            </div>
           </div>
         </div>
       </template>
@@ -105,3 +115,9 @@ onMounted(() => {
     <AISchedulingModal />
   </div>
 </template>
+
+<style>
+.fc-license-message {
+  display: none;
+}
+</style>

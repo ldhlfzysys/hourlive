@@ -63,10 +63,9 @@
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.6",
-    "@fullcalendar/daygrid": "^6.1.6",
     "@fullcalendar/interaction": "^6.1.6",
-    "@fullcalendar/timegrid": "^6.1.6",
-    "@fullcalendar/timeline": "^6.1.6",
+    "@fullcalendar/resource-timegrid": "^6.1.6",
+    "@fullcalendar/resource-timeline": "^6.1.6",
     "@fullcalendar/vue3": "^6.1.6",
     "@popperjs/core": "^2.11.8",
     "@schedule-x/calendar": "^2.3.1",
