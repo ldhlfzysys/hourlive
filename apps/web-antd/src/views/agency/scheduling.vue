@@ -4,7 +4,7 @@ import { computed, onMounted } from 'vue';
 import { Avatar, Button, Divider, RangePicker } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
-import AISchedulingModal from '#/components/aiSchedulingModal.vue';
+import AISchedulingModal from '#/components/AISchedulingModal.vue';
 import { useSchedulingStore, useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -29,8 +29,14 @@ const ranges = computed(() => {
   };
 });
 
+function handleBrandClick(brandId: string) {
+  schedulingStore.selectedBrandId =
+    schedulingStore.selectedBrandId === brandId ? undefined : brandId;
+}
+
 onMounted(() => {
   streamerStore.queryStreamer();
+  schedulingStore.queryBrand();
 });
 </script>
 
@@ -52,18 +58,47 @@ onMounted(() => {
       <template #content>
         <div class="flex">
           <div class="w-1/7">
-            <div class="flex h-full flex-col items-center border p-4">
+            <div class="flex min-h-[500px] flex-col items-center border p-4">
               <Button type="primary">主播统计排班</Button>
               <Avatar
                 v-for="streamer in streamerStore.streamerList"
                 :key="streamer.id"
                 :size="70"
                 :src="streamer.avatar"
-                class="m-2 shadow-md"
+                class="m-2 mt-4 shadow-md"
               />
             </div>
           </div>
-          <div class="w-6/7 max-h-[800px]"></div>
+          <div class="w-full">
+            <div class="flex w-full flex-row items-center p-4">
+              <Button class="h-auto" ghost type="primary">
+                <span>品牌<br />日历</span>
+              </Button>
+
+              <Divider style="height: 50px" type="vertical" />
+
+              <div class="flex flex-row items-center space-x-2 overflow-x-auto">
+                <Button
+                  v-for="brand in schedulingStore.brandList as Array<{
+                    id: string;
+                    name: string;
+                  }>"
+                  :key="brand.id"
+                  :ghost="
+                    schedulingStore.selectedBrandId
+                      ? brand.id !== schedulingStore.selectedBrandId
+                      : true
+                  "
+                  type="primary"
+                  @click="handleBrandClick(brand.id)"
+                >
+                  {{ brand.name }}
+                </Button>
+              </div>
+            </div>
+
+            <div class="ml-4 h-[1px] w-full bg-gray-300"></div>
+          </div>
         </div>
       </template>
     </HourLivePage>
