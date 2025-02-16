@@ -12,6 +12,7 @@ import HourLivePage from '#/views/template/common.vue';
 const schedulingStore = useSchedulingStore();
 const streamerStore = useStreamerStore();
 const roomStore = useRoomStore();
+
 const ranges = computed(() => {
   const now_date = dayjs();
   return {
@@ -70,9 +71,19 @@ onMounted(() => {
               <Avatar
                 v-for="streamer in streamerStore.streamerList"
                 :key="streamer.id"
+                :class="{
+                  'clicked-avatar':
+                    schedulingStore.selectedStreamId === streamer.id,
+                }"
                 :size="70"
                 :src="streamer.avatar"
                 class="m-2 mt-4 shadow-md"
+                @click="
+                  schedulingStore.selectedStreamId =
+                    schedulingStore.selectedStreamId === streamer.id
+                      ? undefined
+                      : streamer.id
+                "
               />
             </div>
           </div>
@@ -119,5 +130,9 @@ onMounted(() => {
 <style>
 .fc-license-message {
   display: none;
+}
+
+.clicked-avatar {
+  box-shadow: 0 0 10px 5px rgb(0 123 255 / 50%); /* 光晕效果 */
 }
 </style>

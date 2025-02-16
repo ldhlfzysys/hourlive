@@ -1,16 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import {
-  Button,
-  Collapse,
-  CollapsePanel,
-  Divider,
-  Modal,
-  Spin,
-  Textarea,
-  Upload,
-} from 'ant-design-vue';
+import { Button, Divider, Modal, Spin, Textarea } from 'ant-design-vue';
 import Tesseract from 'tesseract.js';
 
 import { useSchedulingStore } from '#/store';
@@ -86,21 +77,21 @@ const handleOk = () => {
 <template>
   <Modal
     v-model:open="schedulingStore.showAISchedulingModal"
-    style="top: 5%; width: 50%"
+    style="top: 5%; width: 60%"
     @ok="handleOk"
   >
     <Spin :spinning="isLoading" tip="正在解析中...">
       <Divider orientation="left">AI排班</Divider>
-      <Upload
+      <!-- <Upload
         :custom-request="handleUpload"
         :max-count="1"
         :show-upload-list="false"
         accept="image/*"
       >
         <button class="dashed-button">+ 请选择文件进行解析</button>
-      </Upload>
+      </Upload> -->
 
-      <div
+      <!-- <div
         v-if="Object.keys(ocrResultMap).length > 0"
         class="mt-4 max-h-[40%] overflow-y-auto"
       >
@@ -130,19 +121,32 @@ const handleOk = () => {
                 添加
               </Button>
             </template>
-            <!-- <Textarea v-model:value="item" /> -->
             <p>{{ item }}</p>
           </CollapsePanel>
         </Collapse>
+      </div> -->
+
+      <div class="mt-2 flex h-full flex-1 flex-row items-center space-x-2">
+        <label class="w-[12%]">输入排班信息</label>
+        <Textarea v-model:value="inputValue" class="w-[75%]" />
+        <Button
+          type="primary"
+          @click="schedulingStore.handleAIScheduling(inputValue)"
+        >
+          AI生成
+        </Button>
       </div>
 
-      <div class="flex h-full flex-1 flex-row space-x-4">
-        <label class="mt-4 w-[10%]">手动输入</label>
+      <div
+        v-if="schedulingStore.schedulingResult"
+        class="mt-2 flex h-full flex-1 flex-row items-center space-x-2"
+      >
+        <label class="w-[12%]">AI排班结果</label>
         <Textarea
-          v-model:value="inputValue"
-          class="mt-4"
+          v-model:value="schedulingStore.schedulingResult"
+          class="h-auto w-[75%]"
           size="large"
-          style="height: 300px"
+          style="height: 300px; max-height: 500px"
         />
       </div>
     </Spin>

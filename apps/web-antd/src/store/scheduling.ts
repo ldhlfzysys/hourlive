@@ -1,9 +1,10 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import timelinePlugin from '@fullcalendar/resource-timeline';
 import dayjs, { Dayjs } from 'dayjs';
 import { defineStore } from 'pinia';
 
+import { useAIBotStore } from './aibot';
 import { useRoomStore } from './room';
 
 function _queryBrand() {
@@ -64,6 +65,12 @@ function _queryBrand() {
 export const useSchedulingStore = defineStore('scheduling-store', () => {
   const showAISchedulingModal = ref(false);
 
+  watch(showAISchedulingModal, (newVal) => {
+    if (newVal) {
+      schedulingResult.value = '';
+    }
+  });
+
   const brandMap = ref({});
 
   const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
@@ -121,8 +128,19 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   const selectedBrandId = ref<string | undefined>();
 
+  const selectedStreamId = ref<number | undefined>();
+
   function queryBrand() {
     brandMap.value = _queryBrand();
+  }
+
+  const schedulingResult = ref<string>('');
+
+  async function handleAIScheduling(inputValue: string) {
+    schedulingResult.value = '';
+    useAIBotStore().queryScheduling(inputValue, (chunk) => {
+      schedulingResult.value += chunk;
+    });
   }
 
   function $reset() {
@@ -136,8 +154,11 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     brandMap,
     calendarOptions,
     dateRange,
+    handleAIScheduling,
     queryBrand,
+    schedulingResult,
     selectedBrandId,
+    selectedStreamId,
     showAISchedulingModal,
   };
 });

@@ -1,4 +1,5 @@
 export * from './agency';
+export * from './aibot';
 export * from './auth';
 export * from './content';
 export * from './customer';
