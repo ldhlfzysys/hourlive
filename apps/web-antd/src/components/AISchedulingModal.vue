@@ -11,9 +11,7 @@ defineOptions({
 });
 
 const schedulingStore = useSchedulingStore();
-const inputValue = ref('');
 const ocrResultMap = ref({});
-const addToSchedulingMap = ref({});
 const isLoading = ref(false);
 
 // Function to handle file upload and perform OCR
@@ -56,29 +54,13 @@ const handleUpload = (options: any) => {
     console.log('Non-image file uploaded:', file);
   }
 };
-const handleAddToScheduling = (key: string) => {
-  const result = ocrResultMap.value[key as keyof typeof ocrResultMap.value];
-  addToSchedulingMap.value = { ...addToSchedulingMap.value, [key]: result };
-  inputValue.value = Object.values(addToSchedulingMap.value).join('\n');
-};
-
-const handleRemoveFromScheduling = (key: string) => {
-  delete ocrResultMap.value[key as keyof typeof ocrResultMap.value];
-  delete addToSchedulingMap.value[key as keyof typeof addToSchedulingMap.value];
-  inputValue.value = Object.values(addToSchedulingMap.value).join('\n');
-};
-
-const handleOk = () => {
-  console.log('handleOk');
-  console.log(inputValue.value);
-};
 </script>
 
 <template>
   <Modal
     v-model:open="schedulingStore.showAISchedulingModal"
     style="top: 5%; width: 60%"
-    @ok="handleOk"
+    @ok="schedulingStore.addEventsToCalendar()"
   >
     <Spin :spinning="isLoading" tip="正在解析中...">
       <Divider orientation="left">AI排班</Divider>
@@ -128,11 +110,8 @@ const handleOk = () => {
 
       <div class="mt-2 flex h-full flex-1 flex-row items-center space-x-2">
         <label class="w-[12%]">输入排班信息</label>
-        <Textarea v-model:value="inputValue" class="w-[75%]" />
-        <Button
-          type="primary"
-          @click="schedulingStore.handleAIScheduling(inputValue)"
-        >
+        <Textarea v-model:value="schedulingStore.inputValue" class="w-[75%]" />
+        <Button type="primary" @click="schedulingStore.handleAIScheduling()">
           AI生成
         </Button>
       </div>

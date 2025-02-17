@@ -67,15 +67,22 @@ function _queryBrand() {
 export const useSchedulingStore = defineStore('scheduling-store', () => {
   const showAISchedulingModal = ref(false);
 
+  const inputValue = ref('');
+
   watch(showAISchedulingModal, (newVal) => {
     if (newVal) {
       schedulingResult.value = '';
+      inputValue.value = '';
     }
   });
 
   const brandMap = ref({});
 
   const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
+
+  watch(dateRange, (newVal) => {
+    calendarOptions.value.resources = resources.value;
+  });
 
   const resources = computed(() => {
     const allDateList = [];
@@ -107,6 +114,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     dateClick: addEvent,
     editable: true,
     events: [],
+    expandRows: true,
     headerToolbar: {
       center: '',
       end: '',
@@ -139,9 +147,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   const schedulingResult = ref<string>('');
 
-  async function handleAIScheduling(inputValue: string) {
+  async function handleAIScheduling() {
     schedulingResult.value = '';
-    useAIBotStore().queryScheduling(inputValue, (chunk) => {
+    useAIBotStore().queryScheduling(inputValue.value, (chunk) => {
       schedulingResult.value += chunk;
     });
   }
@@ -175,6 +183,66 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     calendarOptions.value.events.push(newEvent);
   }
 
+  function findAvailableRoomId(start: Dayjs, end: Dayjs) {
+    const events = calendarOptions.value.events;
+
+    const occupiedRoomIds: string[] = [];
+    for (const event of events) {
+      const eventDate = event.resourceId.split('_')[0];
+      if (
+        eventDate === start.format('YYYY-MM-DD') ||
+        eventDate === end.format('YYYY-MM-DD')
+      ) {
+        const eventStart = dayjs(
+          `${eventDate} ${dayjs(event.start).format('HH:mm')}`,
+        );
+        const eventEnd = dayjs(
+          `${eventDate} ${dayjs(event.end).format('HH:mm')}`,
+        );
+        if (
+          !(
+            (
+              end.isBefore(eventStart) ||
+              end.isSame(eventStart) || // 结束时间在事件开始之前
+              start.isAfter(eventEnd) ||
+              start.isSame(eventEnd)
+            ) // 开始时间在事件结束之后
+          ) &&
+          event.resourceId
+        ) {
+          occupiedRoomIds.push(event.resourceId.split('_')[1]);
+        }
+      }
+    }
+    const availableRoomIds = useRoomStore().roomList.filter(
+      (room) => room.id && !occupiedRoomIds.includes(room.id.toString()),
+    );
+
+    return availableRoomIds.length > 0 ? availableRoomIds[0].id : undefined;
+  }
+
+  function addEventsToCalendar() {
+    const aiSchedulingResult = JSON.parse(schedulingResult.value);
+    for (const result of aiSchedulingResult) {
+      const date = dateRange.value[0].format('YYYY-MM-DD');
+      const start = dayjs(result.start);
+      const end = dayjs(result.end);
+      const availableRoomId = findAvailableRoomId(start, end);
+      if (!availableRoomId) {
+        continue;
+      }
+      const resourceId = `${start.format('YYYY-MM-DD')}_${availableRoomId}`;
+      const newEvent = {
+        end: `${date} ${end.format('HH:mm')}`,
+        resourceId,
+        start: `${date} ${start.format('HH:mm')}`,
+        title: 'from ai',
+      };
+      calendarOptions.value.events.push(newEvent);
+    }
+    showAISchedulingModal.value = false;
+  }
+
   function $reset() {
     showAISchedulingModal.value = false;
     brandMap.value = {};
@@ -182,12 +250,14 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   return {
     $reset,
+    addEventsToCalendar,
     brandList,
     brandMap,
     calendarOptions,
     dateRange,
     handleAIScheduling,
     initCalendar,
+    inputValue,
     queryBrand,
     schedulingResult,
     selectedBrandId,
