@@ -122,6 +122,14 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     calendarOptions.value.resources = newVal;
   });
 
+  const resourceAreaColumns = ref<any[]>([
+    { field: 'date', group: true, headerContent: '日期' },
+    { field: 'rooms', headerContent: '直播间' },
+  ]);
+  watch(resourceAreaColumns, (newVal) => {
+    calendarOptions.value.resourceAreaColumns = newVal;
+  });
+
   function filterData() {
     // 过滤品牌
     filteredAllEvents.value =
@@ -139,6 +147,14 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
           )
         : storedFilteredAllEvents;
     storedFilteredAllEvents = filteredAllEvents.value;
+
+    filteredResources.value =
+      filteredDates.value.length > 0
+        ? resources.value.filter((resource) =>
+            filteredDates.value.includes(resource.date),
+          )
+        : resources.value;
+
     // 过滤直播间
     filteredAllEvents.value =
       filteredRooms.value.length > 0
@@ -146,6 +162,27 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
             filteredRooms.value.includes(event.roomId.toString()),
           )
         : storedFilteredAllEvents;
+
+    // 处理resourceAreaColumns
+    if (filteredDates.value.length === 1 || filteredRooms.value.length === 1) {
+      if (
+        filteredDates.value.length === 1 &&
+        filteredRooms.value.length === 1
+      ) {
+        resourceAreaColumns.value = [];
+      } else if (filteredDates.value.length === 1) {
+        resourceAreaColumns.value = [
+          { field: 'rooms', headerContent: '直播间' },
+        ];
+      } else if (filteredRooms.value.length === 1) {
+        resourceAreaColumns.value = [{ field: 'date', headerContent: '日期' }];
+      }
+    } else {
+      resourceAreaColumns.value = [
+        { field: 'date', group: true, headerContent: '日期' },
+        { field: 'rooms', headerContent: '直播间' },
+      ];
+    }
   }
 
   const allDates = computed(() => {
@@ -210,10 +247,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     initialDate: dateRange.value[0].format('YYYY-MM-DD'),
     initialView: 'resourceTimelineDay',
     plugins: [resourceTimelinePlugin, interactionPlugin],
-    resourceAreaColumns: [
-      { field: 'date', group: true, headerContent: '日期' },
-      { field: 'rooms', headerContent: '直播间' },
-    ],
+    resourceAreaColumns: resourceAreaColumns.value,
     resourceAreaWidth: '20%',
     resources: resources.value,
     slotLabelFormat: { hour: '2-digit', hour12: false }, // 24-hour format
