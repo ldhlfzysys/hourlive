@@ -388,5 +388,7 @@
   "order_title": "订单标题",
   "contract_files": "合同文件",
   "sample_mark": "样品备注",
-  "sample_mark_desc": "备注：比如颜色、尺寸、口味等"
+  "sample_mark_desc": "备注：比如颜色、尺寸、口味等",
+  "selectbrand": "请选择品牌",
+  "brand": "品牌"
 }

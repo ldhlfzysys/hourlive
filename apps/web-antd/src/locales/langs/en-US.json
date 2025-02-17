@@ -388,5 +388,7 @@
   "order_title": "Order Title",
   "contract_files": "Contract Files",
   "sample_mark": "Sample Mark",
-  "sample_mark_desc": "Note: e.g. color, size, flavor, etc."
+  "sample_mark_desc": "Note: e.g. color, size, flavor, etc.",
+  "selectbrand": "Please Select Brand",
+  "brand": "Brand"
 }

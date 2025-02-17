@@ -6,6 +6,7 @@ import { Avatar, Button, Divider, RangePicker } from 'ant-design-vue';
 import dayjs, { Dayjs } from 'dayjs';
 
 import AISchedulingModal from '#/components/AISchedulingModal.vue';
+import SelectFilter from '#/components/selectfilter.vue';
 import { useRoomStore, useSchedulingStore, useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
@@ -58,6 +59,13 @@ onMounted(() => {
             :ranges="ranges"
             class="w-[300px]"
             @change="handleCalendarChange"
+          />
+
+          <SelectFilter
+            v-model="schedulingStore.filterBrandIds"
+            :options="schedulingStore.brandOptions"
+            :placeholder="$t('selectbrand')"
+            :title="$t('brand')"
           />
           <Button
             type="primary"

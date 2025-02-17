@@ -271,5 +271,7 @@
   "total_time": "Tổng thời gian",
   "hour": "giờ",
   "deleteallorder": "Xác nhận xóa tất cả đơn hàng",
-  "deleteall": "Xóa tất cả"
+  "deleteall": "Xóa tất cả",
+  "selectbrand": "Vui lòng chọn thương hiệu",
+  "brand": "thương hiệu"
 }

@@ -271,5 +271,7 @@
   "total_time": "Total na panahon",
   "hour": "oras",
   "deleteallorder": "Kumpirmahin ang pagtanggal ng lahat ng mga order",
-  "deleteall": "Tanggalin ang lahat"
+  "deleteall": "Tanggalin ang lahat",
+  "selectbrand": "Mangyaring pumili ng isang brand",
+  "brand": "brand"
 }

@@ -271,5 +271,7 @@
   "total_time": "Total na panahon",
   "hour": "oras",
   "deleteallorder": "Konfirmasi penghapusan semua pesanan",
-  "deleteall": "Padam semua"
+  "deleteall": "Padam semua",
+  "selectbrand": "Sila pilih brand",
+  "brand": "brand"
 }

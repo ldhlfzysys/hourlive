@@ -80,6 +80,21 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     Record<number, { desc: string; id: number; name: string }>
   >({});
 
+  const filterBrandIds = ref<number[]>([]);
+  watch(filterBrandIds, (newVal) => {
+    filteredAllEvents.value =
+      newVal.length > 0
+        ? allEvents.value.filter((event) => newVal.includes(event.brandId))
+        : allEvents.value;
+  });
+
+  const brandOptions = computed(() => {
+    return Object.values(brandMap.value).map((brand) => ({
+      label: brand.name,
+      value: brand.id,
+    }));
+  });
+
   const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
 
   watch(dateRange, (newVal) => {
@@ -113,8 +128,13 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   });
 
   const allEvents = ref<any[]>([]);
-  watch(allEvents, (newVal) => {
+  const filteredAllEvents = ref<any[]>([]);
+  watch(filteredAllEvents, (newVal) => {
     calendarOptions.value.events = newVal;
+  });
+
+  watch(allEvents, (newVal) => {
+    filteredAllEvents.value = allEvents.value;
   });
 
   const calendarOptions = ref({
@@ -309,8 +329,10 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     addEventsToCalendar,
     brandList,
     brandMap,
+    brandOptions,
     calendarOptions,
     dateRange,
+    filterBrandIds,
     handleAIScheduling,
     initCalendar,
     inputValue,
