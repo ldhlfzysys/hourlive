@@ -76,7 +76,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     }
   });
 
-  const brandMap = ref({});
+  const brandMap = ref<
+    Record<number, { desc: string; id: number; name: string }>
+  >({});
 
   const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
 
@@ -110,10 +112,17 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     return resourceList;
   });
 
+  const allEvents = ref<any[]>([]);
+  watch(allEvents, (newVal) => {
+    calendarOptions.value.events = newVal;
+  });
+
   const calendarOptions = ref({
     dateClick: addEvent,
     editable: true,
-    events: [],
+    eventClick: handleEventClick,
+    eventContent: handleEventContent,
+    events: allEvents.value,
     expandRows: true,
     headerToolbar: {
       center: '',
@@ -147,6 +156,36 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   const schedulingResult = ref<string>('');
 
+  function handleEventContent(arg: any) {
+    const event = allEvents.value.find((ev: any) => ev.id === arg.event.id);
+    const roomId = event.roomId;
+    const roomName = useRoomStore().getRoomById(Number(roomId))?.name;
+
+    const streamerId = event.streamerId;
+    let streamer;
+    if (streamerId) {
+      streamer = useStreamerStore().getStreamerById(Number(streamerId));
+    }
+
+    const brandId = event.brandId;
+    let brand;
+    if (brandId) {
+      brand = brandMap.value[brandId];
+    }
+
+    return {
+      html: `
+      <div style="display: flex; align-items: center; border-radius: 8px;">
+        ${streamer ? `<img src="${streamer.avatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">` : ''}
+        <div>
+          <div>${arg.event.title}</div>
+          ${brand ? `<div>${brand.name}</div>` : ''}
+        </div>
+      </div>
+    `,
+    };
+  }
+
   async function handleAIScheduling() {
     schedulingResult.value = '';
     useAIBotStore().queryScheduling(inputValue.value, (chunk) => {
@@ -161,30 +200,50 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     calendarOptions.value.resources = resources.value;
   }
 
+  function handleEventClick(arg: any) {
+    const event: any = allEvents.value.find(
+      (ev: any) => ev.id === arg.event.id,
+    );
+    if (selectedStreamId.value) {
+      event.streamerId = selectedStreamId.value.toString();
+    }
+    if (selectedBrandId.value) {
+      event.brandId = selectedBrandId.value;
+    }
+  }
+
+  let eventCount = 0;
+
   function addEvent(event: any) {
     // 创建一个新的事件
     const resourceId = event.resource.id;
     const clickDate = dayjs(event.dateStr);
 
-    const dateStr = `${resourceId.split('_')[0]} ${clickDate.format('HH:mm')}`;
     const roomId = `${resourceId.split('_')[1]}`;
 
     const start_time = clickDate.format('HH:mm');
     const end_time = clickDate.add(2, 'hour').format('HH:mm');
+    const streamerId = selectedStreamId.value;
+    const brandId = selectedBrandId.value;
 
     const newEvent = {
+      brandId,
       end: clickDate.add(2, 'hour').format('YYYY-MM-DD HH:mm'),
+      id: eventCount.toString(),
       resourceId,
+      roomId,
       start: clickDate.format('YYYY-MM-DD HH:mm'),
-      title: `${start_time} - ${end_time}: ${roomId}`,
+      streamerId,
+      title: `${start_time} - ${end_time}`,
     };
 
     // 将新事件添加到 events 数组中
-    calendarOptions.value.events.push(newEvent);
+    allEvents.value.push(newEvent);
+    eventCount++;
   }
 
   function findAvailableRoomId(start: Dayjs, end: Dayjs) {
-    const events = calendarOptions.value.events;
+    const events = allEvents.value;
 
     const occupiedRoomIds: string[] = [];
     for (const event of events) {
@@ -232,13 +291,10 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
         continue;
       }
       const resourceId = `${start.format('YYYY-MM-DD')}_${availableRoomId}`;
-      const newEvent = {
-        end: `${date} ${end.format('HH:mm')}`,
-        resourceId,
-        start: `${date} ${start.format('HH:mm')}`,
-        title: 'from ai',
-      };
-      calendarOptions.value.events.push(newEvent);
+      addEvent({
+        dateStr: `${date} ${start.format('HH:mm')}`,
+        resource: { id: resourceId },
+      });
     }
     showAISchedulingModal.value = false;
   }

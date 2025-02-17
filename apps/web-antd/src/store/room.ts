@@ -104,6 +104,10 @@ export const useRoomStore = defineStore('room-store', () => {
     q_size: 30,
   });
 
+  function getRoomById(id: number) {
+    return rooms.value.get(id);
+  }
+
   // 重置store状态
   function $reset() {
     roomLoading.value = false;
@@ -302,12 +306,13 @@ export const useRoomStore = defineStore('room-store', () => {
     createRoom,
     deleteHardwareFromRoom,
 
+    getRoomById,
     hardwareCreate,
     makeRoomUpdate,
     modifyRoom,
     queryRoom,
-    removeRoom, // 确保在返回对象中包含 removeRoom
 
+    removeRoom, // 确保在返回对象中包含 removeRoom
     roomCreateLoading,
     roomList,
     roomLoading,

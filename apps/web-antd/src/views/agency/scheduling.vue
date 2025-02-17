@@ -140,6 +140,10 @@ onMounted(() => {
   display: none;
 }
 
+.fc-event {
+  border-radius: 8px;
+}
+
 .clicked-avatar {
   box-shadow: 0 0 10px 5px rgb(0 123 255 / 50%); /* 光晕效果 */
 }
