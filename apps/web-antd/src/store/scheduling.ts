@@ -1,11 +1,13 @@
 import { computed, ref, watch } from 'vue';
 
-import timelinePlugin from '@fullcalendar/resource-timeline';
+import interactionPlugin from '@fullcalendar/interaction';
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import dayjs, { Dayjs } from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { useAIBotStore } from './aibot';
 import { useRoomStore } from './room';
+import { useStreamerStore } from './streamer';
 
 function _queryBrand() {
   return {
@@ -101,7 +103,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     return resourceList;
   });
 
-  const calendarOptions = computed(() => ({
+  const calendarOptions = ref({
+    dateClick: addEvent,
     editable: true,
     events: [],
     headerToolbar: {
@@ -112,7 +115,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     height: 'auto',
     initialDate: dateRange.value[0].format('YYYY-MM-DD'),
     initialView: 'resourceTimelineDay',
-    plugins: [timelinePlugin],
+    plugins: [resourceTimelinePlugin, interactionPlugin],
     resourceAreaColumns: [
       { field: 'date', group: true, headerContent: '日期' },
       { field: 'rooms', headerContent: '直播间' },
@@ -120,7 +123,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     resourceAreaWidth: '20%',
     resources: resources.value,
     slotLabelFormat: { hour: '2-digit', hour12: false }, // 24-hour format
-  }));
+  });
 
   const brandList = computed(() => {
     return Object.values(brandMap.value);
@@ -143,6 +146,35 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     });
   }
 
+  async function initCalendar() {
+    useStreamerStore().queryStreamer();
+    queryBrand();
+    await useRoomStore().queryRoom();
+    calendarOptions.value.resources = resources.value;
+  }
+
+  function addEvent(event: any) {
+    // 创建一个新的事件
+    const resourceId = event.resource.id;
+    const clickDate = dayjs(event.dateStr);
+
+    const dateStr = `${resourceId.split('_')[0]} ${clickDate.format('HH:mm')}`;
+    const roomId = `${resourceId.split('_')[1]}`;
+
+    const start_time = clickDate.format('HH:mm');
+    const end_time = clickDate.add(2, 'hour').format('HH:mm');
+
+    const newEvent = {
+      end: clickDate.add(2, 'hour').format('YYYY-MM-DD HH:mm'),
+      resourceId,
+      start: clickDate.format('YYYY-MM-DD HH:mm'),
+      title: `${start_time} - ${end_time}: ${roomId}`,
+    };
+
+    // 将新事件添加到 events 数组中
+    calendarOptions.value.events.push(newEvent);
+  }
+
   function $reset() {
     showAISchedulingModal.value = false;
     brandMap.value = {};
@@ -155,6 +187,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     calendarOptions,
     dateRange,
     handleAIScheduling,
+    initCalendar,
     queryBrand,
     schedulingResult,
     selectedBrandId,

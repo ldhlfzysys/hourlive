@@ -9,6 +9,8 @@ import AISchedulingModal from '#/components/AISchedulingModal.vue';
 import { useRoomStore, useSchedulingStore, useStreamerStore } from '#/store';
 import HourLivePage from '#/views/template/common.vue';
 
+const { calendarRef } = useSchedulingStore();
+
 const schedulingStore = useSchedulingStore();
 const streamerStore = useStreamerStore();
 const roomStore = useRoomStore();
@@ -38,9 +40,7 @@ function handleBrandClick(brandId: string) {
 }
 
 onMounted(() => {
-  streamerStore.queryStreamer();
-  schedulingStore.queryBrand();
-  roomStore.queryRoom();
+  schedulingStore.initCalendar();
 });
 </script>
 
