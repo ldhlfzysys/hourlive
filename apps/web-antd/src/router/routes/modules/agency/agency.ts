@@ -197,6 +197,20 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  // {
+  //   component: BasicLayout,
+  //   meta: {
+  //     authority: ['agency'],
+  //     hideChildrenInMenu: true,
+  //     icon: 'lucide:settings',
+  //     order: 7,
+  //     title: $t('个人中心'),
+  //   },
+  //   name: 'profile',
+  //   path: '/profile',
+  //
+  //   children: [config.profile],
+  // },
 ];
 
 export default routes;

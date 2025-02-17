@@ -17,46 +17,31 @@ import type {
 } from '#/types';
 
 async function _getAllContent(params?: BaseQuery) {
-  return requestClient.post<StandardResponse<ContentRead[]>>(
-    'content/query',
-    params,
-  );
+  return requestClient.post<StandardResponse>('content/query', params);
 }
 
 async function _queryContentById(params: BaseQuery) {
-  return requestClient.post<StandardResponse<ContentRead[]>>(
-    'content/query/ids',
-    params,
-  );
+  return requestClient.post<StandardResponse>('content/query/ids', params);
 }
 
 async function _updateContent(params: ContentUpdate) {
-  return requestClient.post<StandardResponse<ContentRead>>(
-    'content/update',
-    params,
-  );
+  return requestClient.post<StandardResponse>('content/update', params);
 }
 
 async function _addSamples(params: AddSampleToContent) {
-  return requestClient.post<StandardResponse<ContentRead>>(
-    'content/addsample',
-    params,
-  );
+  return requestClient.post<StandardResponse>('content/addsample', params);
 }
 
 async function _removeSamples(params: AddSampleToContent) {
-  return requestClient.post<StandardResponse<ContentRead>>(
-    'content/removesample',
-    params,
-  );
+  return requestClient.post<StandardResponse>('content/removesample', params);
 }
 
-async function _hideContent(params: BaseQuery) {
-  return requestClient.post<StandardResponse<ContentRead>>(
-    'content/hide',
-    params,
-  );
-}
+// async function _hideContent(params: BaseQuery) {
+//   return requestClient.post<StandardResponse>(
+//     'content/hide',
+//     params,
+//   );
+// }
 
 // store
 export const useContentStore = defineStore('content-store', () => {
@@ -85,19 +70,35 @@ export const useContentStore = defineStore('content-store', () => {
   const addSamplesLoading = ref(false);
   const removeSamplesLoading = ref(false);
   const hideContentLoading = ref(false);
+  const contentLoading = ref(false);
+  const contentCreateLoading = ref(false);
 
   // UI - modal
-  const showContentUpdateModal = ref(false);
+  const showModal = ref(false);
   const showAddSamplesModal = ref(false);
   const showSampleManagerModal = ref(false);
 
+  const contentQuery = ref<BaseQuery>({
+    q_id: -1, // 默认值，表示查询所有内容
+    q_order: 'desc', // 默认排序方式
+    q_size: 30, // 每次请求的内容数量
+  });
+
+  const contentCreate = ref<ContentUpdate>({
+    content_text: '',
+    liveaccount_id: undefined,
+  });
+
   // methods
   function makeCreate() {
-    showContentUpdateModal.value = true;
-    currentContent.value = {};
+    showModal.value = true;
+    contentCreate.value = {
+      content_text: '',
+      liveaccount_id: undefined,
+    };
   }
   function makeUpdate(id: number) {
-    showContentUpdateModal.value = true;
+    showModal.value = true;
     const content = contents.value.get(id);
     if (content) {
       currentContent.value = content;
@@ -121,7 +122,7 @@ export const useContentStore = defineStore('content-store', () => {
     queryContentLoading.value = true;
     const res = await _queryContentById({ ids: [id] });
     if (res && res.success && res.data && res.data.length > 0) {
-      res.data.forEach((content) => {
+      res.data.forEach((content: ContentRead) => {
         if (content.id) {
           contents.value.set(content.id, content);
         }
@@ -160,7 +161,7 @@ export const useContentStore = defineStore('content-store', () => {
             contentQuery.value.q_id = lastContent.id;
           }
         }
-        res.data.forEach((content) => {
+        res.data.forEach((content: ContentRead) => {
           if (content.id) {
             contents.value.set(content.id, content);
           }
@@ -174,7 +175,7 @@ export const useContentStore = defineStore('content-store', () => {
   async function createContent() {
     try {
       contentCreateLoading.value = true;
-      const res = await _newContent(contentCreate.value);
+      const res = await _updateContent(contentCreate.value);
       if (res && res.success && res.data.id) {
         showModal.value = false;
         contents.value.set(res.data.id, res.data);
