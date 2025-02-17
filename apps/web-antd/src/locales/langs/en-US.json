@@ -390,5 +390,6 @@
   "sample_mark": "Sample Mark",
   "sample_mark_desc": "Note: e.g. color, size, flavor, etc.",
   "selectbrand": "Please Select Brand",
-  "brand": "Brand"
+  "brand": "Brand",
+  "select_date": "Please Select Date"
 }

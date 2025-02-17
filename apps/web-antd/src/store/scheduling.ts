@@ -82,10 +82,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   const filterBrandIds = ref<number[]>([]);
   watch(filterBrandIds, (newVal) => {
-    filteredAllEvents.value =
-      newVal.length > 0
-        ? allEvents.value.filter((event) => newVal.includes(event.brandId))
-        : allEvents.value;
+    filterData();
   });
 
   const brandOptions = computed(() => {
@@ -95,13 +92,63 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     }));
   });
 
-  const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs().add(7, 'days')]);
+  const dateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs()]);
 
   watch(dateRange, (newVal) => {
-    calendarOptions.value.resources = resources.value;
+    const resourceList = [];
+
+    for (const dateString of allDates.value) {
+      for (const room of useRoomStore().roomList) {
+        resourceList.push({
+          date: dateString,
+          id: `${dateString}_${room.id}`,
+          rooms: room.name,
+        });
+      }
+    }
+
+    resources.value = resourceList;
+    filteredDates.value = [];
+    filteredRooms.value = [];
   });
 
-  const resources = computed(() => {
+  const resources = ref<any[]>([]);
+  watch(resources, (newVal) => {
+    filteredResources.value = newVal;
+  });
+
+  const filteredResources = ref<any[]>([]);
+  watch(filteredResources, (newVal) => {
+    calendarOptions.value.resources = newVal;
+  });
+
+  function filterData() {
+    // 过滤品牌
+    filteredAllEvents.value =
+      filterBrandIds.value.length > 0
+        ? allEvents.value.filter((event) =>
+            filterBrandIds.value.includes(event.brandId),
+          )
+        : allEvents.value;
+    let storedFilteredAllEvents = filteredAllEvents.value;
+    // 过滤日期
+    filteredAllEvents.value =
+      filteredDates.value.length > 0
+        ? storedFilteredAllEvents.filter((event) =>
+            filteredDates.value.includes(event.resourceId.split('_')[0]),
+          )
+        : storedFilteredAllEvents;
+    storedFilteredAllEvents = filteredAllEvents.value;
+    // 过滤直播间
+    filteredAllEvents.value =
+      filteredRooms.value.length > 0
+        ? storedFilteredAllEvents.filter((event) =>
+            filteredRooms.value.includes(event.roomId.toString()),
+          )
+        : storedFilteredAllEvents;
+  }
+
+  const allDates = computed(() => {
     const allDateList = [];
 
     let startDate = dateRange.value[0];
@@ -112,21 +159,31 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       startDate = startDate.add(1, 'day');
     }
 
-    const resourceList = [];
-
-    for (const dateString of allDateList) {
-      for (const room of useRoomStore().roomList) {
-        resourceList.push({
-          date: dateString,
-          id: `${dateString}_${room.id}`,
-          rooms: room.name,
-        });
-      }
-    }
-
-    return resourceList;
+    return allDateList;
+  });
+  const filteredDates = ref<string[]>([]);
+  watch(filteredDates, (newVal) => {
+    filterData();
   });
 
+  const filteredDatesOptions = computed(() => {
+    return allDates.value.map((date) => ({
+      label: date,
+      value: date,
+    }));
+  });
+
+  const filteredRooms = ref<any[]>([]);
+  watch(filteredRooms, (newVal) => {
+    filterData();
+  });
+
+  const filteredRoomsOptions = computed(() => {
+    return useRoomStore().roomList.map((room) => ({
+      label: room.name,
+      value: room.id?.toString() || '',
+    }));
+  });
   const allEvents = ref<any[]>([]);
   const filteredAllEvents = ref<any[]>([]);
   watch(filteredAllEvents, (newVal) => {
@@ -217,7 +274,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     useStreamerStore().queryStreamer();
     queryBrand();
     await useRoomStore().queryRoom();
-    calendarOptions.value.resources = resources.value;
+    dateRange.value = [dayjs(), dayjs().add(7, 'days')];
   }
 
   function handleEventClick(arg: any) {
@@ -333,6 +390,10 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     calendarOptions,
     dateRange,
     filterBrandIds,
+    filteredDates,
+    filteredDatesOptions,
+    filteredRooms,
+    filteredRoomsOptions,
     handleAIScheduling,
     initCalendar,
     inputValue,

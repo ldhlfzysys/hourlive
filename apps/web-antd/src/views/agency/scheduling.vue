@@ -67,6 +67,21 @@ onMounted(() => {
             :placeholder="$t('selectbrand')"
             :title="$t('brand')"
           />
+
+          <SelectFilter
+            v-model="schedulingStore.filteredDates"
+            :options="schedulingStore.filteredDatesOptions"
+            :placeholder="$t('select_date')"
+            :title="$t('date')"
+          />
+
+          <SelectFilter
+            v-model="schedulingStore.filteredRooms"
+            :options="schedulingStore.filteredRoomsOptions"
+            :placeholder="$t('selectroom')"
+            :title="$t('room')"
+          />
+
           <Button
             type="primary"
             @click="schedulingStore.showAISchedulingModal = true"

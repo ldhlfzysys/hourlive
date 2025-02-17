@@ -273,5 +273,6 @@
   "deleteallorder": "Konfirmasi penghapusan semua pesanan",
   "deleteall": "Padam semua",
   "selectbrand": "Silakan pilih brand",
-  "brand": "brand"
+  "brand": "brand",
+  "select_date": "Silakan pilih tanggal"
 }

@@ -273,5 +273,6 @@
   "deleteallorder": "Xác nhận xóa tất cả đơn hàng",
   "deleteall": "Xóa tất cả",
   "selectbrand": "Vui lòng chọn thương hiệu",
-  "brand": "thương hiệu"
+  "brand": "thương hiệu",
+  "select_date": "Vui lòng chọn ngày"
 }
