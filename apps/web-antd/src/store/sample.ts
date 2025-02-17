@@ -8,37 +8,40 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { IdQuery, Sample, SampleQuery, StanderResult, Url } from '#/types';
+import type { SampleRead, StandardResponse } from '#/types';
 
 // API
-function _getAllSamples(params?: SampleQuery) {
-  return requestClient.post<StanderResult<Sample[]>>('sample/query', params);
+function _getAllSamples(params?: SampleRead) {
+  return requestClient.post<StandardResponse<SampleRead[]>>(
+    'sample/query',
+    params,
+  );
 }
 
 function _newSamples(params: Sample) {
-  return requestClient.post<StanderResult<Sample>>('sample/create', params);
+  return requestClient.post<StandardResponse<Sample>>('sample/create', params);
 }
 
 function _updateSample(params: Sample) {
-  return requestClient.post<StanderResult<Sample>>('sample/update', params);
+  return requestClient.post<StandardResponse<Sample>>('sample/update', params);
 }
 
 function _querySampleFromIds(params: SampleQuery) {
-  return requestClient.post<StanderResult<Sample[]>>(
+  return requestClient.post<StandardResponse<Sample[]>>(
     'sample/query/ids',
     params,
   );
 }
 
 function _fetchSampleInfo(url: Url) {
-  return requestClient.post<StanderResult<Sample>>(
+  return requestClient.post<StandardResponse<Sample>>(
     'sample/getProductInfo',
     url,
   );
 }
 
 function _deleteSample(params: IdQuery) {
-  return requestClient.post<StanderResult<Sample>>(
+  return requestClient.post<StandardResponse<Sample>>(
     'sample/deletesample',
     params,
   );
@@ -76,8 +79,8 @@ export const useSampleStore = defineStore('sample-store', () => {
   const sampleUpdate = ref<Sample>({});
 
   // query
-  const sampleQuery = ref<SampleQuery>({
-    is_main: '-1',
+  const sampleQuery = ref<SampleRead>({
+    is_main: -1,
     q_id: -1,
     q_order: 'desc',
     q_size: 30,
@@ -90,7 +93,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     samples.value = new Map();
     searchProductId.value = '';
     sampleQuery.value = {
-      is_main: '-1',
+      is_main: -1,
       q_id: -1,
       q_order: 'desc',
       q_size: 30,

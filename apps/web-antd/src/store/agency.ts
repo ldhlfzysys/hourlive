@@ -14,27 +14,19 @@ import { requestClient } from '#/api/request';
 // API
 
 async function _queryAgency() {
-  return requestClient.get<StandardResponse<AgencyRead[]>>(`agency/query`);
+  return requestClient.get<StandardResponse>(`agency/query`);
 }
 
 async function _queryAgencyByIds(params: BaseQuery) {
-  return requestClient.post<StandardResponse<AgencyRead[]>>(
-    `agency/query/ids`,
-    params,
-  );
+  return requestClient.post<StandardResponse>(`agency/query/ids`, params);
 }
 
 async function _hideAgency(params: BaseQuery) {
-  return requestClient.post<StandardResponse<AgencyRead>>(
-    `agency/hide`,
-    params,
-  );
+  return requestClient.post<StandardResponse>(`agency/hide`, params);
 }
 
 async function _getAgencyHomeInfo() {
-  return requestClient.post<StandardResponse<AgencyHomeInfo>>(
-    'home/agencyhome',
-  );
+  return requestClient.post<StandardResponse>('home/agencyhome');
 }
 
 export const useAgencyStore = defineStore('agency-store', () => {
@@ -64,7 +56,7 @@ export const useAgencyStore = defineStore('agency-store', () => {
       queryAgencyLoading.value = true;
       const res = await _queryAgencyByIds({ ids: [id] });
       if (res.success && res.data && res.data.length > 0) {
-        res.data.forEach((agency) => {
+        res.data.forEach((agency: AgencyRead) => {
           if (agency.id) {
             agencyies.value.set(agency.id, agency);
           }
@@ -93,7 +85,7 @@ export const useAgencyStore = defineStore('agency-store', () => {
     queryAgencyLoading.value = true;
     const res = await _queryAgency();
     if (res.success && res.data) {
-      res.data.forEach((agency) => {
+      res.data.forEach((agency: AgencyRead) => {
         if (agency.id) {
           agencyies.value.set(agency.id, agency);
         }

@@ -9,34 +9,26 @@ import { $t } from '#/locales';
 
 // types
 import type {
-  SampleShipping,
-  SampleShippingQuery,
-  StanderResult,
+  BaseQuery,
+  SampleShippingRead,
+  SampleShippingUpdate,
+  StandardResponse,
 } from '#/types';
 
-function _getAllSampleShipping(params?: SampleShippingQuery) {
-  return requestClient.post<StanderResult<SampleShipping[]>>(
-    'shipping/query',
-    params,
-  );
+function _getAllSampleShipping(params?: BaseQuery) {
+  return requestClient.post<StandardResponse>('shipping/query', params);
 }
 
-function _newSampleShipping(params: SampleShipping) {
-  return requestClient.post<StanderResult<SampleShipping>>(
-    'shipping/create',
-    params,
-  );
+function _newSampleShipping(params: SampleShippingUpdate) {
+  return requestClient.post<StandardResponse>('shipping/create', params);
 }
 
-function _agencyUpdate(params: SampleShipping) {
-  return requestClient.post<StanderResult<SampleShipping>>(
-    'shipping/agencyupdate',
-    params,
-  );
+function _agencyUpdate(params: SampleShippingUpdate) {
+  return requestClient.post<StandardResponse>('shipping/agencyupdate', params);
 }
 
-function _customerUpdate(params: SampleShipping) {
-  return requestClient.post<StanderResult<SampleShipping>>(
+function _customerUpdate(params: SampleShippingUpdate) {
+  return requestClient.post<StandardResponse>(
     'shipping/customerupdate',
     params,
   );
@@ -58,12 +50,12 @@ export const useSampleShippingStore = defineStore(
     const showShippingSample = ref(false);
 
     // 当前选中的物流单
-    const currentSampleShipping = ref<SampleShipping>({
+    const currentSampleShipping = ref<SampleShippingUpdate>({
       samples: [],
     });
 
     // 存储所有
-    const sampleShippings = ref<Map<number, SampleShipping>>(new Map());
+    const sampleShippings = ref<Map<number, SampleShippingRead>>(new Map());
 
     // 获取列表
     const sampleShippingList = computed(() => {
@@ -90,7 +82,18 @@ export const useSampleShippingStore = defineStore(
       showModal.value = true;
       const sample = sampleShippings.value.get(id);
       if (sample) {
-        currentSampleShipping.value = sample;
+        currentSampleShipping.value.id = sample.id;
+        // currentSampleShipping.value.agency_id = sample.agency_id;
+        // currentSampleShipping.value.status = sample.status;
+        currentSampleShipping.value.shipping_time = sample.shipping_time;
+        currentSampleShipping.value.express_company = sample.express_company;
+        currentSampleShipping.value.tracking_number = sample.tracking_number;
+        currentSampleShipping.value.sender_name = sample.sender_name;
+        currentSampleShipping.value.sender_time = sample.sender_time;
+        currentSampleShipping.value.receiver_name = sample.receiver_name;
+        currentSampleShipping.value.receiver_time = sample.receiver_time;
+        // currentSampleShipping.value.receiver_address = sample.receiver_address;
+        // currentSampleShipping.value.samples = sample.samples;
       }
     }
 
@@ -99,7 +102,18 @@ export const useSampleShippingStore = defineStore(
       showSampleShippingForm.value = true;
       const sample = sampleShippings.value.get(id);
       if (sample) {
-        currentSampleShipping.value = sample;
+        currentSampleShipping.value.id = sample.id;
+        // currentSampleShipping.value.agency_id = sample.agency_id;
+        // currentSampleShipping.value.status = sample.status;
+        currentSampleShipping.value.shipping_time = sample.shipping_time;
+        currentSampleShipping.value.express_company = sample.express_company;
+        currentSampleShipping.value.tracking_number = sample.tracking_number;
+        currentSampleShipping.value.sender_name = sample.sender_name;
+        currentSampleShipping.value.sender_time = sample.sender_time;
+        currentSampleShipping.value.receiver_name = sample.receiver_name;
+        currentSampleShipping.value.receiver_time = sample.receiver_time;
+        // currentSampleShipping.value.receiver_address = sample.receiver_address;
+        // currentSampleShipping.value.samples = sample.samples;
       }
     }
 
@@ -174,7 +188,7 @@ export const useSampleShippingStore = defineStore(
     }
 
     // query
-    const sampleShippingQuery = ref<SampleShippingQuery>({
+    const sampleShippingQuery = ref<BaseQuery>({
       q_id: -1,
       q_order: 'desc',
       q_size: 9999,
@@ -203,13 +217,13 @@ export const useSampleShippingStore = defineStore(
         sampleShippingQueryLoading.value = true;
         const res = await _getAllSampleShipping(sampleShippingQuery.value);
         if (res && res.success) {
-          if (res.data.length > 0) {
-            // const lastSampleShipping = res.data.at(-1);
-            // if (lastSampleShipping && lastSampleShipping.id) {
-            //   sampleShippingQuery.value.q_id = lastSampleShipping.id;
-            // }
-          }
-          res.data.forEach((sampleShipping) => {
+          // if (res.data.length > 0) {
+          //   // const lastSampleShipping = res.data.at(-1);
+          //   // if (lastSampleShipping && lastSampleShipping.id) {
+          //   //   sampleShippingQuery.value.q_id = lastSampleShipping.id;
+          //   // }
+          // }
+          res.data.forEach((sampleShipping: SampleShippingRead) => {
             if (sampleShipping.id) {
               sampleShippings.value.set(sampleShipping.id, sampleShipping);
             }

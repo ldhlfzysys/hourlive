@@ -21,18 +21,18 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 function _registerApi(data: UserCreate) {
-  return requestClient.post<StandardResponse<any>>('/user/register', data);
+  return requestClient.post<StandardResponse>('/user/register', data);
 }
 
 async function _updateUserApi(data: UserUpdate) {
-  return requestClient.post<StandardResponse<any>>('/user/update_user', data);
+  return requestClient.post<StandardResponse>('/user/update_user', data);
 }
 async function _getUserInfoApi() {
-  return requestClient.get<StandardResponse<UserRead>>('/user/userInfo');
+  return requestClient.get<StandardResponse>('/user/userInfo');
 }
 
 async function _loginApi(data: UserLogin) {
-  return requestClient.post<StandardResponse<any>>('/user/login', data);
+  return requestClient.post<StandardResponse>('/user/login', data);
 }
 
 export const useAuthStore = defineStore('auth', () => {

@@ -6,9 +6,9 @@ export interface Token {
   token_type: string;
 }
 
-export interface StandardResponse<T = any> {
+export interface StandardResponse {
   success: boolean;
-  data?: T;
+  data?: any;
   message?: string;
   token?: Token;
   status_code: number;
@@ -17,12 +17,12 @@ export interface StandardResponse<T = any> {
 }
 
 export interface PageQuery {
-  q_id?: number;
-  q_order?: string;
-  q_size?: number;
+  q_id?: number; // 游标id
+  q_order?: string; // 排序
+  q_size?: number; // 一次请求量
 }
 
-export interface BaseQuery {
+export interface BaseQuery extends PageQuery {
   id?: number;
   ids?: number[];
   customer_id?: number;
@@ -31,35 +31,33 @@ export interface BaseQuery {
   room_id?: number;
   timeslotorder_id?: number;
   status?: number;
-  is_main?: number;
-  url?: string;
-  begin_date?: string;
-  finish_date?: string;
+  is_main?: number; // 商品通用，是否主推
+  content_ids?: number[]; // 内容筛选
+  url?: string; // 抓取商品数据
+  begin_date?: string; // 时间区间
+  finish_date?: string; // 时间区间
 }
 
-// Auth & User 相关类型
 export interface DataVersionRead {
   key: string;
   value: number;
-}
-
-export interface UserLogin {
-  username: string;
-  password: string;
 }
 
 export interface UserCreate {
   account: string;
   password: string;
   user_type: number; // 1机构 2用户 3主播 7平台管理员(只有看的权限) 8管理员
-  // 机构
   name?: string;
   shipping_address?: string;
-  // 用户
   code?: string;
   avatar?: string;
   mobile?: string;
   email?: string;
+}
+
+export interface UserLogin {
+  username: string;
+  password: string;
 }
 
 export interface AuthRead {
@@ -96,7 +94,6 @@ export interface UserUpdate {
   password?: string;
 }
 
-// 叶子节点实体
 export interface RoomRead {
   id?: number;
   name: string;
@@ -239,7 +236,6 @@ export interface AddSampleToContent {
   sample_ids: number[];
 }
 
-// 包含其他实体的类型
 export interface ContentRead {
   id?: number;
   is_feiyue?: string;
@@ -291,6 +287,8 @@ export interface StreamerUpdate {
   desc?: string;
   tags?: StreamerTagsUpdate[];
   country?: string;
+  password?: string;
+  account?: string;
 }
 
 export interface AgencyRead {
@@ -322,7 +320,7 @@ export interface TimeslotOrderRead {
 }
 
 export interface SubsidyUpdate {
-  id: number;
+  ids: number[];
   tts_subsidy?: number;
   tts_subsidy_remark?: string;
   ads_subsidy?: number;
@@ -331,9 +329,9 @@ export interface SubsidyUpdate {
 }
 
 export interface TimeslotOrderUpdate {
-  id?: number;
-  room_id?: number;
-  content_id?: number;
+  id?: number; // 订单id
+  room_id?: number; // 直播间ID
+  content_id?: number; // 内容id
   timeslots: TimeslotUpdate[];
   order_price?: number;
   order_title?: string;
@@ -381,8 +379,8 @@ export interface RechargeUpdate {
 }
 
 export interface SampleShippingSampleRead {
-  id: number;
-  sample_count: number;
+  id: number; // sample_id
+  sample_count: number; // sample个数
   sample_mark?: string;
 }
 
@@ -414,13 +412,11 @@ export interface SampleShippingUpdate {
   samples: SampleShippingSampleRead[];
 }
 
-// OSS相关
 export interface OSSDeleteFile {
   product_id: number;
   name: string;
 }
 
-// Home相关
 export interface AgencyHomeInfo {
   today_content: number;
   onroute_shipping: number;
