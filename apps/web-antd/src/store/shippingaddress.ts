@@ -1,76 +1,72 @@
+import { computed, ref } from 'vue';
+
+import { notification } from 'ant-design-vue';
+import { defineStore } from 'pinia';
+
+import { requestClient } from '#/api/request';
+import { $t } from '#/locales';
+
+// types
 import type {
-  BaseQuery, ShippingAddressRead, ShippingAddressUpdate,
+  BaseQuery,
+  ShippingAddressRead,
+  ShippingAddressUpdate,
   StandardResponse,
-} from '#/types';
+} from '#/types/schemas';
 
-import {computed, ref} from 'vue';
-
-import {notification} from 'ant-design-vue';
-import {defineStore} from 'pinia';
-
-import {requestClient} from '#/api/request';
-import {$t} from '#/locales';
-
-// 定义API端点的枚举
-enum ShippingAddressApi {
-  CreateShippingAddress = 'shipping_address/create', // 创建地址
-  QueryShippingAddress = 'shipping_address/query', // 查询地址
-  UpdateShippingAddress = 'shipping_address/update', // 更新地址
-}
-
-// 获取所有收货地址
-function getAllShippingAddress(params?: BaseQuery) {
-  return requestClient.post<StandardResponse>(
-    ShippingAddressApi.QueryShippingAddress,
+// API
+function _getAllShippingAddress(params?: BaseQuery) {
+  return requestClient.post<StandardResponse<ShippingAddressRead[]>>(
+    'shipping_address/query',
     params,
   );
 }
 
-// 创建新的收货地址
-function newShippingAddress(params: ShippingAddressUpdate) {
-  return requestClient.post<StandardResponse>(
-    ShippingAddressApi.CreateShippingAddress,
+function _newShippingAddress(params: ShippingAddressUpdate) {
+  return requestClient.post<StandardResponse<ShippingAddressRead>>(
+    'shipping_address/create',
     params,
   );
 }
 
-// 更新现有的收货地址
-function updateShippingAddress(params: ShippingAddressUpdate) {
-  return requestClient.post<StandardResponse>(
-    ShippingAddressApi.UpdateShippingAddress,
+function _updateShippingAddress(params: ShippingAddressUpdate) {
+  return requestClient.post<StandardResponse<ShippingAddressRead>>(
+    'shipping_address/update',
     params,
   );
 }
 
-// 定义Pinia store
+// store
 export const useShippingAddressStore = defineStore(
   'shippingaddress-store',
   () => {
-    const shippingAddressLoading = ref(false); // 加载状态
-    const shippingAddressCreateLoading = ref(false); // 创建加载状态
-    const shippingAddressCreate = ref<ShippingAddressUpdate>({
-      address: '',
-      remark: '',
-    });
+    // data
+    const shippingAddresses = ref<Map<number, ShippingAddressRead>>(new Map());
 
-    const isEditing = ref(false); // 是否处于编辑状态
-
-    const shippingAddresses = ref<Map<number, ShippingAddressRead>>(new Map()); // 存储收货地址的Map
-
-    // 计算属性，返回排序后的收货地址列表
     const shippingAddressList = computed(() => {
       return [...shippingAddresses.value.entries()]
         .sort(([keyA], [keyB]) => keyB - keyA)
-        .map(([_, shippingAddress]) => shippingAddress);
+        .map(([_, address]) => address);
     });
 
-    const showModal = ref(false); // 控制模态框显示
+    // UI - loading
+    const shippingAddressLoading = ref(false);
+    const shippingAddressCreateLoading = ref(false);
+
+    // UI - modal
+    const showModal = ref(false);
+    const isEditing = ref(false);
 
     const shippingAddressQuery = ref<BaseQuery>({
       agency_id: -1,
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
+    });
+
+    const shippingAddressCreate = ref<ShippingAddressUpdate>({
+      address: '',
+      remark: '',
     });
 
     // 重置store状态
@@ -92,16 +88,16 @@ export const useShippingAddressStore = defineStore(
     async function queryShippingAddress() {
       try {
         shippingAddressLoading.value = true;
-        const res = await getAllShippingAddress(shippingAddressQuery.value);
+        const res = await _getAllShippingAddress(shippingAddressQuery.value);
         if (res && res.success) {
-          if (res.data.length > 0) {
+          if (res.data && res.data.length > 0) {
             const lastShippingAddress = res.data.at(-1);
             if (lastShippingAddress) {
               shippingAddressQuery.value.q_id = lastShippingAddress.id;
             }
           }
-          res.data.forEach((shippingAddress:ShippingAddressRead) => {
-            if (shippingAddress.id != null) {
+          res.data?.forEach((shippingAddress: ShippingAddressRead) => {
+            if (shippingAddress.id) {
               shippingAddresses.value.set(shippingAddress.id, shippingAddress);
             }
           });
@@ -123,8 +119,8 @@ export const useShippingAddressStore = defineStore(
         }
         shippingAddressCreateLoading.value = true;
 
-        const res = await newShippingAddress(shippingAddressCreate.value);
-        if (res && res.success) {
+        const res = await _newShippingAddress(shippingAddressCreate.value);
+        if (res && res.success && res.data && res.data.id) {
           shippingAddresses.value.set(res.data.id, res.data);
           showModal.value = false;
           // 清空当前新增对象数据
@@ -148,11 +144,13 @@ export const useShippingAddressStore = defineStore(
     }
 
     // 修改收货地址
-    async function modifyShippingAddress(updatedAddress: ShippingAddressUpdate) {
+    async function modifyShippingAddress(
+      updatedAddress: ShippingAddressUpdate,
+    ) {
       try {
         shippingAddressLoading.value = true;
-        const res = await updateShippingAddress(updatedAddress);
-        if (res && res.success) {
+        const res = await _updateShippingAddress(updatedAddress);
+        if (res && res.success && res.data && res.data.id) {
           if (res.data.hide === 1) {
             shippingAddresses.value.delete(res.data.id);
           } else {

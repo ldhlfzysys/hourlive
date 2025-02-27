@@ -147,7 +147,7 @@ export const useSampleStore = defineStore('sample-store', () => {
             sampleQuery.value.q_id = lastSample.id;
           }
         }
-        res.data.forEach((sample:SampleRead) => {
+        res.data.forEach((sample: SampleRead) => {
           if (sample.id) {
             samples.value.set(sample.id, sample);
           }
@@ -163,7 +163,7 @@ export const useSampleStore = defineStore('sample-store', () => {
       sampleQueryLoading.value = true;
       const res = await _querySampleFromIds(sampleQuery.value);
       if (res && res.success) {
-        res.data.forEach((sample:SampleRead) => {
+        res.data?.forEach((sample: SampleRead) => {
           if (sample.id) {
             samples.value.set(sample.id, sample);
           }

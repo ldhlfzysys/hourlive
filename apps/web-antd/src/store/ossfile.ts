@@ -14,17 +14,33 @@ import { $t } from '#/locales';
 */
 
 // types
-import type {
-  IdsQuery,
-  OSSFile,
-  OSSFileDelete,
-  OSSFileUpload,
-  StanderResult,
-} from '#/types';
+import type { OSSDeleteFile, StandardResponse } from '#/types/schemas';
+
+export async function getFileList(productId: number) {
+  return requestClient.post<StandardResponse<{ name: string; url: string }[]>>(
+    `/getfilelist/${productId}`,
+  );
+}
+
+export async function uploadFile(productId: number, fileData: FormData) {
+  return requestClient.post<StandardResponse<{ name: string; url: string }>>(
+    `/uploadfile/${productId}`,
+    fileData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+}
+
+export async function deleteFile(params: OSSDeleteFile) {
+  return requestClient.post<StandardResponse<string>>('/deletefile', params);
+}
 
 // API
-function _uploadFile(params: OSSFileUpload) {
-  return requestClient.post<StanderResult<string[]>>(
+function _uploadFile(params: { fileData: FormData; product_id: number }) {
+  return requestClient.post<StandardResponse<string[]>>(
     `oss/uploadfile/${params.product_id}`,
     params.fileData,
     {
@@ -35,24 +51,24 @@ function _uploadFile(params: OSSFileUpload) {
   );
 }
 
-function _deleteFile(params: OSSFileDelete) {
-  return requestClient.post<StanderResult<string>>('oss/deletefile', params);
+function _deleteFile(params: OSSDeleteFile) {
+  return requestClient.post<StandardResponse<string>>('oss/deletefile', params);
 }
 
 function _fetchFile(product_id: number) {
-  return requestClient.get<StanderResult<OSSFile[]>>(
+  return requestClient.get<StandardResponse<{ name: string; path: string }[]>>(
     `oss/listfiles/${product_id}`,
   );
 }
 
 function _fetchFileFromOrder(order_id: number) {
-  return requestClient.get<StanderResult<OSSFile[]>>(
+  return requestClient.get<StandardResponse<{ name: string; path: string }[]>>(
     `oss/listorderfiles/${order_id}`,
   );
 }
 
-function _listfilesfromids(params: IdsQuery) {
-  return requestClient.post<StanderResult<OSSFile[]>>(
+function _listfilesfromids(params: { ids: number[] }) {
+  return requestClient.post<StandardResponse<{ name: string; path: string }[]>>(
     `oss/listfilesfromids`,
     params,
   );
@@ -63,7 +79,7 @@ function _uploadAvatar(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  return requestClient.post<StanderResult<string>>(
+  return requestClient.post<StandardResponse<string>>(
     'oss/uploadavatar',
     formData,
     {
@@ -78,7 +94,7 @@ function _uploadAvatarOnly(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  return requestClient.post<StanderResult<string>>(
+  return requestClient.post<StandardResponse<string>>(
     'oss/uploadavataronly',
     formData,
     {
@@ -93,7 +109,7 @@ function _uploadHardware(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  return requestClient.post<StanderResult<string>>(
+  return requestClient.post<StandardResponse<string>>(
     'oss/uploadhardware',
     formData,
     {
@@ -143,7 +159,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     await fetchFile();
   }
 
-  async function removeFile(file: OSSFileDelete) {
+  async function removeFile(file: OSSDeleteFile) {
     removing.value = true;
     const result = await _deleteFile(file);
     if (result && result.success) {
@@ -152,7 +168,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     removing.value = false;
   }
 
-  async function uploadFile(file: OSSFileUpload) {
+  async function uploadFile(file: { fileData: FormData; product_id: number }) {
     uploading.value = true;
     const result = await _uploadFile(file);
     if (result && result.success) {
@@ -169,7 +185,7 @@ export const useOSSFileStore = defineStore('file-store', () => {
     const result = await _fetchFile(currentProductId.value);
     if (result.success) {
       ossfiles.value[currentProductId.value] = Object.fromEntries(
-        result.data.map((item) => [item.name, item.path]),
+        result.data?.map((item) => [item.name, item.path]) ?? [],
       );
     }
     fetching.value = false;

@@ -44,6 +44,13 @@ export const useAgencyStore = defineStore('agency-store', () => {
   const hideAgencyLoading = ref(false);
 
   // UI - modal
+  // 适配select组件
+  const agencyOptions = computed(() => {
+    return agencyList.value.map((item: AgencyRead) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  });
 
   // UE - Update
 
@@ -105,6 +112,7 @@ export const useAgencyStore = defineStore('agency-store', () => {
     agencyHomeInfo,
     agencyies,
     agencyList,
+    agencyOptions,
     fetchAgency,
     fetchAgencyHomeInfo,
     hideAgency,

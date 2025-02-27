@@ -36,12 +36,9 @@ async function _removeSamples(params: AddSampleToContent) {
   return requestClient.post<StandardResponse>('content/removesample', params);
 }
 
-// async function _hideContent(params: BaseQuery) {
-//   return requestClient.post<StandardResponse>(
-//     'content/hide',
-//     params,
-//   );
-// }
+async function _hideContent(params: BaseQuery) {
+  return requestClient.post<StandardResponse>('content/hide', params);
+}
 
 // store
 export const useContentStore = defineStore('content-store', () => {
@@ -89,6 +86,18 @@ export const useContentStore = defineStore('content-store', () => {
     liveaccount_id: undefined,
   });
 
+  // 适配select组件
+  const contentOptions = computed(() => {
+    return contentList.value.map((item: ContentRead) => {
+      if (item.liveaccount?.name && item.liveaccount?.live_account && item.id) {
+        return {
+          label: `${item.id} - ${item.liveaccount.name} - ${item.liveaccount.live_account}`,
+          value: item.id,
+        };
+      }
+      return { label: String(item.id), value: item.id };
+    });
+  });
   // methods
   function makeCreate() {
     showModal.value = true;
@@ -246,6 +255,12 @@ export const useContentStore = defineStore('content-store', () => {
       // });
     }
   }
+  async function hideContent(id: number) {
+    const res = await _hideContent({ ids: [id] });
+    if (res && res.success) {
+      contents.value.delete(id);
+    }
+  }
 
   return {
     $reset,
@@ -256,9 +271,11 @@ export const useContentStore = defineStore('content-store', () => {
     contentCreateLoading,
     contentList,
     contentLoading,
+    contentOptions,
     contentQuery,
     contents,
     createContent,
+    hideContent,
     makeCreate,
     makeSampleManagerUpdate,
     makeUpdate,

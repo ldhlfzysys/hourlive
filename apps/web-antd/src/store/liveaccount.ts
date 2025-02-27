@@ -8,24 +8,30 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { LiveAccount, LiveAccountQuery, StanderResult } from '#/types';
+import type {
+  LiveAccountRead,
+  LiveAccountUpdate,
+  PageQuery,
+  StandardResponse,
+} from '#/types/schemas';
 
-function _getAllLiveAccount(params?: LiveAccountQuery) {
-  return requestClient.post<StanderResult<LiveAccount[]>>(
+// API
+function _getAllLiveAccount(params?: PageQuery) {
+  return requestClient.post<StandardResponse<LiveAccountRead[]>>(
     'live_account/query',
     params,
   );
 }
 
-function _newLiveAccount(params: LiveAccount) {
-  return requestClient.post<StanderResult<LiveAccount>>(
+function _newLiveAccount(params: LiveAccountRead) {
+  return requestClient.post<StandardResponse<LiveAccountRead>>(
     'live_account/create',
     params,
   );
 }
 
-function _updateLiveAccount(params: LiveAccount) {
-  return requestClient.post<StanderResult<LiveAccount>>(
+function _updateLiveAccount(params: LiveAccountUpdate) {
+  return requestClient.post<StandardResponse<LiveAccountRead>>(
     'live_account/update',
     params,
   );
@@ -33,11 +39,16 @@ function _updateLiveAccount(params: LiveAccount) {
 
 // store
 export const useLiveAccountStore = defineStore('liveaccount-store', () => {
-  // loading
+  // data
+  const liveaccounts = ref<Map<number, LiveAccountRead>>(new Map());
 
-  const liveaccountLoading = ref(false);
-  const liveaccountCreateLoading = ref(false);
-  const liveaccountCreate = ref<LiveAccount>({
+  const liveaccountList = computed(() => {
+    return [...liveaccounts.value.entries()]
+      .sort(([keyA], [keyB]) => keyB - keyA)
+      .map(([_, liveaccount]) => liveaccount);
+  });
+
+  const currentLiveAccount = ref<LiveAccountRead>({
     code: '',
     email: '',
     live_account: '',
@@ -46,79 +57,99 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     name: '',
     platform: 'TikTok',
   });
-  // liveaccounts
-  const liveaccounts = ref<Map<number, LiveAccount>>(new Map());
 
-  const liveaccountList = computed(() => {
-    return [...liveaccounts.value.entries()]
-      .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
-      .map(([_, liveaccount]) => liveaccount); // 转换为LiveAccount的list
-  });
+  // UI - loading
+  const queryLiveAccountLoading = ref(false);
+  const updateLiveAccountLoading = ref(false);
+  const liveaccountCreateLoading = ref(false);
 
+  // UI - modal
   const showModal = ref(false);
 
+  const liveaccountQuery = ref<PageQuery>({
+    q_id: -1,
+    q_order: 'desc',
+    q_size: 30,
+  });
+
+  const liveaccountCreate = ref<LiveAccountUpdate>({
+    code: '',
+    email: '',
+    live_account: '',
+    live_uid: '',
+    mobile: '',
+    name: '',
+    password: '',
+    platform: '',
+  });
+
+  // 适配select组件
+  const liveaccountOptions = computed(() => {
+    return liveaccountList.value.map((item: LiveAccountRead) => {
+      if (item.name && item.live_account && item.id) {
+        return {
+          label: `${item.id} - ${item.name} - ${item.live_account}`,
+          value: item.id,
+        };
+      }
+      return { label: String(item.id), value: item.id };
+    });
+  });
+
+  // methods
   function makeCreate() {
     showModal.value = true;
     liveaccountCreate.value = {
       platform: 'TikTok',
     };
   }
+
   function makeUpdate(id: number) {
     showModal.value = true;
-    const sample = liveaccounts.value.get(id);
-    if (sample) {
-      liveaccountCreate.value = sample;
+    const liveaccount = liveaccounts.value.get(id);
+    if (liveaccount) {
+      currentLiveAccount.value = liveaccount;
     }
   }
 
-  function contentById(id: number) {
+  async function liveaccountById(id: number) {
     return liveaccounts.value.get(id);
   }
 
-  // query
-  const liveaccountQuery = ref<LiveAccountQuery>({
-    q_id: -1,
-    q_order: 'desc',
-    q_size: 30,
-  });
-
   function $reset() {
-    liveaccountLoading.value = false;
+    queryLiveAccountLoading.value = false;
+    updateLiveAccountLoading.value = false;
     liveaccountCreateLoading.value = false;
-    liveaccountQuery.value.q_id = -1;
-
     liveaccountQuery.value = {
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
     };
-    liveaccounts.value = new Map();
+    currentLiveAccount.value = {
+      platform: 'TikTok',
+    };
+    liveaccounts.value.clear();
   }
 
-  function liveaccountById(id: number) {
-    return liveaccounts.value.get(id);
-  }
-
-  // methods
   async function queryLiveAccount() {
     try {
-      liveaccountLoading.value = true;
+      queryLiveAccountLoading.value = true;
       const res = await _getAllLiveAccount(liveaccountQuery.value);
       if (res && res.success) {
-        if (res.data.length > 0) {
+        if (res.data && res.data.length > 0) {
           const lastLiveAccount = res.data.at(-1);
           if (lastLiveAccount && lastLiveAccount.id) {
             liveaccountQuery.value.q_id = lastLiveAccount.id;
           }
         }
-        res.data.forEach((liveaccount) => {
+        res.data?.forEach((liveaccount: LiveAccountRead) => {
           if (liveaccount.id) {
             liveaccounts.value.set(liveaccount.id, liveaccount);
           }
         });
       }
     } finally {
-      liveaccountLoading.value = false;
+      queryLiveAccountLoading.value = false;
     }
   }
 
@@ -126,7 +157,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     try {
       liveaccountCreateLoading.value = true;
       const res = await _newLiveAccount(liveaccountCreate.value);
-      if (res && res.success && res.data.id) {
+      if (res && res.success && res.data && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
       } else {
@@ -142,9 +173,9 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
 
   async function updateLiveAccount() {
     try {
-      liveaccountCreateLoading.value = true;
+      updateLiveAccountLoading.value = true;
       const res = await _updateLiveAccount(liveaccountCreate.value);
-      if (res && res.success && res.data.id) {
+      if (res && res.success && res.data && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
       } else {
@@ -154,25 +185,26 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
         });
       }
     } finally {
-      liveaccountCreateLoading.value = false;
+      updateLiveAccountLoading.value = false;
     }
   }
 
   return {
     $reset,
-    contentById,
     createLiveAccount,
     liveaccountById,
     liveaccountCreate,
     liveaccountCreateLoading,
     liveaccountList,
-    liveaccountLoading,
+    liveaccountOptions,
     liveaccountQuery,
     liveaccounts,
     makeCreate,
     makeUpdate,
     queryLiveAccount,
+    queryLiveAccountLoading,
     showModal,
     updateLiveAccount,
+    updateLiveAccountLoading,
   };
 });

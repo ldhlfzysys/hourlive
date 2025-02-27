@@ -11,6 +11,13 @@ async function getSuperHomeInfo() {
   return requestClient.post<StanderResult<SuperHomeInfo>>('home/superhome');
 }
 
+function _resetPassword(params: { id: number; password: string }) {
+  return requestClient.post<StandardResponse<CustomerRead>>(
+    `super/resetUserPassword`,
+    params,
+  );
+}
+
 // Store
 export const useSuperStore = defineStore('super-store', () => {
   const superHomeInfo = ref<SuperHomeInfo>();
@@ -18,6 +25,10 @@ export const useSuperStore = defineStore('super-store', () => {
   async function fetchSuperHomeInfo() {
     const res = await getSuperHomeInfo();
     superHomeInfo.value = res.data;
+  }
+
+  async function resetPassword(params: { id: number; password: string }) {
+    return _resetPassword(params);
   }
 
   function $reset() {}

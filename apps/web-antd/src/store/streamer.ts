@@ -3,8 +3,8 @@ import type {
   StandardResponse,
   StreamerRead,
   StreamerTagsRead,
-  StreamerUpdate
-} from '#/types';
+  StreamerUpdate,
+} from '#/types/schemas';
 
 import { computed, ref } from 'vue';
 
@@ -22,25 +22,27 @@ enum StreamerApi {
 }
 
 function _getAllStreamer(params?: BaseQuery) {
-  return requestClient.post<StandardResponse>(
+  return requestClient.post<StandardResponse<StreamerRead[]>>(
     StreamerApi.QueryStreamer,
     params,
   );
 }
 
 function _getAllTags() {
-  return requestClient.get<StandardResponse>(StreamerApi.GetTags);
+  return requestClient.get<StandardResponse<StreamerTagsRead[]>>(
+    'streamer/gettags',
+  );
 }
 
 function _newStreamer(params: StreamerUpdate) {
-  return requestClient.post<StandardResponse>(
+  return requestClient.post<StandardResponse<StreamerRead>>(
     StreamerApi.CreateStreamer,
     params,
   );
 }
 
 function _updateStreamer(params: StreamerUpdate) {
-  return requestClient.post<StandardResponse>(
+  return requestClient.post<StandardResponse<StreamerRead>>(
     StreamerApi.UpdateStreamer,
     params,
   );
@@ -102,8 +104,8 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     try {
       streamerLoading.value = true;
       const res = await _getAllStreamer(streamerQuery.value);
-      if (res && res.success) {
-        res.data.forEach((streamer:StreamerRead) => {
+      if (res && res.success && res.data) {
+        res.data.forEach((streamer: StreamerRead) => {
           if (streamer.id) {
             streamers.value.set(streamer.id, streamer);
           }
@@ -118,7 +120,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
   async function queryTags() {
     try {
       const res = await _getAllTags();
-      if (res && res.success) {
+      if (res && res.success && res.data) {
         tags.value = res.data;
       }
     } finally {
@@ -145,7 +147,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
       }
 
       const res = await _newStreamer(streamerCreate.value);
-      if (res && res.success && res.data.id) {
+      if (res && res.success && res.data && res.data.id) {
         streamers.value.set(res.data.id, res.data);
         showModal.value = false;
         notification.success({
@@ -173,13 +175,13 @@ export const useStreamerStore = defineStore('streamer-store', () => {
         );
       }
       const res = await _updateStreamer(streamerCreate.value);
-      if (res && res.success && res.data.id) {
-        if (res.data.hide === 1) {
-          streamers.value.delete(res.data.id);
-        } else {
-          streamers.value.set(res.data.id, res.data);
-        }
+      if (res && res.success && res.data && res.data.id) {
+        streamers.value.set(res.data.id, res.data);
         showModal.value = false;
+        notification.success({
+          description: $t('修改主播成功'),
+          message: $t('操作成功'),
+        });
       } else {
         notification.error({
           description: res.message,

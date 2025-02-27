@@ -1,6 +1,7 @@
 import type { UserInfo } from '@vben/types';
 
 import type {
+  AuthRead,
   StandardResponse,
   UserCreate,
   UserLogin,
@@ -74,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
 
           // 获取用户信息并存储到 accessStore 中
           const fetchUserInfoResult = await fetchUserInfo();
-          const userInfo = fetchUserInfoResult;
+          const userInfo = fetchUserInfoResult ?? null;
 
           userStore.setUserInfo(userInfo);
 
@@ -83,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
           } else {
             onSuccess
               ? await onSuccess?.()
-              : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+              : await router.push(userInfo?.homePath || DEFAULT_HOME_PATH);
           }
 
           if (userInfo?.realName) {
@@ -121,7 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         // 获取用户信息并存储到 accessStore 中
         const fetchUserInfoResult = await fetchUserInfo();
-        const userInfo = fetchUserInfoResult;
+        const userInfo = fetchUserInfoResult ?? null;
 
         userStore.setUserInfo(userInfo);
         // accessStore.setAccessCodes(accessCodes);
@@ -131,7 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
         } else {
           onSuccess
             ? await onSuccess?.()
-            : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+            : await router.push(userInfo?.homePath || DEFAULT_HOME_PATH);
         }
 
         if (userInfo?.realName) {
@@ -171,7 +172,7 @@ export const useAuthStore = defineStore('auth', () => {
 
           // 获取用户信息并存储到 accessStore 中
           const fetchUserInfoResult = await fetchUserInfo();
-          const userInfo = fetchUserInfoResult;
+          const userInfo = fetchUserInfoResult ?? null;
 
           userStore.setUserInfo(userInfo);
           // accessStore.setAccessCodes(accessCodes);
@@ -179,7 +180,7 @@ export const useAuthStore = defineStore('auth', () => {
           if (accessStore.loginExpired) {
             accessStore.setLoginExpired(false);
           } else {
-            await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+            await router.push(userInfo?.homePath || DEFAULT_HOME_PATH);
           }
 
           if (userInfo?.realName) {
@@ -232,7 +233,7 @@ export const useAuthStore = defineStore('auth', () => {
         desc: '',
         homePath: result.data.home ?? '',
         realName: result.data.account,
-        roles: result.data.role.auths.map((item) => item.code),
+        roles: result.data.role.auths.map((item: AuthRead) => item.code),
         token: '',
         userId: result.data.id.toString(),
         username: result.data.name ?? result.data.account,
@@ -246,7 +247,7 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await _updateUserApi(userData);
       if (result.success) {
         const updatedUserInfo = await fetchUserInfo();
-        userStore.setUserInfo(updatedUserInfo);
+        userStore.setUserInfo(updatedUserInfo ?? null);
         notification.success({
           // description: $t('modifysuccess'),
           duration: 3,

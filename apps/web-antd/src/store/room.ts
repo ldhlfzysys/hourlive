@@ -1,12 +1,3 @@
-import type {
-  CreateHardwareToRoom,
-  Hardware,
-  IdQuery,
-  Room,
-  RoomQuery,
-  StanderResult,
-} from '#/types';
-
 import { computed, ref } from 'vue';
 
 import { notification } from 'ant-design-vue';
@@ -15,124 +6,120 @@ import { defineStore } from 'pinia';
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
-// 定义API端点的枚举
-enum RoomApi {
-  CreateHardwareToRoom = 'room/create_hardware_to_room', // 创建硬件到直播间
-  CreateRoom = 'room/create', // 创建直播间
-  DeleteHardwareFromRoom = 'room/delete_hardware', // 删除硬件从直播间
-  DeleteRoom = 'room/delete', // 删除直播间
-  QueryHardware = 'room/query_hardware', // 查询硬件
-  QueryHardwareIds = 'room/query_hardware_ids', // 查询硬件ID
-  QueryRoom = 'room/query', // 查询直播间
-  UpdateHardware = 'room/update_hardware', // 更新硬件
-  UpdateRoom = 'room/update', // 更新直播间
+// types
+import type {
+  BaseQuery,
+  HardwareUpdate,
+  RoomRead,
+  RoomUpdate,
+  StandardResponse,
+} from '#/types';
+
+// network requests
+async function _getAllRooms(params?: BaseQuery) {
+  return requestClient.post<StandardResponse<RoomRead[]>>('room/query', params);
 }
 
-// 将所有网络请求方法改为私有方法（添加下划线前缀）
-function _getAllRooms(params?: RoomQuery) {
-  return requestClient.post<StanderResult<Room[]>>(RoomApi.QueryRoom, params);
+async function _newRoom(params: RoomUpdate) {
+  return requestClient.post<StandardResponse<RoomRead>>('room/create', params);
 }
 
-function _newRoom(params: Room) {
-  return requestClient.post<StanderResult<Room>>(RoomApi.CreateRoom, params);
+async function _updateRoom(params: RoomUpdate) {
+  return requestClient.post<StandardResponse<RoomRead>>('room/update', params);
 }
 
-function _updateRoom(params: Room) {
-  return requestClient.post<StanderResult<Room>>(RoomApi.UpdateRoom, params);
-}
-
-function _deleteRoom(roomId: number) {
-  return requestClient.post<StanderResult<null>>(RoomApi.DeleteRoom, {
+async function _deleteRoom(roomId: number) {
+  return requestClient.post<StandardResponse<null>>('room/delete', {
     id: roomId,
   });
 }
 
-function _addHardwareToRoom(params: CreateHardwareToRoom) {
-  return requestClient.post<StanderResult<null>>(
-    RoomApi.CreateHardwareToRoom,
+async function _addHardwareToRoom(params: HardwareUpdate) {
+  return requestClient.post<StandardResponse<null>>(
+    'room/create_hardware_to_room',
     params,
   );
 }
 
-function _deleteHardwareFromRoom(params: IdQuery) {
-  return requestClient.post<StanderResult<null>>(
-    RoomApi.DeleteHardwareFromRoom,
+async function _deleteHardwareFromRoom(params: BaseQuery) {
+  return requestClient.post<StandardResponse<null>>(
+    'room/delete_hardware',
     params,
   );
 }
 
-function _queryHardware(roomId: number) {
-  return requestClient.post<StanderResult<Hardware[]>>(RoomApi.QueryHardware, {
-    room_id: roomId,
-  });
-}
+// async function _queryHardware(roomId: number) {
+//   return requestClient.post<StandardResponse<HardwareRead[]>>(
+//     'room/query_hardware',
+//     {
+//       room_id: roomId,
+//     },
+//   );
+// }
 
-function _updateHardware(hardware: Hardware) {
-  return requestClient.post<StanderResult<Hardware>>(
-    RoomApi.UpdateHardware,
-    hardware,
-  );
-}
+// async function _updateHardware(hardware: HardwareUpdate) {
+//   return requestClient.post<StandardResponse<HardwareRead>>(
+//     'room/update_hardware',
+//     hardware,
+//   );
+// }
 
-// 定义Pinia store
+// store
 export const useRoomStore = defineStore('room-store', () => {
-  const roomLoading = ref(false); // 加载状态
-  const roomCreateLoading = ref(false); // 创建加载状态
-  const roomUpdateLoading = ref(false); // 更新加载状态
-  const showRoomDescModal = ref(false); // 控制直播间描述模态框显示
-  const roomUpdate = ref<Room>({});
-  const hardwareCreate = ref<Hardware>({
-    name: '',
-  });
+  // data
+  const rooms = ref<Map<number, RoomRead>>(new Map());
+  const roomUpdate = ref<RoomUpdate>({});
+  const hardwareCreate = ref<HardwareUpdate>({ name: '' });
 
-  const rooms = ref<Map<number, Room>>(new Map()); // 存储直播间的Map
-
-  // 计算属性，返回排序后的直播间列表
   const roomList = computed(() => {
     return [...rooms.value.entries()]
       .sort(([keyA], [keyB]) => keyB - keyA)
       .map(([_, room]) => room);
   });
 
-  const showModal = ref(false); // 控制模态框显示
+  // UI - loading
+  const roomLoading = ref(false);
+  const roomCreateLoading = ref(false);
+  const roomUpdateLoading = ref(false);
 
-  const roomQuery = ref<RoomQuery>({
+  // UI - modal
+  const showModal = ref(false);
+  const showRoomDescModal = ref(false);
+
+  const roomQuery = ref<BaseQuery>({
     agency_id: -1,
-    ids: [],
     q_id: -1,
     q_order: 'desc',
     q_size: 30,
   });
 
-  // 重置store状态
   function $reset() {
     roomLoading.value = false;
     roomCreateLoading.value = false;
-    roomQuery.value.q_id = -1;
     roomQuery.value = {
       agency_id: -1,
-      ids: [],
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
     };
-    rooms.value = new Map();
+    rooms.value.clear();
   }
 
-  // 查询直播间
   async function queryRoom() {
     try {
       roomLoading.value = true;
       const res = await _getAllRooms(roomQuery.value);
       if (res && res.success) {
-        if (res.data.length > 0) {
+        if (res.data && res.data.length > 0) {
           const lastRoom = res.data.at(-1);
           if (lastRoom) {
             roomQuery.value.q_id = lastRoom.id;
           }
         }
-        res.data.forEach((room) => {
-          rooms.value.set(room.id, room);
+        res.data?.forEach((room) => {
+          if (room.id) {
+            rooms.value.set(room.id, room);
+          }
         });
       }
     } finally {
@@ -140,7 +127,6 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
-  // 创建直播间
   async function createRoom() {
     try {
       if (!roomUpdate.value.name) {
@@ -153,12 +139,11 @@ export const useRoomStore = defineStore('room-store', () => {
       roomCreateLoading.value = true;
 
       const res = await _newRoom(roomUpdate.value);
-      if (res && res.success) {
+      if (res && res.success && res.data && res.data.id) {
         rooms.value.set(res.data.id, res.data);
         showModal.value = false;
-        // 清空当前新增对象数据
         roomUpdate.value = {
-          agency_id: -1,
+          id: -1,
           name: '',
         };
         notification.success({
@@ -183,16 +168,13 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
-  // 修改直播间
   async function modifyRoom() {
     try {
       roomLoading.value = true;
       roomUpdateLoading.value = true;
       const res = await _updateRoom(roomUpdate.value);
-      if (res && res.success && res.data.id) {
-        // 获取现有的房间数据
+      if (res && res.success && res.data && res.data.id) {
         const existingRoom = rooms.value.get(res.data.id);
-        // 只更新 name 和 desc，保留其他数据
         const updatedRoom = {
           ...existingRoom,
           desc: res.data.desc,
@@ -217,7 +199,6 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
-  // 删除直播间
   async function removeRoom(roomId: number) {
     try {
       roomLoading.value = true;
@@ -239,23 +220,19 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
-  // 删除硬件从房间
-  async function deleteHardwareFromRoom(params: IdQuery, roomId: number) {
+  async function deleteHardwareFromRoom(params: BaseQuery, roomId: number) {
     try {
       const res = await _deleteHardwareFromRoom(params);
       if (res && res.success) {
         const room = rooms.value.get(roomId);
         if (room) {
-          // 创建新的硬件数组并重新赋值以确保响应式更新
-          const updatedHardwares = room.hardwares.filter(
+          const updatedHardwares = room.hardwares?.filter(
             (hardware) => hardware.id !== params.id,
           );
-          // 创建新的room对象
           const updatedRoom = {
             ...room,
             hardwares: updatedHardwares,
           };
-          // 更新Map中的room
           rooms.value.set(roomId, updatedRoom);
         }
       }
@@ -267,12 +244,15 @@ export const useRoomStore = defineStore('room-store', () => {
       });
     }
   }
-  // 添加硬件到房间
-  async function createHardwareToRoom(params: CreateHardwareToRoom) {
+
+  async function createHardwareToRoom(params: HardwareUpdate) {
     try {
       const res = await _addHardwareToRoom(params);
-      if (res && res.success && res.data) {
-        rooms.value.get(params.room_id)?.hardwares.push(res.data);
+      if (res && res.success && res.data && params.room_id) {
+        const room = rooms.value.get(params.room_id);
+        if (room) {
+          room.hardwares?.push(res.data);
+        }
         notification.success({
           description: $t('添加硬件成功'),
           message: $t('操作成功'),
@@ -292,22 +272,16 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
-  // 返回store中的状态和方法
   return {
     $reset,
-    _addHardwareToRoom,
-    _queryHardware,
-    _updateHardware,
     createHardwareToRoom,
     createRoom,
     deleteHardwareFromRoom,
-
     hardwareCreate,
     makeRoomUpdate,
     modifyRoom,
     queryRoom,
-    removeRoom, // 确保在返回对象中包含 removeRoom
-
+    removeRoom,
     roomCreateLoading,
     roomList,
     roomLoading,

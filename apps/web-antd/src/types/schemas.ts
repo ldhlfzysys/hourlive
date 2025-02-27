@@ -1,17 +1,12 @@
-// 注意！！！前端开发中，所有需要用到的type定义，应和服务器完全保持一致，因为所有数据来自服务器，所以请求接口也是。这个文件不要自行改动。每次会同步服务器修改
-
-// 基础类型定义
-import type {Dayjs} from "dayjs";
-import type {TimeslotModel} from "#/types/ITimeslotOrder";
-
+// Token相关类型
 export interface Token {
   access_token: string;
   token_type: string;
 }
 
-export interface StandardResponse {
+export interface StandardResponse<T = any> {
   success: boolean;
-  data?: any;
+  data?: T;
   message?: string;
   token?: Token;
   status_code: number;
@@ -19,10 +14,11 @@ export interface StandardResponse {
   total_records: number;
 }
 
+// 分页查询
 export interface PageQuery {
-  q_id?: number; // 游标id
-  q_order?: string; // 排序
-  q_size?: number; // 一次请求量
+  q_id?: number;
+  q_order?: string;
+  q_size?: number;
 }
 
 export interface BaseQuery extends PageQuery {
@@ -34,13 +30,14 @@ export interface BaseQuery extends PageQuery {
   room_id?: number;
   timeslotorder_id?: number;
   status?: number;
-  is_main?: number; // 商品通用，是否主推
-  content_ids?: number[]; // 内容筛选
-  url?: string; // 抓取商品数据
-  begin_date?: string; // 时间区间
-  finish_date?: string; // 时间区间
+  is_main?: number;
+  content_ids?: number[];
+  url?: string;
+  begin_date?: string;
+  finish_date?: string;
 }
 
+// Auth & User
 export interface DataVersionRead {
   key: string;
   value: number;
@@ -49,7 +46,7 @@ export interface DataVersionRead {
 export interface UserCreate {
   account: string;
   password: string;
-  user_type: number; // 1机构 2用户 3主播 7平台管理员(只有看的权限) 8管理员
+  user_type: number;
   name?: string;
   shipping_address?: string;
   code?: string;
@@ -97,17 +94,19 @@ export interface UserUpdate {
   password?: string;
 }
 
+// 叶子节点实体
 export interface RoomRead {
   id?: number;
   name: string;
   desc?: string;
   hide?: number;
   version?: number;
+  hardwares?: HardwareRead[];
 }
 
 export interface RoomUpdate {
   id?: number;
-  name: string;
+  name?: string;
   desc?: string;
 }
 
@@ -142,10 +141,8 @@ export interface HardwareUpdate {
 
 export interface TimeslotRead {
   id?: number;
-  begin_date?: Date;
-  finish_date?: Date;
-  begin_time?: string;
-  finish_time?: string;
+  begin_date?: string;
+  finish_date?: string;
   hourlive_money_cost?: number;
   hide?: number;
   type?: number;
@@ -154,8 +151,8 @@ export interface TimeslotRead {
 
 export interface TimeslotUpdate {
   id?: number;
-  begin_date?: Date;
-  finish_date?: Date;
+  begin_date?: string;
+  finish_date?: string;
   hourlive_money_cost?: number;
   streamers?: number[];
 }
@@ -241,6 +238,7 @@ export interface AddSampleToContent {
   sample_ids: number[];
 }
 
+// 包含其他实体
 export interface ContentRead {
   id?: number;
   is_feiyue?: string;
@@ -320,7 +318,6 @@ export interface TimeslotOrderRead {
   agency?: AgencyRead;
   room?: RoomRead;
   contents?: ContentRead[];
-  timeslots?: TimeslotRead[];
   hide?: number;
   version?: number;
 }
@@ -335,36 +332,13 @@ export interface SubsidyUpdate {
 }
 
 export interface TimeslotOrderUpdate {
-  id?: number; // 订单id
-  room_id?: number; // 直播间ID
-  content_id?: number; // 内容id
+  id?: number;
+  room_id?: number;
+  content_id?: number;
   timeslots: TimeslotUpdate[];
   order_price?: number;
   order_title?: string;
 }
-
-
-
-export interface TimeslotOrderFormState {
-  liveTime?: [Dayjs, Dayjs]; // 直播时段
-  timeslot?: [Dayjs, Dayjs]; // 时间段
-  timeslots?: TimeslotModel[]; // 时间段数组
-  agency?: number; // 机构id
-  roomId?: number; // 直播间id
-  contentId?: number | undefined; // 直播内容
-  cost?: number; // 花费
-  slotId?: number; // 时间段id
-  orderId?: number; // 订单id
-  status?: number; // 订单状态
-  customer?: string; // 客户
-  enableEdit?: boolean; // 是否可编辑
-  formType?: 'add' | 'apend'; // 表单类型
-  streamerId?: number; // 主播id
-  price?: number; // 价格
-  orderTitle?: string; // 订单标题
-}
-
-
 
 export interface TimeslotOrderCancel {
   id: number;
@@ -392,7 +366,7 @@ export interface HourliveMoneyRecordUpdate {
 
 export interface RechargeRead {
   id?: number;
-  pay_time?: Date;
+  pay_time?: string;
   amount?: number;
   gift?: number;
   state?: number;
@@ -408,20 +382,20 @@ export interface RechargeUpdate {
 }
 
 export interface SampleShippingSampleRead {
-  id: number; // sample_id
-  sample_count: number; // sample个数
+  id: number;
+  sample_count: number;
   sample_mark?: string;
 }
 
 export interface SampleShippingRead {
   id?: number;
-  shipping_time?: Date;
+  shipping_time?: string;
   express_company?: string;
   tracking_number?: string;
   sender_name?: string;
-  sender_time?: Date;
+  sender_time?: string;
   receiver_name?: string;
-  receiver_time?: Date;
+  receiver_time?: string;
   hide?: number;
   version?: number;
 }
@@ -430,22 +404,24 @@ export interface SampleShippingUpdate {
   id?: number;
   agency_id?: number;
   status?: number;
-  shipping_time?: Date;
+  shipping_time?: string;
   express_company?: string;
   tracking_number?: string;
   sender_name?: string;
-  sender_time?: Date;
+  sender_time?: string;
   receiver_name?: string;
-  receiver_time?: Date;
+  receiver_time?: string;
   receiver_address?: string;
   samples: SampleShippingSampleRead[];
 }
 
+// OSS
 export interface OSSDeleteFile {
   product_id: number;
   name: string;
 }
 
+// Home
 export interface AgencyHomeInfo {
   today_content: number;
   onroute_shipping: number;

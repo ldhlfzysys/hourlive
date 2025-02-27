@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import type {
+  BaseQuery,
   StandardResponse,
   SubsidyUpdate,
-  TimeslotOrder,
-  TimeslotOrderCreate, TimeslotRead,
+  TimeslotOrderCancel,
+  TimeslotOrderRead,
+  TimeslotOrderUpdate,
+  TimeslotRead,
 } from '#/types';
 
 import { computed, ref, watch } from 'vue';
@@ -17,39 +20,39 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 function _subsidyTimeslotOrder(params: SubsidyUpdate) {
-  return requestClient.post<StandardResponse<TimeslotOrder>>(
+  return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'super/subsidy',
     params,
   );
 }
 
 // 获取所有时段订单
-function getAllTimeslotOrders(params?: OrderQuery) {
-  return requestClient.post<StanderResult<TimeslotOrder[]>>(
+function getAllTimeslotOrders(params?: BaseQuery) {
+  return requestClient.post<StandardResponse<TimeslotOrderRead[]>>(
     'timeslotorder/query',
     params,
   );
 }
 
 // 取消时段订单
-function cancelTimeslotOrder(params: CancelTimeSlot) {
-  return requestClient.post<StanderResult<TimeslotOrder>>(
+function cancelTimeslotOrder(params: TimeslotOrderCancel) {
+  return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'timeslotorder/cancel',
     params,
   );
 }
 
 // 创建新的时段订单
-function newTimeslotOrder(params: TimeslotOrderCreate) {
-  return requestClient.post<StanderResult<TimeslotOrder>>(
+function newTimeslotOrder(params: TimeslotOrderUpdate) {
+  return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'timeslotorder/create',
     params,
   );
 }
 
 // 更新现有的时段订单
-function updateTimeslotOrder(params: TimeslotOrder) {
-  return requestClient.post<StanderResult<TimeslotOrder>>(
+function updateTimeslotOrder(params: TimeslotOrderUpdate) {
+  return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'timeslotorder/update',
     params,
   );
@@ -64,7 +67,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     ids: [],
     // timeslotorder_id: -1,
   });
-  const timeslotOrderCreate = ref<TimeslotOrderCreate>({
+  const timeslotOrderCreate = ref<TimeslotOrderUpdate>({
     content_id: 0,
     order_price: 0,
     order_title: '',
@@ -72,7 +75,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     timeslots: [],
   });
 
-  const currentSelectedOrder = ref<TimeslotOrder | undefined>();
+  const currentSelectedOrder = ref<TimeslotOrderRead | undefined>();
 
   const isEditing = ref(false);
   watch(isEditing, (newVal) => {
@@ -82,7 +85,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
   });
 
   const downloadLoading = ref(false);
-  const timeslotOrders = ref<Map<number, TimeslotOrder>>(new Map());
+  const timeslotOrders = ref<Map<number, TimeslotOrderRead>>(new Map());
 
   const orderById = computed(() => {
     return (id: number) => timeslotOrders.value.get(id);
@@ -112,7 +115,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       for (const filter of orderFilters.value) {
         if (filter.key === 'agency') {
           orders = orders.filter(([_, timeslotOrder]) => {
-            return filter.value.includes(timeslotOrder.agency_id);
+            return filter.value.includes(timeslotOrder.agency_id!);
           });
         }
         if (filter.key === 'room') {
@@ -165,7 +168,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
 
     let color = colorMap.value.get(id)!;
-    const order: TimeslotOrder | undefined = orderById.value(id);
+    const order: TimeslotOrderRead | undefined = orderById.value(id);
 
     if (order && isPast) {
       color = `${color}-past`;
@@ -228,7 +231,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslotOrderQuery.value.q_size = 99_999;
       const res = await getAllTimeslotOrders(timeslotOrderQuery.value);
       if (res.success) {
-        res.data.forEach((timeslotOrder: TimeslotOrder) => {
+        res.data.forEach((timeslotOrder: TimeslotOrderRead) => {
           timeslotOrders.value.set(timeslotOrder.id, timeslotOrder);
         });
       }
@@ -253,14 +256,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       const orderId = timeslotOrderSubsidyForm.value.ids[0];
       if (orderId === undefined) return;
       const timeslotOrder = timeslotOrders.value.get(orderId);
-      timeslotOrder!.ads_subsidy = timeslotOrderSubsidyForm.value.ads_subsidy!;
-      timeslotOrder!.tts_subsidy = timeslotOrderSubsidyForm.value.tts_subsidy!;
-      timeslotOrder!.ads_subsidy_remark =
+      if (!timeslotOrder) return;
+
+      timeslotOrder.ads_subsidy = timeslotOrderSubsidyForm.value.ads_subsidy!;
+      timeslotOrder.tts_subsidy = timeslotOrderSubsidyForm.value.tts_subsidy!;
+      timeslotOrder.ads_subsidy_remark =
         timeslotOrderSubsidyForm.value.ads_subsidy_remark!;
-      timeslotOrder!.tts_subsidy_remark =
+      timeslotOrder.tts_subsidy_remark =
         timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
-      timeslotOrder!.subsidy_type =
-        timeslotOrderSubsidyForm.value.subsidy_type!;
+      timeslotOrder.subsidy_type = timeslotOrderSubsidyForm.value.subsidy_type!;
 
       notification.success({
         description: $t('操作成功'),
@@ -455,7 +459,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
   }
 
-  async function modifyTimeslotOrder(updatedOrder: TimeslotOrder) {
+  async function modifyTimeslotOrder(updatedOrder: TimeslotOrderUpdate) {
     try {
       timeslotOrderLoading.value = true;
       const res = await updateTimeslotOrder(updatedOrder);
