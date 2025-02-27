@@ -4,12 +4,13 @@ import type {
   StandardResponse,
   SubsidyUpdate,
   TimeslotOrder,
-  TimeslotOrderCreate,
+  TimeslotOrderCreate, TimeslotRead,
 } from '#/types';
 
 import { computed, ref, watch } from 'vue';
 
 import { notification } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
@@ -24,7 +25,7 @@ function _subsidyTimeslotOrder(params: SubsidyUpdate) {
 
 // 获取所有时段订单
 function getAllTimeslotOrders(params?: OrderQuery) {
-  return requestClient.post<StandardResponse<TimeslotOrder[]>>(
+  return requestClient.post<StanderResult<TimeslotOrder[]>>(
     'timeslotorder/query',
     params,
   );
@@ -32,7 +33,7 @@ function getAllTimeslotOrders(params?: OrderQuery) {
 
 // 取消时段订单
 function cancelTimeslotOrder(params: CancelTimeSlot) {
-  return requestClient.post<StandardResponse<TimeslotOrder>>(
+  return requestClient.post<StanderResult<TimeslotOrder>>(
     'timeslotorder/cancel',
     params,
   );
@@ -40,7 +41,7 @@ function cancelTimeslotOrder(params: CancelTimeSlot) {
 
 // 创建新的时段订单
 function newTimeslotOrder(params: TimeslotOrderCreate) {
-  return requestClient.post<StandardResponse<TimeslotOrder>>(
+  return requestClient.post<StanderResult<TimeslotOrder>>(
     'timeslotorder/create',
     params,
   );
@@ -48,7 +49,7 @@ function newTimeslotOrder(params: TimeslotOrderCreate) {
 
 // 更新现有的时段订单
 function updateTimeslotOrder(params: TimeslotOrder) {
-  return requestClient.post<StandardResponse<TimeslotOrder>>(
+  return requestClient.post<StanderResult<TimeslotOrder>>(
     'timeslotorder/update',
     params,
   );
@@ -325,8 +326,11 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     );
   });
 
-  function _getSlot(slot: TimeslotModel, index: number) {
-    return slot.slot![index]!;
+  function _getSlot(slot: TimeslotRead, index: number) {
+    if (index === 0) {
+      return dayjs(`${slot.begin_date} ${slot.begin_time}`);
+    }
+    return dayjs(`${slot.finish_date} ${slot.finish_time}`);
   }
 
   async function makeOrders() {
@@ -342,10 +346,10 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
           const slotA = allTimeslots[i]!;
           const slotB = allTimeslots[j]!;
 
-          const startA = _getSlot(slotA, 0);
-          const endA = _getSlot(slotA, 1);
-          const startB = _getSlot(slotB, 0);
-          const endB = _getSlot(slotB, 1);
+          const startA = dayjs(`${slotA.date} ${slotA.start_time}`);
+          const endA = dayjs(`${slotA.end_date} ${slotA.end_time}`);
+          const startB = dayjs(`${slotB.date} ${slotB.start_time}`);
+          const endB = dayjs(`${slotB.end_date} ${slotB.end_time}`);
 
           if (
             (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition

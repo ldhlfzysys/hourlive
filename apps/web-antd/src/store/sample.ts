@@ -8,43 +8,36 @@ import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
 // types
-import type { SampleRead, StandardResponse } from '#/types';
+import type {
+  BaseQuery,
+  SampleRead,
+  SampleUpdate,
+  StandardResponse,
+} from '#/types';
 
 // API
 function _getAllSamples(params?: SampleRead) {
-  return requestClient.post<StandardResponse<SampleRead[]>>(
-    'sample/query',
-    params,
-  );
+  return requestClient.post<StandardResponse>('sample/query', params);
 }
 
-function _newSamples(params: Sample) {
-  return requestClient.post<StandardResponse<Sample>>('sample/create', params);
+function _newSamples(params: SampleUpdate) {
+  return requestClient.post<StandardResponse>('sample/create', params);
 }
 
-function _updateSample(params: Sample) {
-  return requestClient.post<StandardResponse<Sample>>('sample/update', params);
+function _updateSample(params: SampleUpdate) {
+  return requestClient.post<StandardResponse>('sample/update', params);
 }
 
-function _querySampleFromIds(params: SampleQuery) {
-  return requestClient.post<StandardResponse<Sample[]>>(
-    'sample/query/ids',
-    params,
-  );
+function _querySampleFromIds(params: BaseQuery) {
+  return requestClient.post<StandardResponse>('sample/query/ids', params);
 }
 
-function _fetchSampleInfo(url: Url) {
-  return requestClient.post<StandardResponse<Sample>>(
-    'sample/getProductInfo',
-    url,
-  );
+function _fetchSampleInfo(url: BaseQuery) {
+  return requestClient.post<StandardResponse>('sample/getProductInfo', url);
 }
 
-function _deleteSample(params: IdQuery) {
-  return requestClient.post<StandardResponse<Sample>>(
-    'sample/deletesample',
-    params,
-  );
+function _deleteSample(params: BaseQuery) {
+  return requestClient.post<StandardResponse>('sample/deletesample', params);
 }
 // store
 export const useSampleStore = defineStore('sample-store', () => {
@@ -60,7 +53,7 @@ export const useSampleStore = defineStore('sample-store', () => {
   const showSampleList = ref(false); // 控制样品列表显示
 
   // sample store
-  const samples = ref<Map<number, Sample>>(new Map());
+  const samples = ref<Map<number, SampleRead>>(new Map());
 
   const sampleList = computed(() => {
     const list = [...samples.value.entries()]
@@ -76,10 +69,10 @@ export const useSampleStore = defineStore('sample-store', () => {
     return list;
   });
 
-  const sampleUpdate = ref<Sample>({});
+  const sampleUpdate = ref<SampleUpdate>({});
 
   // query
-  const sampleQuery = ref<SampleRead>({
+  const sampleQuery = ref<BaseQuery>({
     is_main: -1,
     q_id: -1,
     q_order: 'desc',
@@ -108,7 +101,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     sampleQuery.value.q_id = -1;
 
     sampleQuery.value = {
-      is_main: '-1',
+      is_main: -1,
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
@@ -119,21 +112,27 @@ export const useSampleStore = defineStore('sample-store', () => {
   function makeCreate() {
     showModal.value = true;
     sampleUpdate.value = {
-      is_main: '3',
+      is_main: 3,
     };
   }
   function makeUpdate(id: number) {
     showModal.value = true;
     const sample = samples.value.get(id);
     if (sample) {
-      sampleUpdate.value = sample;
+      sampleUpdate.value = {
+        ...sample,
+        is_main: sample.is_main || 0, // 确保 is_main 有默认值
+      };
     }
   }
   function makeKSPUpdate(id: number) {
     showKSPModal.value = true;
     const sample = samples.value.get(id);
     if (sample) {
-      sampleUpdate.value = sample;
+      sampleUpdate.value = {
+        ...sample,
+        is_main: sample.is_main || 0, // 确保 is_main 有默认值
+      };
     }
   }
   // methods
@@ -148,7 +147,7 @@ export const useSampleStore = defineStore('sample-store', () => {
             sampleQuery.value.q_id = lastSample.id;
           }
         }
-        res.data.forEach((sample) => {
+        res.data.forEach((sample:SampleRead) => {
           if (sample.id) {
             samples.value.set(sample.id, sample);
           }
@@ -164,7 +163,7 @@ export const useSampleStore = defineStore('sample-store', () => {
       sampleQueryLoading.value = true;
       const res = await _querySampleFromIds(sampleQuery.value);
       if (res && res.success) {
-        res.data.forEach((sample) => {
+        res.data.forEach((sample:SampleRead) => {
           if (sample.id) {
             samples.value.set(sample.id, sample);
           }

@@ -1,4 +1,10 @@
-import type { StanderResult, Streamer, StreamerQuery, Tag } from '#/types';
+import type {
+  BaseQuery,
+  StandardResponse,
+  StreamerRead,
+  StreamerTagsRead,
+  StreamerUpdate
+} from '#/types';
 
 import { computed, ref } from 'vue';
 
@@ -15,26 +21,26 @@ enum StreamerApi {
   UpdateStreamer = 'streamer/update',
 }
 
-function _getAllStreamer(params?: StreamerQuery) {
-  return requestClient.post<StanderResult<Streamer[]>>(
+function _getAllStreamer(params?: BaseQuery) {
+  return requestClient.post<StandardResponse>(
     StreamerApi.QueryStreamer,
     params,
   );
 }
 
 function _getAllTags() {
-  return requestClient.get<StanderResult<Tag[]>>(StreamerApi.GetTags);
+  return requestClient.get<StandardResponse>(StreamerApi.GetTags);
 }
 
-function _newStreamer(params: Streamer) {
-  return requestClient.post<StanderResult<Streamer>>(
+function _newStreamer(params: StreamerUpdate) {
+  return requestClient.post<StandardResponse>(
     StreamerApi.CreateStreamer,
     params,
   );
 }
 
-function _updateStreamer(params: Streamer) {
-  return requestClient.post<StanderResult<Streamer>>(
+function _updateStreamer(params: StreamerUpdate) {
+  return requestClient.post<StandardResponse>(
     StreamerApi.UpdateStreamer,
     params,
   );
@@ -43,12 +49,12 @@ function _updateStreamer(params: Streamer) {
 export const useStreamerStore = defineStore('streamer-store', () => {
   const streamerLoading = ref(false);
   const streamerCreateLoading = ref(false);
-  const streamerCreate = ref<Streamer>({});
+  const streamerCreate = ref<StreamerUpdate>({});
 
   const isEditing = ref(false);
 
-  const streamers = ref<Map<number, Streamer>>(new Map());
-  const tags = ref<Tag[]>([]);
+  const streamers = ref<Map<number, StreamerRead>>(new Map());
+  const tags = ref<StreamerTagsRead[]>([]);
 
   const streamerList = computed(() => {
     return [...streamers.value.entries()]
@@ -58,7 +64,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
 
   const showModal = ref(false);
 
-  const streamerQuery = ref<StreamerQuery>({
+  const streamerQuery = ref<BaseQuery>({
     agency_id: -1,
     ids: [],
     q_id: -1,
@@ -97,7 +103,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
       streamerLoading.value = true;
       const res = await _getAllStreamer(streamerQuery.value);
       if (res && res.success) {
-        res.data.forEach((streamer) => {
+        res.data.forEach((streamer:StreamerRead) => {
           if (streamer.id) {
             streamers.value.set(streamer.id, streamer);
           }

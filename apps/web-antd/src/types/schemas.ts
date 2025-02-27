@@ -1,6 +1,9 @@
 // 注意！！！前端开发中，所有需要用到的type定义，应和服务器完全保持一致，因为所有数据来自服务器，所以请求接口也是。这个文件不要自行改动。每次会同步服务器修改
 
 // 基础类型定义
+import type {Dayjs} from "dayjs";
+import type {TimeslotModel} from "#/types/ITimeslotOrder";
+
 export interface Token {
   access_token: string;
   token_type: string;
@@ -141,6 +144,8 @@ export interface TimeslotRead {
   id?: number;
   begin_date?: Date;
   finish_date?: Date;
+  begin_time?: string;
+  finish_time?: string;
   hourlive_money_cost?: number;
   hide?: number;
   type?: number;
@@ -227,7 +232,7 @@ export interface SampleUpdate {
   product_ksp?: string;
   product_script?: string;
   product_commission?: string;
-  is_main?: string;
+  is_main?: number;
   hide?: number;
 }
 
@@ -315,6 +320,7 @@ export interface TimeslotOrderRead {
   agency?: AgencyRead;
   room?: RoomRead;
   contents?: ContentRead[];
+  timeslots?: TimeslotRead[];
   hide?: number;
   version?: number;
 }
@@ -336,6 +342,29 @@ export interface TimeslotOrderUpdate {
   order_price?: number;
   order_title?: string;
 }
+
+
+
+export interface TimeslotOrderFormState {
+  liveTime?: [Dayjs, Dayjs]; // 直播时段
+  timeslot?: [Dayjs, Dayjs]; // 时间段
+  timeslots?: TimeslotModel[]; // 时间段数组
+  agency?: number; // 机构id
+  roomId?: number; // 直播间id
+  contentId?: number | undefined; // 直播内容
+  cost?: number; // 花费
+  slotId?: number; // 时间段id
+  orderId?: number; // 订单id
+  status?: number; // 订单状态
+  customer?: string; // 客户
+  enableEdit?: boolean; // 是否可编辑
+  formType?: 'add' | 'apend'; // 表单类型
+  streamerId?: number; // 主播id
+  price?: number; // 价格
+  orderTitle?: string; // 订单标题
+}
+
+
 
 export interface TimeslotOrderCancel {
   id: number;
