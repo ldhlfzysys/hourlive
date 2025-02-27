@@ -164,7 +164,21 @@ onMounted(() => {
 }
 
 .fc-event {
-  border-radius: 8px;
+  background: none !important;
+  border: none !important;
+}
+
+.fc-event-main {
+  background: none !important;
+  border: none !important;
+}
+
+.fc-event-selected {
+  box-shadow: none !important;
+}
+
+.fc-event:focus {
+  box-shadow: none !important;
 }
 
 .clicked-avatar {

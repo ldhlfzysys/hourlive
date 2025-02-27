@@ -232,10 +232,12 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   });
 
   const calendarOptions = ref({
-    dateClick: addEvent,
+    dateClick: null,
     editable: true,
     eventClick: handleEventClick,
     eventContent: handleEventContent,
+    eventDrop: handleEventChange,
+    eventResize: handleEventChange,
     events: allEvents.value,
     expandRows: true,
     headerToolbar: {
@@ -250,7 +252,11 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     resourceAreaColumns: resourceAreaColumns.value,
     resourceAreaWidth: '20%',
     resources: resources.value,
-    slotLabelFormat: { hour: '2-digit', hour12: false }, // 24-hour format
+    select: handleSelect,
+    selectable: true,
+    selectMirror: true,
+    slotDuration: '00:30:00',
+    snapDuration: '00:30:00',
   });
 
   const brandList = computed(() => {
@@ -286,14 +292,66 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     return {
       html: `
-      <div style="display: flex; align-items: center; border-radius: 8px;">
-        ${streamer ? `<img src="${streamer.avatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">` : ''}
-        <div>
-          <div>${arg.event.title}</div>
-          ${brand ? `<div>${brand.name}</div>` : ''}
+        <div style="
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          padding: 8px;
+          gap: 6px;
+          background-color: #f5f5f5;
+          
+        ">
+          <!-- 品牌名称 -->
+          ${
+            brand
+              ? `
+            <div style="
+              font-size: 14px;
+              font-weight: bold;
+              color: #262626;
+            ">${brand.name}</div>
+          `
+              : ''
+          }
+          
+          <!-- 时间 -->
+          <div style="
+            font-size: 12px;
+            color: #595959;
+          ">${arg.event.title}</div>
+          
+          <!-- 主播信息 -->
+          ${
+            streamer
+              ? `
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              background-color: rgba(255, 255, 255, 0.8);
+              padding: 4px 6px;
+
+            ">
+              <img 
+                src="${streamer.avatar}" 
+                alt="Avatar" 
+                style="
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+              >
+              <span style="
+                font-size: 12px;
+                color: #434343;
+              ">${streamer.name || '未知主播'}</span>
+            </div>
+          `
+              : ''
+          }
         </div>
-      </div>
-    `,
+      `,
     };
   }
 
@@ -312,43 +370,76 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   }
 
   function handleEventClick(arg: any) {
-    const event: any = allEvents.value.find(
-      (ev: any) => ev.id === arg.event.id,
-    );
-    if (selectedStreamId.value) {
-      event.streamerId = selectedStreamId.value.toString();
+    console.log('handleEventClick', arg);
+    const event = allEvents.value.find((ev: any) => ev.id === arg.event.id);
+    if (event) {
+      event.streamerId = selectedStreamId.value
+        ? selectedStreamId.value.toString()
+        : undefined;
+      event.brandId = selectedBrandId.value ?? undefined;
+
+      // 更新标题显示
+      const startTime = dayjs(event.start).format('HH:mm');
+      const endTime = dayjs(event.end).format('HH:mm');
+      event.title = `${startTime} - ${endTime}`;
+
+      // 强制更新事件显示
+      arg.event.setProp('title', event.title);
     }
-    if (selectedBrandId.value) {
-      event.brandId = selectedBrandId.value;
+  }
+
+  function handleEventChange(arg: any) {
+    const event = allEvents.value.find((ev: any) => ev.id === arg.event.id);
+    if (event) {
+      event.start = arg.event.start;
+      event.end = arg.event.end;
+      // 更新标题显示
+      const startTime = dayjs(event.start).format('HH:mm');
+      const endTime = dayjs(event.end).format('HH:mm');
+      event.title = `${startTime} - ${endTime}`;
+
+      // 强制更新事件显示
+      arg.event.setProp('title', event.title);
     }
   }
 
   let eventCount = 0;
 
-  function addEvent(event: any) {
-    // 创建一个新的事件
-    const resourceId = event.resource.id;
-    const clickDate = dayjs(event.dateStr);
+  function handleSelect(selectInfo: any) {
+    const resourceId = selectInfo.resource.id;
+    const startDate = dayjs(selectInfo.start);
+    let endDate = dayjs(selectInfo.end);
 
+    // 如果时间差小于等于30分钟（说明是点击），则设置为2小时
+    if (endDate.diff(startDate, 'minutes') <= 30) {
+      endDate = startDate.add(2, 'hour');
+    }
+
+    addEventWithTime(resourceId, startDate, endDate);
+  }
+
+  function addEventWithTime(
+    resourceId: string,
+    startDate: Dayjs,
+    endDate: Dayjs,
+  ) {
     const roomId = `${resourceId.split('_')[1]}`;
-
-    const start_time = clickDate.format('HH:mm');
-    const end_time = clickDate.add(2, 'hour').format('HH:mm');
+    const start_time = startDate.format('HH:mm');
+    const end_time = endDate.format('HH:mm');
     const streamerId = selectedStreamId.value;
     const brandId = selectedBrandId.value;
 
     const newEvent = {
       brandId,
-      end: clickDate.add(2, 'hour').format('YYYY-MM-DD HH:mm'),
+      end: endDate.format('YYYY-MM-DD HH:mm'),
       id: eventCount.toString(),
       resourceId,
       roomId,
-      start: clickDate.format('YYYY-MM-DD HH:mm'),
+      start: startDate.format('YYYY-MM-DD HH:mm'),
       streamerId,
       title: `${start_time} - ${end_time}`,
     };
 
-    // 将新事件添加到 events 数组中
     allEvents.value.push(newEvent);
     eventCount++;
   }
@@ -402,10 +493,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
         continue;
       }
       const resourceId = `${start.format('YYYY-MM-DD')}_${availableRoomId}`;
-      addEvent({
-        dateStr: `${date} ${start.format('HH:mm')}`,
-        resource: { id: resourceId },
-      });
+      addEventWithTime(resourceId, start, end);
     }
     showAISchedulingModal.value = false;
   }
