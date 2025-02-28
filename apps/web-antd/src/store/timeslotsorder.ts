@@ -347,21 +347,22 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     // Methods
     $reset,
     canAppendOrder,
+    cancelTimeslot,
     confirmLoading,
-    currentSelectedOrder,
 
+    currentSelectedOrder,
     deleteTimeslotOrder,
     downloadLoading,
     getEventClass,
     makeCreate,
-    makeOrder,
 
+    makeOrder,
     makeUpdate,
     // Computed
     orderById,
     orderFilters,
-    orderOptions,
 
+    orderOptions,
     orderTotalTime,
     queryTimeslotOrder,
 
