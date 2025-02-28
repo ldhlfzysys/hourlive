@@ -11,6 +11,9 @@ import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
 
+import { useRoomStore } from './room';
+import { useShippingAddressStore } from './shippingaddress';
+
 // API
 
 async function _queryAgency() {
@@ -63,9 +66,23 @@ export const useAgencyStore = defineStore('agency-store', () => {
       queryAgencyLoading.value = true;
       const res = await _queryAgencyByIds({ ids: [id] });
       if (res.success && res.data && res.data.length > 0) {
+        const roomStore = useRoomStore();
+        const shippingAddressStore = useShippingAddressStore();
+
         res.data.forEach((agency: AgencyRead) => {
           if (agency.id) {
+            // 设置 agency
             agencyies.value.set(agency.id, agency);
+
+            // 使用 roomStore.setRooms 设置 rooms 数据
+            if (agency.rooms && agency.rooms.length > 0) {
+              roomStore.setRooms(agency.rooms);
+            }
+
+            // 使用 shippingAddressStore.setShippingAddresses 设置 shippingaddress 数据
+            if (agency.shippingaddress && agency.shippingaddress.length > 0) {
+              shippingAddressStore.setShippingAddresses(agency.shippingaddress);
+            }
           }
         });
       }
@@ -92,9 +109,23 @@ export const useAgencyStore = defineStore('agency-store', () => {
     queryAgencyLoading.value = true;
     const res = await _queryAgency();
     if (res.success && res.data) {
+      const roomStore = useRoomStore();
+      const shippingAddressStore = useShippingAddressStore();
+
       res.data.forEach((agency: AgencyRead) => {
         if (agency.id) {
+          // 设置 agency
           agencyies.value.set(agency.id, agency);
+
+          // 使用 roomStore.setRooms 设置 rooms 数据
+          if (agency.rooms && agency.rooms.length > 0) {
+            roomStore.setRooms(agency.rooms);
+          }
+
+          // 使用 shippingAddressStore.setShippingAddresses 设置 shippingaddress 数据
+          if (agency.shippingaddress && agency.shippingaddress.length > 0) {
+            shippingAddressStore.setShippingAddresses(agency.shippingaddress);
+          }
         }
       });
     }

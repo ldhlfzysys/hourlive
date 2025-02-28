@@ -167,7 +167,13 @@ export const useShippingAddressStore = defineStore(
         shippingAddressLoading.value = false;
       }
     }
-
+    function setShippingAddresses(rs: ShippingAddressRead[]) {
+      rs.forEach((r) => {
+        if (r.id) {
+          shippingAddresses.value.set(r.id, r);
+        }
+      });
+    }
     // 返回store中的状态和方法
     return {
       $reset,
@@ -175,6 +181,7 @@ export const useShippingAddressStore = defineStore(
       isEditing, // 确保在返回对象中包含 isEditing
       modifyShippingAddress,
       queryShippingAddress,
+      setShippingAddresses,
       shippingAddressCreate,
       shippingAddressCreateLoading,
       shippingAddresses,

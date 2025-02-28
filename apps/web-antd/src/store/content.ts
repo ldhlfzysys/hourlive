@@ -16,6 +16,10 @@ import type {
   StandardResponse,
 } from '#/types';
 
+// store
+import { useLiveAccountStore } from './liveaccount';
+import { useSampleStore } from './sample';
+
 async function _getAllContent(params?: BaseQuery) {
   return requestClient.post<StandardResponse>('content/query', params);
 }
@@ -99,10 +103,25 @@ export const useContentStore = defineStore('content-store', () => {
     });
   });
 
+  // 引入其他store
+  const liveAccountStore = useLiveAccountStore();
+  const sampleStore = useSampleStore();
+
   function setContents(cs: ContentRead[]) {
     cs.forEach((c) => {
       if (c.id) {
+        // 更新content
         contents.value.set(c.id, c);
+
+        // 同步更新liveaccount
+        if (c.liveaccount) {
+          liveAccountStore.setLiveAccounts([c.liveaccount]);
+        }
+
+        // 同步更新samples
+        if (c.samples && c.samples.length > 0) {
+          sampleStore.setSamples(c.samples);
+        }
       }
     });
   }
@@ -140,11 +159,8 @@ export const useContentStore = defineStore('content-store', () => {
     queryContentLoading.value = true;
     const res = await _queryContentById({ ids: [id] });
     if (res && res.success && res.data && res.data.length > 0) {
-      res.data.forEach((content: ContentRead) => {
-        if (content.id) {
-          contents.value.set(content.id, content);
-        }
-      });
+      // 使用setContents来统一处理数据更新
+      setContents(res.data);
     }
     queryContentLoading.value = false;
     return contents.value.get(id);
@@ -179,11 +195,8 @@ export const useContentStore = defineStore('content-store', () => {
             contentQuery.value.q_id = lastContent.id;
           }
         }
-        res.data.forEach((content: ContentRead) => {
-          if (content.id) {
-            contents.value.set(content.id, content);
-          }
-        });
+        // 使用setContents来统一处理数据更新
+        setContents(res.data);
       }
     } finally {
       contentLoading.value = false;
