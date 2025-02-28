@@ -319,6 +319,7 @@ export interface TimeslotOrderRead {
   agency?: AgencyRead;
   room?: RoomRead;
   contents?: ContentRead[];
+  timeslots?: TimeslotRead[];
   hide?: number;
   version?: number;
 }
