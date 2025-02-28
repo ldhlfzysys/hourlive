@@ -9,14 +9,14 @@ import { $t } from '#/locales';
 
 // types
 import type {
+  BaseQuery,
   LiveAccountRead,
   LiveAccountUpdate,
-  PageQuery,
   StandardResponse,
 } from '#/types/schemas';
 
 // API
-function _getAllLiveAccount(params?: PageQuery) {
+function _getAllLiveAccount(params?: BaseQuery) {
   return requestClient.post<StandardResponse<LiveAccountRead[]>>(
     'live_account/query',
     params,
@@ -33,6 +33,13 @@ function _newLiveAccount(params: LiveAccountRead) {
 function _updateLiveAccount(params: LiveAccountUpdate) {
   return requestClient.post<StandardResponse<LiveAccountRead>>(
     'live_account/update',
+    params,
+  );
+}
+
+function _queryLiveAccountById(params: BaseQuery) {
+  return requestClient.post<StandardResponse<LiveAccountRead[]>>(
+    'live_account/query/ids',
     params,
   );
 }
@@ -66,7 +73,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   // UI - modal
   const showModal = ref(false);
 
-  const liveaccountQuery = ref<PageQuery>({
+  const liveaccountQuery = ref<BaseQuery>({
     q_id: -1,
     q_order: 'desc',
     q_size: 30,
@@ -113,6 +120,17 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   }
 
   async function liveaccountById(id: number) {
+    const liveaccount = liveaccounts.value.get(id);
+    if (liveaccount) {
+      return liveaccount;
+    }
+
+    queryLiveAccountLoading.value = true;
+    const res = await _queryLiveAccountById({ ids: [id] });
+    if (res && res.success && res.data && res.data.length > 0) {
+      setLiveAccounts(res.data);
+    }
+    queryLiveAccountLoading.value = false;
     return liveaccounts.value.get(id);
   }
 
