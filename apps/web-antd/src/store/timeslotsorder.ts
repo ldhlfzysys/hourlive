@@ -7,10 +7,9 @@ import type {
   TimeslotOrderCancel,
   TimeslotOrderRead,
   TimeslotOrderUpdate,
-  TimeslotRead,
 } from '#/types';
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 import { notification } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -19,15 +18,16 @@ import { defineStore } from 'pinia';
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
+// 补贴设置
 function _subsidyTimeslotOrder(params: SubsidyUpdate) {
   return requestClient.post<StandardResponse<TimeslotOrderRead>>(
-    'super/subsidy',
+    'timeslotorder/subsidy',
     params,
   );
 }
 
 // 获取所有时段订单
-function getAllTimeslotOrders(params?: BaseQuery) {
+function _getAllTimeslotOrders(params?: BaseQuery) {
   return requestClient.post<StandardResponse<TimeslotOrderRead[]>>(
     'timeslotorder/query',
     params,
@@ -35,23 +35,20 @@ function getAllTimeslotOrders(params?: BaseQuery) {
 }
 
 // 取消时段订单
-function cancelTimeslotOrder(params: TimeslotOrderCancel) {
+function _cancelTimeslotOrder(params: TimeslotOrderCancel) {
   return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'timeslotorder/cancel',
     params,
   );
 }
-
-// 创建新的时段订单
-function newTimeslotOrder(params: TimeslotOrderUpdate) {
+function _deleteTimeslotOrder(params: BaseQuery) {
   return requestClient.post<StandardResponse<TimeslotOrderRead>>(
-    'timeslotorder/create',
+    'timeslotorder/delete',
     params,
   );
 }
-
 // 更新现有的时段订单
-function updateTimeslotOrder(params: TimeslotOrderUpdate) {
+function _updateTimeslotOrder(params: TimeslotOrderUpdate) {
   return requestClient.post<StandardResponse<TimeslotOrderRead>>(
     'timeslotorder/update',
     params,
@@ -60,39 +57,81 @@ function updateTimeslotOrder(params: TimeslotOrderUpdate) {
 
 // 定义Pinia store
 export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
+  // State 状态管理
+  const timeslotOrders = ref<Map<number, TimeslotOrderRead>>(new Map());
+  const orderFilters = ref<{ key: string; value: number[] }[]>([]);
+  const timeslotOrderQuery = ref<BaseQuery>();
+  const currentSelectedOrder = ref<TimeslotOrderRead | undefined>();
+  const colorMap = ref<Map<number, string>>(new Map());
+  const colorIndex = ref(0);
+
+  // Loading 状态
   const timeslotOrderLoading = ref(false);
   const timeslotOrderCreateLoading = ref(false);
   const timeslotOrderSubsidyLoading = ref(false);
+  const downloadLoading = ref(false);
+  const confirmLoading = ref(false);
+
+  // Modal 状态
+  const showModal = ref(false);
+  const showEventDetails = ref(false);
+  const showApendModal = ref(false);
+  const showSubsidyModal = ref(false);
+
+  // 表单状态
   const timeslotOrderSubsidyForm = ref<SubsidyUpdate>({
     ids: [],
-    // timeslotorder_id: -1,
   });
-  const timeslotOrderCreate = ref<TimeslotOrderUpdate>({
-    content_id: 0,
+  const timeslotOrderUpdate = ref<TimeslotOrderUpdate>({
+    content_id: -1,
     order_price: 0,
     order_title: '',
-    room_id: 0,
+    room_id: -1,
     timeslots: [],
   });
 
-  const currentSelectedOrder = ref<TimeslotOrderRead | undefined>();
+  // Computed 属性
+  const timeslotOrderList = computed(() => {
+    let orders = [...timeslotOrders.value.entries()];
+    if (orderFilters.value.length > 0) {
+      for (const filter of orderFilters.value) {
+        if (filter.key === 'agency') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.agency!.id!);
+          });
+        }
+        if (filter.key === 'room') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.room!.id!);
+          });
+        }
 
-  const isEditing = ref(false);
-  watch(isEditing, (newVal) => {
-    if (!newVal) {
-      formState.value = {};
+        if (filter.key === 'customer') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return filter.value.includes(timeslotOrder.customer!.id!);
+          });
+        }
+
+        if (filter.key === 'content') {
+          orders = orders.filter(([_, timeslotOrder]) => {
+            return timeslotOrder.contents!.some((content) => {
+              return filter.value.includes(content.id!);
+            });
+          });
+        }
+      }
     }
-  });
 
-  const downloadLoading = ref(false);
-  const timeslotOrders = ref<Map<number, TimeslotOrderRead>>(new Map());
+    return orders
+      .sort(([keyA], [keyB]) => keyB - keyA)
+      .map(([_, timeslotOrder]) => timeslotOrder);
+  });
 
   const orderById = computed(() => {
     return (id: number) => timeslotOrders.value.get(id);
   });
 
-  const orderFilters = ref<{ key: string; value: number[] }[]>([]);
-
+  // 订单选项
   const orderOptions = computed(() => {
     return [...timeslotOrders.value.entries()].map(([_, timeslotOrder]) => {
       const customer = timeslotOrder.customer;
@@ -109,52 +148,40 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     });
   });
 
-  const timeslotOrderList = computed(() => {
-    let orders = [...timeslotOrders.value.entries()];
-    if (orderFilters.value.length > 0) {
-      for (const filter of orderFilters.value) {
-        if (filter.key === 'agency') {
-          orders = orders.filter(([_, timeslotOrder]) => {
-            return filter.value.includes(timeslotOrder.agency_id!);
-          });
-        }
-        if (filter.key === 'room') {
-          orders = orders.filter(([_, timeslotOrder]) => {
-            return filter.value.includes(timeslotOrder.room_id!);
-          });
-        }
-
-        if (filter.key === 'customer') {
-          orders = orders.filter(([_, timeslotOrder]) => {
-            return filter.value.includes(timeslotOrder.customer_id);
-          });
-        }
-
-        if (filter.key === 'content') {
-          orders = orders.filter(([_, timeslotOrder]) => {
-            return timeslotOrder.contents.some((content) => {
-              return filter.value.includes(content.id!);
-            });
-          });
-        }
+  const orderTotalTime = computed(() => {
+    if (!timeslotOrderUpdate.value.timeslots) {
+      return 0;
+    }
+    let totalHours = 0;
+    for (const timeslot of timeslotOrderUpdate.value.timeslots) {
+      if (timeslot.begin_date && timeslot.finish_date) {
+        const startTime = dayjs(`${timeslot.begin_date}`);
+        const endTime = dayjs(`${timeslot.finish_date}`);
+        const diffHours = endTime.diff(startTime, 'hour', true);
+        totalHours += diffHours;
       }
     }
-
-    return orders
-      .sort(([keyA], [keyB]) => keyB - keyA)
-      .map(([_, timeslotOrder]) => timeslotOrder);
+    return totalHours.toFixed(1);
   });
 
-  const showModal = ref(false);
-  const confirmLoading = ref(false);
-  const showEventDetails = ref(false);
-  const showApendModal = ref(false);
-  const showSubsidyModal = ref(false);
-  // const formRef = ref<FormInstance>();
+  // Methods
+  async function deleteTimeslotOrder() {
+    if (!currentSelectedOrder.value?.id) {
+      return null;
+    }
+    const res = await _deleteTimeslotOrder({
+      id: currentSelectedOrder.value.id,
+    });
+    if (res.success && res.data?.id) {
+      timeslotOrders.value.delete(currentSelectedOrder.value.id!);
 
-  const colorMap = ref<Map<number, string>>(new Map());
-
-  const colorIndex = ref(0);
+      showEventDetails.value = false;
+      notification.success({
+        description: $t('deleteorder'),
+        message: $t('success'),
+      });
+    }
+  }
 
   function setCurrentSelectedOrder(id: number) {
     currentSelectedOrder.value = orderById.value(id);
@@ -176,38 +203,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     return color;
   }
 
-  const canAppendOrder = computed(() => {
-    return (
-      formState.value.timeslots !== undefined &&
-      formState.value.timeslots!.some(
-        (timeslot) => timeslot.canEdit && timeslot.id === undefined,
-      )
-    );
-  });
-
-  const orderTotalTime = computed(() => {
-    if (!formState.value.timeslots) {
-      return 0;
-    }
-    return (
-      formState.value.timeslots?.reduce((acc, timeslot) => {
-        return (
-          acc + Math.abs(timeslot.slot![1]!.diff(timeslot.slot![0]!, 'minutes'))
-        );
-      }, 0) / 60
-    ).toFixed(2);
-  });
-
-  const formState = ref<TimeslotOrderFormState>({});
-
-  const timeslotOrderQuery = ref<OrderQuery>({
-    agency_id: -1,
-    begin_date: '',
-    content_id: -1,
-    customer_id: -1,
-    finish_date: '',
-    room_id: -1,
-  });
+  // 是否可以添加时段，目前不做限制，都可以添加
+  const canAppendOrder = true;
 
   function $reset() {
     timeslotOrderLoading.value = false;
@@ -222,17 +219,15 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       room_id: -1,
     };
     timeslotOrders.value = new Map();
-    formState.value = {};
   }
 
   async function queryTimeslotOrder() {
     try {
       timeslotOrderLoading.value = true;
-      timeslotOrderQuery.value.q_size = 99_999;
-      const res = await getAllTimeslotOrders(timeslotOrderQuery.value);
-      if (res.success) {
+      const res = await _getAllTimeslotOrders(timeslotOrderQuery.value);
+      if (res.success && res.data) {
         res.data.forEach((timeslotOrder: TimeslotOrderRead) => {
-          timeslotOrders.value.set(timeslotOrder.id, timeslotOrder);
+          timeslotOrders.value.set(timeslotOrder.id!, timeslotOrder);
         });
       }
     } finally {
@@ -242,7 +237,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
 
   async function subsidyTimeslotOrder() {
     if (currentSelectedOrder.value) {
-      timeslotOrderSubsidyForm.value.ids = [currentSelectedOrder.value.id];
+      timeslotOrderSubsidyForm.value.ids = [currentSelectedOrder.value.id!];
     }
     if (timeslotOrderSubsidyForm.value.ids.length === 0) {
       notification.error({
@@ -266,51 +261,30 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
         timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
       timeslotOrder.subsidy_type = timeslotOrderSubsidyForm.value.subsidy_type!;
 
-      notification.success({
-        description: $t('操作成功'),
-        message: $t('操作成功'),
-      });
+      const res = await _subsidyTimeslotOrder(timeslotOrderSubsidyForm.value);
+      if (res && res.success) {
+        notification.success({
+          description: $t('操作成功'),
+          message: $t('操作成功'),
+        });
+      }
     } finally {
       timeslotOrderSubsidyLoading.value = false;
     }
     showSubsidyModal.value = false;
   }
 
-  function generateTimeslots() {
-    if (
-      formState.value.liveTime === undefined ||
-      formState.value.timeslot === undefined
-    ) {
-      return;
+  // 删除时段订单，删除当前就是选中的时段，删除所有就是订单下所有的时段
+  async function cancelTimeslot(timeslot_id: number) {
+    if (!currentSelectedOrder.value?.id) {
+      return null;
     }
-    let startTime = formState.value.liveTime[0];
-    const endTime = formState.value.liveTime[1];
-    const timeslots: TimeslotModel[] = [];
-
-    while (startTime.isSame(endTime) || startTime.isBefore(endTime)) {
-      timeslots.push({
-        canEdit: true,
-        date: startTime.clone(),
-        slot: formState.value.timeslot,
-      });
-      startTime = startTime.add(1, 'day');
-    }
-
-    formState.value.timeslots = timeslots;
-  }
-
-  async function deleteOrders(slot: CancelTimeSlot) {
-    const res = await cancelTimeslotOrder(slot);
-    if (res.success) {
-      const timeslotOrder = timeslotOrders.value.get(slot.timeslotorder_id);
-      if (timeslotOrder) {
-        timeslotOrder.timeslots = timeslotOrder.timeslots.filter(
-          (timeslot: TimeslotModel) => !slot.timeslot_ids.includes(timeslot.id),
-        );
-        if (timeslotOrder.timeslots.length === 0) {
-          timeslotOrders.value.delete(slot.timeslotorder_id);
-        }
-      }
+    const res = await _cancelTimeslotOrder({
+      id: currentSelectedOrder.value.id,
+      timeslot_id,
+    });
+    if (res.success && res.data?.id) {
+      timeslotOrders.value.set(res.data.id, res.data);
       showEventDetails.value = false;
       notification.success({
         description: $t('deleteorder'),
@@ -321,120 +295,24 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     return null;
   }
 
-  const enableOrder = computed(() => {
-    return (
-      formState.value.agency !== undefined &&
-      formState.value.roomId !== undefined &&
-      formState.value.contentId !== undefined &&
-      formState.value.timeslots !== undefined
-    );
-  });
-
-  function _getSlot(slot: TimeslotRead, index: number) {
-    if (index === 0) {
-      return dayjs(`${slot.begin_date} ${slot.begin_time}`);
-    }
-    return dayjs(`${slot.finish_date} ${slot.finish_time}`);
-  }
-
-  async function makeOrders() {
-    if (formState.value.timeslots === undefined) {
-      return;
-    }
-    const allTimeslots = formState.value.timeslots;
-
-    if (allTimeslots.length > 1) {
-      // 检测时间冲突
-      for (let i = 0; i < allTimeslots.length; i++) {
-        for (let j = i + 1; j < allTimeslots.length; j++) {
-          const slotA = allTimeslots[i]!;
-          const slotB = allTimeslots[j]!;
-
-          const startA = dayjs(`${slotA.date} ${slotA.start_time}`);
-          const endA = dayjs(`${slotA.end_date} ${slotA.end_time}`);
-          const startB = dayjs(`${slotB.date} ${slotB.start_time}`);
-          const endB = dayjs(`${slotB.end_date} ${slotB.end_time}`);
-
-          if (
-            (startA.isBefore(endB) && endA.isAfter(startB)) || // Overlapping condition
-            (startB.isBefore(endA) && endB.isAfter(startA))
-          ) {
-            notification.error({
-              description: $t('时间段冲突'),
-              message: $t('error'),
-            });
-            return;
-          }
-        }
-      }
-    }
-
-    const timeslots: TimeslotCreateInMany[] = [];
-
-    formState.value.timeslots.forEach((slot) => {
-      if (slot.canEdit) {
-        const startDate = slot.slot![0]!;
-        const endDate = slot.slot![1]!;
-        const timeslot: TimeslotCreateInMany = {
-          date: startDate.format('YYYY-MM-DD'),
-          end_date: endDate.format('YYYY-MM-DD'),
-          end_time: endDate.format('HH:mm'),
-          hourlive_money_cost: 0,
-          start_time: startDate.format('HH:mm'),
-        };
-        timeslots.push(timeslot);
-      }
-    });
-
-    if (timeslots.length === 0) {
-      confirmLoading.value = false;
-      notification.warning({
-        description: $t('currentnochange'),
-        message: $t('warning'),
-      });
-      return;
-    }
-
-    const params: TimeslotOrderCreate = {
-      content_id: formState.value.contentId ?? -1,
+  function makeCreate() {
+    showModal.value = true;
+    timeslotOrderUpdate.value = {
+      content_id: -1,
       order_price: 0,
-      order_title: formState.value.orderTitle ?? '',
-      room_id: formState.value.roomId ?? -1,
-      timeslots,
+      order_title: '',
+      room_id: -1,
+      timeslots: [],
     };
-
-    params.id =
-      formState.value.orderId === undefined ? -1 : formState.value.orderId;
-
-    timeslotOrderCreate.value = params;
-    createTimeslotOrder();
-    showApendModal.value = false;
-    isEditing.value = false;
   }
 
-  async function createTimeslotOrder() {
+  async function makeOrder() {
+    timeslotOrderCreateLoading.value = true;
     try {
-      if (!timeslotOrderCreate.value.room_id) {
-        notification.error({
-          description: $t('请输入房间ID'),
-          message: $t('验证失败'),
-        });
-        return;
-      }
-      timeslotOrderCreateLoading.value = true;
-
-      const res = await newTimeslotOrder(timeslotOrderCreate.value);
-      if (res && res.success) {
+      const res = await _updateTimeslotOrder(timeslotOrderUpdate.value);
+      if (res && res.success && res.data?.id) {
         timeslotOrders.value.set(res.data.id, res.data);
         showModal.value = false;
-        timeslotOrderCreate.value = {
-          content_id: -1,
-          order_price: 0,
-          order_title: '',
-          room_id: -1,
-          timeslots: [],
-        };
-        formState.value = {};
         notification.success({
           description: $t('新增时段订单成功'),
           message: $t('操作成功'),
@@ -450,67 +328,61 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
   }
 
-  async function deleteTimeslotOrders() {
-    try {
-      timeslotOrderLoading.value = true;
-      const res = await cancelTimeslotOrder(timeslotOrderCreate.value);
-    } finally {
-      timeslotOrderLoading.value = false;
-    }
-  }
-
-  async function modifyTimeslotOrder(updatedOrder: TimeslotOrderUpdate) {
-    try {
-      timeslotOrderLoading.value = true;
-      const res = await updateTimeslotOrder(updatedOrder);
-      if (res && res.success) {
-        timeslotOrders.value.set(res.data.id, res.data);
-        showModal.value = false;
-      } else {
-        notification.error({
-          description: res.message,
-          message: $t('updatefail'),
-        });
-      }
-    } finally {
-      timeslotOrderLoading.value = false;
+  function makeUpdate(id: number) {
+    showModal.value = true;
+    const order = timeslotOrders.value.get(id);
+    if (order) {
+      timeslotOrderUpdate.value = {
+        content_id: order.contents![0]!.id!,
+        id: order.id!,
+        order_price: order.order_price!,
+        order_title: order.order_title!,
+        room_id: order.room!.id!,
+        timeslots: [...(order.timeslots || [])],
+      };
     }
   }
 
   return {
+    // Methods
     $reset,
     canAppendOrder,
     confirmLoading,
-    createTimeslotOrder,
     currentSelectedOrder,
-    deleteOrders,
-    deleteTimeslotOrders,
+
+    deleteTimeslotOrder,
     downloadLoading,
-    enableOrder,
-    formState,
-    generateTimeslots,
     getEventClass,
-    isEditing,
-    makeOrders,
-    modifyTimeslotOrder,
+    makeCreate,
+    makeOrder,
+
+    makeUpdate,
+    // Computed
     orderById,
     orderFilters,
     orderOptions,
+
     orderTotalTime,
     queryTimeslotOrder,
+
     setCurrentSelectedOrder,
     showApendModal,
     showEventDetails,
+    // Modal states
     showModal,
     showSubsidyModal,
     subsidyTimeslotOrder,
-    timeslotOrderCreate,
     timeslotOrderCreateLoading,
     timeslotOrderList,
+    // Loading states
     timeslotOrderLoading,
+
     timeslotOrderQuery,
+    // State
     timeslotOrders,
+    // Forms
     timeslotOrderSubsidyForm,
     timeslotOrderSubsidyLoading,
+    timeslotOrderUpdate,
   };
 });

@@ -32,6 +32,7 @@ export interface BaseQuery extends PageQuery {
   status?: number;
   is_main?: number;
   content_ids?: number[];
+  content_id?: number;
   url?: string;
   begin_date?: string;
   finish_date?: string;
@@ -342,7 +343,7 @@ export interface TimeslotOrderUpdate {
 
 export interface TimeslotOrderCancel {
   id: number;
-  timeslot_ids: number[];
+  timeslot_id: number;
 }
 
 export interface HourliveMoneyRecordRead {
