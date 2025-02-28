@@ -18,6 +18,15 @@ import { defineStore } from 'pinia';
 import { requestClient } from '#/api/request';
 import { $t } from '#/locales';
 
+// 添加 store 引用
+import {
+  useAgencyStore,
+  useContentStore,
+  useCustomerStore,
+  useRoomStore,
+  useTimeslotStore,
+} from '#/store';
+
 // 补贴设置
 function _subsidyTimeslotOrder(params: SubsidyUpdate) {
   return requestClient.post<StandardResponse<TimeslotOrderRead>>(
@@ -173,8 +182,8 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       id: currentSelectedOrder.value.id,
     });
     if (res.success && res.data?.id) {
+      setTimeslotOrders([res.data]);
       timeslotOrders.value.delete(currentSelectedOrder.value.id!);
-
       showEventDetails.value = false;
       notification.success({
         description: $t('deleteorder'),
@@ -226,9 +235,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslotOrderLoading.value = true;
       const res = await _getAllTimeslotOrders(timeslotOrderQuery.value);
       if (res.success && res.data) {
-        res.data.forEach((timeslotOrder: TimeslotOrderRead) => {
-          timeslotOrders.value.set(timeslotOrder.id!, timeslotOrder);
-        });
+        setTimeslotOrders(res.data);
       }
     } finally {
       timeslotOrderLoading.value = false;
@@ -248,21 +255,9 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
     timeslotOrderSubsidyLoading.value = true;
     try {
-      const orderId = timeslotOrderSubsidyForm.value.ids[0];
-      if (orderId === undefined) return;
-      const timeslotOrder = timeslotOrders.value.get(orderId);
-      if (!timeslotOrder) return;
-
-      timeslotOrder.ads_subsidy = timeslotOrderSubsidyForm.value.ads_subsidy!;
-      timeslotOrder.tts_subsidy = timeslotOrderSubsidyForm.value.tts_subsidy!;
-      timeslotOrder.ads_subsidy_remark =
-        timeslotOrderSubsidyForm.value.ads_subsidy_remark!;
-      timeslotOrder.tts_subsidy_remark =
-        timeslotOrderSubsidyForm.value.tts_subsidy_remark!;
-      timeslotOrder.subsidy_type = timeslotOrderSubsidyForm.value.subsidy_type!;
-
       const res = await _subsidyTimeslotOrder(timeslotOrderSubsidyForm.value);
-      if (res && res.success) {
+      if (res && res.success && res.data) {
+        setTimeslotOrders([res.data]);
         notification.success({
           description: $t('操作成功'),
           message: $t('操作成功'),
@@ -284,7 +279,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
       timeslot_id,
     });
     if (res.success && res.data?.id) {
-      timeslotOrders.value.set(res.data.id, res.data);
+      setTimeslotOrders([res.data]);
       showEventDetails.value = false;
       notification.success({
         description: $t('deleteorder'),
@@ -311,7 +306,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     try {
       const res = await _updateTimeslotOrder(timeslotOrderUpdate.value);
       if (res && res.success && res.data?.id) {
-        timeslotOrders.value.set(res.data.id, res.data);
+        setTimeslotOrders([res.data]);
         showModal.value = false;
         notification.success({
           description: $t('新增时段订单成功'),
@@ -343,6 +338,41 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     }
   }
 
+  // 添加 setTimeslotOrders 方法
+  function setTimeslotOrders(orders: TimeslotOrderRead[]) {
+    orders.forEach((order) => {
+      if (order.id) {
+        // 更新 timeslotorder
+        timeslotOrders.value.set(order.id, order);
+
+        // 同步更新 agency
+        if (order.agency) {
+          useAgencyStore().setAgencies([order.agency]);
+        }
+
+        // 同步更新 customer
+        if (order.customer) {
+          useCustomerStore().setCustomers([order.customer]);
+        }
+
+        // 同步更新 room
+        if (order.room) {
+          useRoomStore().setRooms([order.room]);
+        }
+
+        // 同步更新 contents
+        if (order.contents && order.contents.length > 0) {
+          useContentStore().setContents(order.contents);
+        }
+
+        // 同步更新 timeslots
+        if (order.timeslots && order.timeslots.length > 0) {
+          useTimeslotStore().setTimeslots(order.timeslots);
+        }
+      }
+    });
+  }
+
   return {
     // Methods
     $reset,
@@ -367,6 +397,7 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     queryTimeslotOrder,
 
     setCurrentSelectedOrder,
+    setTimeslotOrders, // 导出新方法
     showApendModal,
     showEventDetails,
     // Modal states
@@ -375,9 +406,9 @@ export const useTimeslotOrderStore = defineStore('timeslotorder-store', () => {
     subsidyTimeslotOrder,
     timeslotOrderCreateLoading,
     timeslotOrderList,
+
     // Loading states
     timeslotOrderLoading,
-
     timeslotOrderQuery,
     // State
     timeslotOrders,
