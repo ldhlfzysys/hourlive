@@ -192,6 +192,13 @@ export const useStreamerStore = defineStore('streamer-store', () => {
       streamerLoading.value = false;
     }
   }
+  function setStreamers(ss: StreamerRead[]) {
+    ss.forEach((s) => {
+      if (s.id) {
+        streamers.value.set(s.id, s);
+      }
+    });
+  }
 
   return {
     $reset,
@@ -201,6 +208,7 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     makeCreate,
     queryStreamer,
     queryTags,
+    setStreamers,
     showModal,
     streamerCreate,
     streamerCreateLoading,

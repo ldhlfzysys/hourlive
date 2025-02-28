@@ -249,6 +249,13 @@ export const useSampleStore = defineStore('sample-store', () => {
       sampleFetchLoading.value = false;
     }
   }
+  function setSamples(ss: SampleRead[]) {
+    ss.forEach((s) => {
+      if (s.id) {
+        samples.value.set(s.id, s);
+      }
+    });
+  }
 
   return {
     $reset,
@@ -269,6 +276,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     sampleUpdate,
     sampleUpdateLoading,
     searchProductId,
+    setSamples,
     showKSPModal,
     showModal,
     showSampleList,

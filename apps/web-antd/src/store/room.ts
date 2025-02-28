@@ -272,6 +272,14 @@ export const useRoomStore = defineStore('room-store', () => {
     }
   }
 
+  function setRooms(rs: RoomRead[]) {
+    rs.forEach((r) => {
+      if (r.id) {
+        rooms.value.set(r.id, r);
+      }
+    });
+  }
+
   return {
     $reset,
     createHardwareToRoom,
@@ -289,6 +297,7 @@ export const useRoomStore = defineStore('room-store', () => {
     rooms,
     roomUpdate,
     roomUpdateLoading,
+    setRooms,
     showModal,
     showRoomDescModal,
   };

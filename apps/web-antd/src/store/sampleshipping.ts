@@ -269,11 +269,19 @@ export const useSampleShippingStore = defineStore(
       }
     }
 
+    function setSampleShippings(ss: SampleShippingRead[]) {
+      ss.forEach((s) => {
+        if (s.id) {
+          sampleShippings.value.set(s.id, s);
+        }
+      });
+    }
+
     return {
       $reset,
       agencyMakeUpdate,
-
       agencyUpdate,
+
       createSampleShipping,
       currentSampleShipping,
       customerMakeUpdate,
@@ -287,6 +295,7 @@ export const useSampleShippingStore = defineStore(
       sampleShippingQueryLoading,
       sampleShippings,
       sampleShippingUpdateLoading,
+      setSampleShippings,
       showModal,
       showSampleShippingForm,
       showShippingDetails,

@@ -98,6 +98,15 @@ export const useContentStore = defineStore('content-store', () => {
       return { label: String(item.id), value: item.id };
     });
   });
+
+  function setContents(cs: ContentRead[]) {
+    cs.forEach((c) => {
+      if (c.id) {
+        contents.value.set(c.id, c);
+      }
+    });
+  }
+
   // methods
   function makeCreate() {
     showModal.value = true;
@@ -281,6 +290,7 @@ export const useContentStore = defineStore('content-store', () => {
     makeUpdate,
     queryContent,
     removeSamples,
+    setContents,
     showAddSamplesModal,
     showModal,
     showSampleManagerModal,

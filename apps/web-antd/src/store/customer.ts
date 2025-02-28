@@ -101,6 +101,13 @@ export const useCustomerStore = defineStore('customer-store', () => {
     customers.value.clear();
     // customerHomeInfo.value = undefined;
   }
+  function setCustomers(cs: CustomerRead[]) {
+    cs.forEach((c) => {
+      if (c.id) {
+        customers.value.set(c.id, c);
+      }
+    });
+  }
 
   return {
     $reset,
@@ -114,5 +121,6 @@ export const useCustomerStore = defineStore('customer-store', () => {
     hideCustomer,
     hideCustomerLoading,
     queryCustomerLoading,
+    setCustomers,
   };
 });

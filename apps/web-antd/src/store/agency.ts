@@ -106,6 +106,14 @@ export const useAgencyStore = defineStore('agency-store', () => {
     agencyHomeInfo.value = undefined;
   }
 
+  function setAgencies(agencies: AgencyRead[]) {
+    agencies.forEach((agency) => {
+      if (agency.id) {
+        agencyies.value.set(agency.id, agency);
+      }
+    });
+  }
+
   return {
     $reset,
     agencyById,
@@ -118,5 +126,6 @@ export const useAgencyStore = defineStore('agency-store', () => {
     hideAgency,
     hideAgencyLoading,
     queryAgencyLoading,
+    setAgencies,
   };
 });

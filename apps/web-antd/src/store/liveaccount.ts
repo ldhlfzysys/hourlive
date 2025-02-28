@@ -188,7 +188,13 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
       updateLiveAccountLoading.value = false;
     }
   }
-
+  function setLiveAccounts(accounts: LiveAccountRead[]) {
+    accounts.forEach((account) => {
+      if (account.id) {
+        liveaccounts.value.set(account.id, account);
+      }
+    });
+  }
   return {
     $reset,
     createLiveAccount,
@@ -203,6 +209,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     makeUpdate,
     queryLiveAccount,
     queryLiveAccountLoading,
+    setLiveAccounts,
     showModal,
     updateLiveAccount,
     updateLiveAccountLoading,
