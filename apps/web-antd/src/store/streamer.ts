@@ -29,7 +29,7 @@ function _getAllStreamer(params?: BaseQuery) {
 }
 
 function _getAllTags() {
-  return requestClient.get<StandardResponse<StreamerTagsRead[]>>(
+  return requestClient.post<StandardResponse<StreamerTagsRead[]>>(
     'streamer/gettags',
   );
 }

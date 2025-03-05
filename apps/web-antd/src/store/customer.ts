@@ -13,7 +13,7 @@ import type {
 
 // 更新类型引用
 async function _queryCustomer() {
-  return requestClient.get<StandardResponse>(`customer/query`);
+  return requestClient.post<StandardResponse>(`customer/query`);
 }
 
 async function _queryCustomerByIds(params: BaseQuery) {

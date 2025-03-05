@@ -17,11 +17,11 @@ enum FeishuApi {
 }
 
 async function getFeishuAppid() {
-  return requestClient.get<StanderResult<string>>(FeishuApi.GET_APPID);
+  return requestClient.post<StanderResult<string>>(FeishuApi.GET_APPID);
 }
 
 async function feishuAuthLogin(code: string) {
-  return requestClient.get<StanderResult<string>>(FeishuApi.AUTH_LOGIN, {
+  return requestClient.post<StanderResult<string>>(FeishuApi.AUTH_LOGIN, {
     params: {
       code,
     },
@@ -29,7 +29,7 @@ async function feishuAuthLogin(code: string) {
 }
 
 async function getBoundFeishuUser(userId: number) {
-  return requestClient.get<StanderResult<FeishuBindUser>>(
+  return requestClient.post<StanderResult<FeishuBindUser>>(
     FeishuApi.GET_BOUND_USER,
     {
       params: {

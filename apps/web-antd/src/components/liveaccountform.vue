@@ -12,7 +12,7 @@ defineOptions({
 const liveaccountStore = useLiveAccountStore();
 
 function handleOk() {
-  if (liveaccountStore.liveaccountCreate.id) {
+  if (liveaccountStore.liveaccountUpdate.id) {
     liveaccountStore.updateLiveAccount();
   } else {
     liveaccountStore.createLiveAccount();
@@ -32,12 +32,12 @@ function handleOk() {
     <div class="overflow-hidden rounded-lg border bg-white shadow">
       <div class="flex flex-row px-4 py-5 sm:px-6">
         <Input
-          v-model:value="liveaccountStore.liveaccountCreate.name"
+          v-model:value="liveaccountStore.liveaccountUpdate.name"
           :placeholder="$t('shop_name')"
           class="mr-3 text-lg font-medium leading-6 text-gray-900"
         />
         <Input
-          v-model:value="liveaccountStore.liveaccountCreate.code"
+          v-model:value="liveaccountStore.liveaccountUpdate.code"
           :placeholder="$t('shop_code')"
           class="mt-1 max-w-2xl text-sm text-gray-500"
         />
@@ -51,7 +51,7 @@ function handleOk() {
               {{ $t('live_account') }}
             </span>
             <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_account"
+              v-model:value="liveaccountStore.liveaccountUpdate.live_account"
               autocomplete="new-username"
               class="flex-1 text-sm text-gray-900"
             />
@@ -63,11 +63,11 @@ function handleOk() {
               {{ $t('live_uid') }}
             </span>
             <Input
-              v-model:value="liveaccountStore.liveaccountCreate.live_uid"
+              v-model:value="liveaccountStore.liveaccountUpdate.live_uid"
               class="flex-1 text-sm text-gray-900"
             />
             <Select
-              v-model:value="liveaccountStore.liveaccountCreate.platform"
+              v-model:value="liveaccountStore.liveaccountUpdate.platform"
               class="ml-3 w-[160px]"
             >
               <SelectOption value="TikTok">TikTok</SelectOption>
@@ -82,7 +82,7 @@ function handleOk() {
             </span>
             <Input
               v-model:value="
-                liveaccountStore.liveaccountCreate.platform_account
+                liveaccountStore.liveaccountUpdate.platform_account
               "
               autocomplete="new-username"
               class="flex-1 text-sm text-gray-900"
@@ -95,7 +95,7 @@ function handleOk() {
               {{ $t('livephone') }}
             </span>
             <Input
-              v-model:value="liveaccountStore.liveaccountCreate.mobile"
+              v-model:value="liveaccountStore.liveaccountUpdate.mobile"
               :placeholder="$t('phoneoremail')"
               class="flex-1 text-sm text-gray-900"
             />
@@ -107,7 +107,7 @@ function handleOk() {
               {{ $t('liveemail') }}
             </span>
             <Input
-              v-model:value="liveaccountStore.liveaccountCreate.email"
+              v-model:value="liveaccountStore.liveaccountUpdate.email"
               :placeholder="$t('phoneoremail')"
               class="flex-1 text-sm text-gray-900"
             />
@@ -119,7 +119,7 @@ function handleOk() {
               {{ $t('livepassword') }}
             </span>
             <Input.Password
-              v-model:value="liveaccountStore.liveaccountCreate.password"
+              v-model:value="liveaccountStore.liveaccountUpdate.password"
               autocomplete="new-password"
               class="flex-1 text-sm text-gray-900"
             />

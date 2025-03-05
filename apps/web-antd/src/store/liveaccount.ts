@@ -79,7 +79,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     q_size: 30,
   });
 
-  const liveaccountCreate = ref<LiveAccountUpdate>({
+  const liveaccountUpdate = ref<LiveAccountUpdate>({
     code: '',
     email: '',
     live_account: '',
@@ -106,7 +106,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   // methods
   function makeCreate() {
     showModal.value = true;
-    liveaccountCreate.value = {
+    liveaccountUpdate.value = {
       platform: 'TikTok',
     };
   }
@@ -115,7 +115,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     showModal.value = true;
     const liveaccount = liveaccounts.value.get(id);
     if (liveaccount) {
-      currentLiveAccount.value = liveaccount;
+      liveaccountUpdate.value = liveaccount;
     }
   }
 
@@ -174,7 +174,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   async function createLiveAccount() {
     try {
       liveaccountCreateLoading.value = true;
-      const res = await _newLiveAccount(liveaccountCreate.value);
+      const res = await _newLiveAccount(liveaccountUpdate.value);
       if (res && res.success && res.data && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
@@ -192,7 +192,7 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
   async function updateLiveAccount() {
     try {
       updateLiveAccountLoading.value = true;
-      const res = await _updateLiveAccount(liveaccountCreate.value);
+      const res = await _updateLiveAccount(liveaccountUpdate.value);
       if (res && res.success && res.data && res.data.id) {
         showModal.value = false;
         liveaccounts.value.set(res.data.id, res.data);
@@ -217,12 +217,12 @@ export const useLiveAccountStore = defineStore('liveaccount-store', () => {
     $reset,
     createLiveAccount,
     liveaccountById,
-    liveaccountCreate,
     liveaccountCreateLoading,
     liveaccountList,
     liveaccountOptions,
     liveaccountQuery,
     liveaccounts,
+    liveaccountUpdate,
     makeCreate,
     makeUpdate,
     queryLiveAccount,

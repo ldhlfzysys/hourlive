@@ -29,7 +29,7 @@ async function _updateUserApi(data: UserUpdate) {
   return requestClient.post<StandardResponse>('/user/update_user', data);
 }
 async function _getUserInfoApi() {
-  return requestClient.get<StandardResponse>('/user/userInfo');
+  return requestClient.post<StandardResponse>('/user/userInfo');
 }
 
 async function _loginApi(data: UserLogin) {

@@ -55,10 +55,7 @@ export const useContentStore = defineStore('content-store', () => {
       .map(([_, content]) => content); // 转换为Content的list
   });
 
-  const currentContent = ref<ContentUpdate>({
-    content_text: '',
-    liveaccount_id: undefined,
-  });
+  const currentContent = ref<ContentRead>();
 
   const addSample = ref<AddSampleToContent>({
     content_id: -1,
@@ -72,7 +69,7 @@ export const useContentStore = defineStore('content-store', () => {
   const removeSamplesLoading = ref(false);
   const hideContentLoading = ref(false);
   const contentLoading = ref(false);
-  const contentCreateLoading = ref(false);
+  const contentUpdateLoading = ref(false);
 
   // UI - modal
   const showModal = ref(false);
@@ -85,7 +82,7 @@ export const useContentStore = defineStore('content-store', () => {
     q_size: 30, // 每次请求的内容数量
   });
 
-  const contentCreate = ref<ContentUpdate>({
+  const contentUpdate = ref<ContentUpdate>({
     content_text: '',
     liveaccount_id: undefined,
   });
@@ -129,7 +126,7 @@ export const useContentStore = defineStore('content-store', () => {
   // methods
   function makeCreate() {
     showModal.value = true;
-    contentCreate.value = {
+    contentUpdate.value = {
       content_text: '',
       liveaccount_id: undefined,
     };
@@ -138,7 +135,7 @@ export const useContentStore = defineStore('content-store', () => {
     showModal.value = true;
     const content = contents.value.get(id);
     if (content) {
-      currentContent.value = content;
+      contentUpdate.value = content;
     }
   }
 
@@ -205,8 +202,8 @@ export const useContentStore = defineStore('content-store', () => {
 
   async function createContent() {
     try {
-      contentCreateLoading.value = true;
-      const res = await _updateContent(contentCreate.value);
+      contentUpdateLoading.value = true;
+      const res = await _updateContent(contentUpdate.value);
       if (res && res.success && res.data.id) {
         showModal.value = false;
         contents.value.set(res.data.id, res.data);
@@ -217,14 +214,14 @@ export const useContentStore = defineStore('content-store', () => {
         });
       }
     } finally {
-      contentCreateLoading.value = false;
+      contentUpdateLoading.value = false;
     }
   }
 
   async function updateContent() {
     try {
-      contentCreateLoading.value = true;
-      const res = await _updateContent(contentCreate.value);
+      contentUpdateLoading.value = true;
+      const res = await _updateContent(contentUpdate.value);
       if (res && res.success && res.data.id) {
         showModal.value = false;
         contents.value.set(res.data.id, res.data);
@@ -235,7 +232,7 @@ export const useContentStore = defineStore('content-store', () => {
         });
       }
     } finally {
-      contentCreateLoading.value = false;
+      contentUpdateLoading.value = false;
     }
   }
 
@@ -289,14 +286,15 @@ export const useContentStore = defineStore('content-store', () => {
     addSample,
     addSamples,
     contentById,
-    contentCreate,
-    contentCreateLoading,
     contentList,
     contentLoading,
     contentOptions,
     contentQuery,
     contents,
+    contentUpdate,
+    contentUpdateLoading,
     createContent,
+    currentContent,
     hideContent,
     makeCreate,
     makeSampleManagerUpdate,

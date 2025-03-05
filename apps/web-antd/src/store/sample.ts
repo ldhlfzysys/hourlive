@@ -73,7 +73,7 @@ export const useSampleStore = defineStore('sample-store', () => {
 
   // query
   const sampleQuery = ref<BaseQuery>({
-    is_main: -1,
+    is_main: '0',
     q_id: -1,
     q_order: 'desc',
     q_size: 30,
@@ -86,7 +86,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     samples.value = new Map();
     searchProductId.value = '';
     sampleQuery.value = {
-      is_main: -1,
+      is_main: '0',
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
@@ -101,7 +101,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     sampleQuery.value.q_id = -1;
 
     sampleQuery.value = {
-      is_main: -1,
+      is_main: '0',
       q_id: -1,
       q_order: 'desc',
       q_size: 30,
@@ -112,7 +112,7 @@ export const useSampleStore = defineStore('sample-store', () => {
   function makeCreate() {
     showModal.value = true;
     sampleUpdate.value = {
-      is_main: 3,
+      is_main: '3',
     };
   }
   function makeUpdate(id: number) {
@@ -121,7 +121,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     if (sample) {
       sampleUpdate.value = {
         ...sample,
-        is_main: sample.is_main || 0, // 确保 is_main 有默认值
+        is_main: sample.is_main || '0', // 确保 is_main 有默认值
       };
     }
   }
@@ -131,7 +131,7 @@ export const useSampleStore = defineStore('sample-store', () => {
     if (sample) {
       sampleUpdate.value = {
         ...sample,
-        is_main: sample.is_main || 0, // 确保 is_main 有默认值
+        is_main: sample.is_main || '0', // 确保 is_main 有默认值
       };
     }
   }

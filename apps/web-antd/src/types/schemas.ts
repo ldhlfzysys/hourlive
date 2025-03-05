@@ -30,7 +30,7 @@ export interface BaseQuery extends PageQuery {
   room_id?: number;
   timeslotorder_id?: number;
   status?: number;
-  is_main?: number;
+  is_main?: string;
   content_ids?: number[];
   content_id?: number;
   url?: string;
@@ -168,6 +168,7 @@ export interface LiveAccountRead {
   mobile?: string;
   email?: string;
   password?: string;
+  platform_account?: string;
   hide?: number;
   version?: number;
 }
@@ -211,7 +212,7 @@ export interface SampleRead {
   product_ksp?: string;
   product_script?: string;
   product_commission?: string;
-  is_main?: number;
+  is_main?: string;
   hide?: number;
   is_upload_script?: number;
   version?: number;
@@ -230,7 +231,7 @@ export interface SampleUpdate {
   product_ksp?: string;
   product_script?: string;
   product_commission?: string;
-  is_main?: number;
+  is_main?: string;
   hide?: number;
 }
 
@@ -398,6 +399,9 @@ export interface SampleShippingRead {
   sender_time?: string;
   receiver_name?: string;
   receiver_time?: string;
+  sampleshipping_samples?: SampleShippingSampleRead[];
+  customer?: CustomerRead;
+  agency?: AgencyRead;
   hide?: number;
   version?: number;
 }

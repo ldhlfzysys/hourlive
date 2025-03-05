@@ -52,7 +52,7 @@ function onUpdate(
   <HourLivePage :content-overflow="true">
     <template #header>
       <AccessControl :codes="['customer']">
-        <Button type="primary" @click="liveaccountStore.showModal = true">
+        <Button type="primary" @click="liveaccountStore.makeCreate()">
           {{ $t('createliveaccount') }}
         </Button>
       </AccessControl>

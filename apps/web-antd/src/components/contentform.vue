@@ -36,7 +36,7 @@ const handleCreated = (editor: any) => {
 };
 
 function handleOk() {
-  if (contentStore.contentCreate.id) {
+  if (contentStore.contentUpdate.id) {
     contentStore.updateContent();
   } else {
     contentStore.createContent();
@@ -47,9 +47,9 @@ function handleOk() {
 <template>
   <Modal
     v-model:open="contentStore.showModal"
-    :confirm-loading="contentStore.contentCreateLoading"
+    :confirm-loading="contentStore.contentUpdateLoading"
     :footer="hasAccessByRoles(['customer']) ? undefined : null"
-    :title="$t('create')"
+    :title="contentStore.contentUpdate.id ? $t('edit') : $t('create')"
     centered
     width="800px"
     @ok="handleOk"
@@ -62,7 +62,7 @@ function handleOk() {
             {{ $t('content_text') }}
           </span>
           <Input
-            v-model:value="contentStore.contentCreate.content_text"
+            v-model:value="contentStore.contentUpdate.content_text"
             class="flex-1"
           />
         </div>
@@ -73,7 +73,7 @@ function handleOk() {
             {{ $t('live_account') }}
           </span>
           <Select
-            v-model:value="contentStore.contentCreate.liveaccount_id"
+            v-model:value="contentStore.contentUpdate.liveaccount_id"
             class="flex-1"
           >
             <SelectOption
@@ -99,7 +99,7 @@ function handleOk() {
               style="border-bottom: 1px solid #ccc"
             />
             <Editor
-              v-model="contentStore.contentCreate.content_desc"
+              v-model="contentStore.contentUpdate.content_desc"
               :default-config="editorConfig"
               :mode="mode"
               style="height: 300px; overflow-y: hidden"

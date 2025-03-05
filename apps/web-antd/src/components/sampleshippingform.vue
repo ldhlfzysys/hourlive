@@ -39,16 +39,15 @@ watch(
 const agencyStore = useAgencyStore();
 
 const selectedAgency = computed(() => {
-  console.log('update selected agency');
-
   return agencyStore.agencyById(
     sampleShippingStore.currentSampleShipping.agency_id!,
   );
 });
 
 const shippingAddress = computed(() => {
+  console.log(selectedAgency.value);
   if (selectedAgency.value) {
-    return selectedAgency.value.shippingaddress;
+    return selectedAgency.value.shippingaddress || [];
   }
   return [];
 });
@@ -140,7 +139,7 @@ const handleAgencyChange = (value) => {
               @change="handleAgencyChange"
             >
               <Select.Option
-                v-for="agency in agencyStore.allAgency"
+                v-for="agency in agencyStore.agencyList"
                 :key="agency.id"
                 :label="agency.name"
                 :value="agency.id"

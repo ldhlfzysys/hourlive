@@ -44,7 +44,7 @@ async function handleBatchAdd() {
   if (selectedSamples.value.length === 0) return;
 
   contentStore.addSample = {
-    content_id: contentStore.contentCreate.id!,
+    content_id: contentStore.currentContent?.id ?? 0,
     sample_ids: selectedSamples.value,
   };
   await contentStore.addSamples();
@@ -54,7 +54,7 @@ async function handleBatchAdd() {
 // 删除样品
 async function handleRemove(sampleId: number) {
   contentStore.addSample = {
-    content_id: contentStore.contentCreate.id!,
+    content_id: contentStore.currentContent?.id ?? 0,
     sample_ids: [sampleId],
   };
   await contentStore.removeSamples();
@@ -298,7 +298,7 @@ onMounted(() => {
         <div class="border-b p-4 font-medium">{{ $t('selected_samples') }}</div>
         <div class="flex-1 overflow-y-auto p-4">
           <div
-            v-for="sample in contentStore.contentCreate.samples"
+            v-for="sample in contentStore.currentContent?.samples"
             :key="sample.id"
             class="mb-4 flex min-h-[160px] items-center rounded-lg border p-4"
           >
@@ -315,7 +315,7 @@ onMounted(() => {
                 ]"
                 class="absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
               >
-                {{ $t(getSampleType(sample.is_main)) }}
+                {{ $t(getSampleType(sample.is_main ?? '')) }}
               </div>
             </div>
             <div class="flex min-w-0 flex-1 flex-col px-4">
@@ -344,7 +344,7 @@ onMounted(() => {
               class="flex items-center"
               danger
               type="link"
-              @click="handleRemove(sample.id)"
+              @click="handleRemove(sample.id ?? 0)"
             >
               <Trash2 class="h-5 w-5" />
             </Button>
