@@ -94,6 +94,13 @@ export const useRoomStore = defineStore('room-store', () => {
       .map(([_, room]) => room);
   });
 
+  const roomOptions = computed(() => {
+    return roomList.value.map((room) => ({
+      label: room.name,
+      value: room.id,
+    }));
+  });
+
   const showModal = ref(false); // 控制模态框显示
 
   const roomQuery = ref<RoomQuery>({
@@ -305,17 +312,17 @@ export const useRoomStore = defineStore('room-store', () => {
     createHardwareToRoom,
     createRoom,
     deleteHardwareFromRoom,
-
     getRoomById,
     hardwareCreate,
     makeRoomUpdate,
     modifyRoom,
     queryRoom,
-
     removeRoom, // 确保在返回对象中包含 removeRoom
+
     roomCreateLoading,
     roomList,
     roomLoading,
+    roomOptions,
     roomQuery,
     rooms,
     roomUpdate,

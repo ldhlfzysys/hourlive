@@ -80,21 +80,23 @@ export interface CustomerAndAgencyQuery {
 }
 
 export interface Customer {
-  id: number;
-  create_time: string; // DateTime in ISO format
-  update_time: string; // DateTime in ISO format
+  id?: number;
+  create_time?: string; // DateTime in ISO format
+  update_time?: string; // DateTime in ISO format
   code?: string;
-  hourlive_money: number;
-  user_id: number;
-  user: User;
-  hide: number;
-  source: string;
-  timeslotorders: TimeslotOrder[];
-  recharges: Recharge[];
-  contents: Content[];
-  hourlivemoneyrecords: HourliveMoneyRecord[];
-  samples: Sample[];
-  sampleshippings: SampleShipping[];
+  hourlive_money?: number;
+  user_id?: number;
+  user?: User;
+  hide?: number;
+  source?: string;
+  timeslotorders?: TimeslotOrder[];
+  recharges?: Recharge[];
+  contents?: Content[];
+  hourlivemoneyrecords?: HourliveMoneyRecord[];
+  samples?: Sample[];
+  sampleshippings?: SampleShipping[];
+  avatar?: string;
+  brand?: string;
 }
 
 export interface Agency {
@@ -129,10 +131,12 @@ export interface AgencyUpdate {
 }
 
 export interface CustomerUpdate {
-  id: number;
+  id?: number;
   code?: string;
-  hide: number;
-  source: string;
+  hide?: number;
+  source?: string;
+  brand?: string;
+  avatar?: string;
 }
 
 export interface UserResetpassword {
