@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import type { Streamer } from '#/types/IStreamer';
 
-import { computed, onMounted, ref } from 'vue';
+import { computed, createVNode, onMounted, ref } from 'vue';
 
-import { Button, Popconfirm, Tag } from 'ant-design-vue';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { $t } from '@vben/locales';
+
+import { Button, message, Modal, Tag } from 'ant-design-vue';
+import { AlertCircle, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 
 import { useStreamerStore } from '#/store';
 
@@ -33,14 +35,34 @@ function handleEdit() {
   streamerStore.streamerCreate = { ...props.streamer };
 }
 
-function handleDelete() {
-  if (props.streamer.id) {
-    streamerStore.deleteStreamer(props.streamer.id);
-  }
-}
+const handleDelete = (e: Event) => {
+  e.stopPropagation();
+  Modal.confirm({
+    cancelText: $t('common.cancel'),
+    content: $t('deleteConfirm'),
+    icon: createVNode(AlertCircle),
+    okText: $t('common.confirm'),
+    async onOk() {
+      if (props.streamer.id) {
+        await streamerStore.hideStreamer({ id: props.streamer.id });
+      }
+    },
+    title: $t('deleteTitle'),
+  });
+};
 
 function toggleDescription() {
   isExpanded.value = !isExpanded.value;
+}
+
+async function handleShare() {
+  const shareUrl = `${window.location.origin}/#/public/schedulingstreamer/${props.streamer.code}`;
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    message.success($t('copySuccess'));
+  } catch {
+    message.error($t('copyFailed'));
+  }
 }
 
 onMounted(() => {
@@ -85,13 +107,8 @@ onMounted(() => {
 
     <!-- 描述信息 -->
     <div class="mt-4 flex flex-col space-y-2 text-sm">
-      <div class="flex items-start">
-        <span class="min-w-[50px] text-gray-500">账号：</span>
-        <span>{{ streamer.user?.account }}</span>
-      </div>
-
       <div v-if="streamer.desc" class="flex items-start">
-        <span class="min-w-[50px] text-gray-500">描述：</span>
+        <span class="min-w-[50px] text-gray-500">{{ $t('description') }}</span>
         <div class="flex flex-col">
           <span
             ref="descRef"
@@ -105,7 +122,7 @@ onMounted(() => {
             class="mt-1 cursor-pointer text-sm text-blue-600 hover:text-blue-700"
             @click="toggleDescription"
           >
-            {{ isExpanded ? '收起' : '展开' }}
+            {{ isExpanded ? $t('collapse') : $t('expand') }}
           </span>
         </div>
       </div>
@@ -119,23 +136,32 @@ onMounted(() => {
           ghost
           size="small"
           type="primary"
+          @click="handleShare"
+        >
+          <Share2 class="mr-1 h-3 w-3" />
+          {{ $t('shareSchedule') }}
+        </Button>
+        <Button
+          class="flex items-center"
+          ghost
+          size="small"
+          type="primary"
           @click="handleEdit"
         >
           <Pencil class="mr-1 h-3 w-3" />
-          编辑
+          {{ $t('edit') }}
         </Button>
-        <Popconfirm title="确定要删除吗？" @confirm="handleDelete">
-          <Button
-            class="flex items-center"
-            danger
-            ghost
-            size="small"
-            type="primary"
-          >
-            <Trash2 class="mr-1 h-3 w-3" />
-            删除
-          </Button>
-        </Popconfirm>
+        <Button
+          class="flex items-center"
+          danger
+          ghost
+          size="small"
+          type="primary"
+          @click="handleDelete"
+        >
+          <Trash2 class="mr-1 h-3 w-3" />
+          {{ $t('delete') }}
+        </Button>
       </div>
     </div>
   </div>

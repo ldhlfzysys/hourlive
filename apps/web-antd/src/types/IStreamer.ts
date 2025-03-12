@@ -20,6 +20,7 @@ export interface Streamer {
   desc?: string;
   avatar?: string;
   tags?: Tag[];
+  code?: string;
 }
 
 export interface StreamerQuery extends BaseQuery {

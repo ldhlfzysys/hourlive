@@ -35,6 +35,10 @@ export const useAgencyStore = defineStore('agency-store', () => {
 
   const agencyHomeInfo = ref<AgencyHomeInfo>();
 
+  function setAgencies(agencies: Agency[]) {
+    allAgency.value = agencies;
+  }
+
   async function fetchAgencyHomeInfo() {
     const res = await getAgencyHomeInfo();
     agencyHomeInfo.value = res.data;
@@ -84,5 +88,6 @@ export const useAgencyStore = defineStore('agency-store', () => {
     hideAgencyLoading,
     roomOptionsByAgencyIds,
     roomsByAgencyIds,
+    setAgencies,
   };
 });

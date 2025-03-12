@@ -130,6 +130,14 @@ export const useRoomStore = defineStore('room-store', () => {
     rooms.value = new Map();
   }
 
+  function setRooms(rs: Room[]) {
+    rs.forEach((r) => {
+      if (r.id) {
+        rooms.value.set(r.id, r);
+      }
+    });
+  }
+
   // 查询直播间
   async function queryRoom() {
     try {
@@ -318,8 +326,8 @@ export const useRoomStore = defineStore('room-store', () => {
     modifyRoom,
     queryRoom,
     removeRoom, // 确保在返回对象中包含 removeRoom
-
     roomCreateLoading,
+
     roomList,
     roomLoading,
     roomOptions,
@@ -327,6 +335,7 @@ export const useRoomStore = defineStore('room-store', () => {
     rooms,
     roomUpdate,
     roomUpdateLoading,
+    setRooms,
     showModal,
     showRoomDescModal,
   };

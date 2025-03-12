@@ -1,8 +1,12 @@
-import type { Customer } from './ICustomer';
+import type { Agency } from './IAgency';
 import type { Room } from './IRoom';
 import type { Streamer } from './IStreamer';
 import type { TimeslotOrder } from './ITimeslotOrder';
 
+export interface PublicTimeslot {
+  timeslots: Timeslot[];
+  agencies: Agency[];
+}
 export interface Timeslot {
   id?: number;
   create_time?: string; // DateTime in ISO format

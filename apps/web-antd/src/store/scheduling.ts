@@ -1,7 +1,10 @@
 import type {
   Customer,
   CustomerUpdate,
+  PublicTimeslot,
+  Room,
   StanderResult,
+  Streamer,
   Timeslot,
   TimeslotQuery,
   TimeslotSave,
@@ -12,12 +15,14 @@ import { computed, ref, watch } from 'vue';
 
 import interactionPlugin from '@fullcalendar/interaction';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
-import { message } from 'ant-design-vue';
+import { message, notification } from 'ant-design-vue';
 import dayjs, { Dayjs } from 'dayjs';
 import { defineStore } from 'pinia';
 
 import { requestClient } from '#/api/request';
+import { $t } from '#/locales';
 
+import { useAgencyStore } from './agency';
 import { useRoomStore } from './room';
 import { useStreamerStore } from './streamer';
 
@@ -56,21 +61,52 @@ function _saveTimeslots(params: TimeslotSave[]) {
   );
 }
 
+function _queryPublicTimeslots(code: string) {
+  return requestClient.post<StanderResult<PublicTimeslot>>(
+    `timeslots/querypublic/${code}`,
+  );
+}
+
+function _queryPublicTimeslotsStreamer(code: string) {
+  return requestClient.post<StanderResult<PublicTimeslot>>(
+    `timeslots/querypublicstreamers/${code}`,
+  );
+}
+
 export const useSchedulingStore = defineStore('scheduling-store', () => {
-  // ui
+  // 控制 CustomerModal 的显示状态和编辑数据
   const customerModalVisible = ref(false);
   const customerModalLoading = ref(false);
+  const editingCustomer = ref<CustomerUpdate | undefined>();
+
+  // 打开新增品牌模态框
+  function showAddCustomerModal() {
+    editingCustomer.value = undefined;
+    customerModalVisible.value = true;
+  }
+
+  // 打开编辑品牌模态框
+  function showEditCustomerModal(customer: CustomerUpdate) {
+    editingCustomer.value = customer;
+    customerModalVisible.value = true;
+  }
+
+  // 关闭品牌模态框
+  function closeCustomerModal() {
+    customerModalVisible.value = false;
+    editingCustomer.value = undefined;
+  }
 
   // streamer来自streamerStore，直播间来自roomStore
 
   // 品牌方;
-  const customers = ref<Record<number, Customer>>({});
+  const customers = ref<Map<number, Customer>>(new Map());
   const customerList = computed(() => {
-    return Object.values(customers.value);
+    return [...customers.value.values()];
   });
   const customerOptions = computed(() => {
     return customerList.value.map((customer) => ({
-      label: customer.code,
+      label: customer.brand,
       value: customer.id,
     }));
   });
@@ -95,7 +131,13 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   // 左边栏是日期和直播间
   const resources = ref<any[]>([]);
   watch(resources, (newVal) => {
-    filteredResources.value = newVal;
+    filteredResources.value =
+      selectedRoomIds.value.length > 0
+        ? newVal.filter((resource) => {
+            const roomId = Number.parseInt(resource.id.split('_')[1]);
+            return selectedRoomIds.value.includes(roomId);
+          })
+        : newVal;
   });
   const filteredResources = ref<any[]>([]);
   watch(filteredResources, (newVal) => {
@@ -127,14 +169,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       const rooms = useRoomStore().roomList;
 
       for (const room of rooms) {
-        // 如果选中了特定直播间,只显示该直播间
-        if (
-          selectedRoomIds.value.length > 0 &&
-          !selectedRoomIds.value.includes(room.id ?? 0)
-        ) {
-          continue;
-        }
-
         resourceList.push({
           date: dateDisplay,
           id: `${dateStr}_${room.id}`,
@@ -172,6 +206,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     eventClick: handleEventClick,
     eventContent: handleEventContent,
     eventDrop: handleEventDropChange,
+    eventMouseEnter: handleEventMouseEnter,
+    eventMouseLeave: handleEventMouseLeave,
     eventResize: handleEventChange,
     events: timeslotList,
     expandRows: true,
@@ -236,13 +272,25 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   );
 
   function handleEventContent(arg: any) {
-    const timeslot = timeslots.value.get(Number(arg.event.id));
+    const timeslotId = Number(arg.event.id);
+    const timeslot = timeslots.value.get(timeslotId);
     if (!timeslot) return null;
 
-    // 添加类型检查和空值判断
+    // 检查是否是新增或修改的时间段
+    const isChanged = changedTimeslots.value.has(timeslotId);
+    const isNew = isChanged && timeslot.create === 1;
+
+    // 根据状态设置不同的背景色
+    let bgColorClass = 'bg-blue-50';
+    if (isNew) {
+      bgColorClass = 'bg-green-100';
+    } else if (isChanged) {
+      bgColorClass = 'bg-yellow-100';
+    }
+
     const customer =
       timeslot.customer_id && timeslot.customer_id > 0
-        ? customers.value[timeslot.customer_id]
+        ? customers.value.get(timeslot.customer_id)
         : null;
     const streamer =
       timeslot.streamer_id && timeslot.streamer_id > 0
@@ -252,41 +300,57 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     const startTime = dayjs(timeslot.begin_date).format('HH:mm');
     const endTime = dayjs(timeslot.finish_date).format('HH:mm');
 
-    const a = {
+    // 创建完整的内容用于悬浮显示
+    const tooltipContent = `
+      <div class="p-2 bg-white rounded shadow-lg text-sm">
+        ${customer ? `<div class="mb-1">品牌：${customer.brand}</div>` : ''}
+        ${streamer ? `<div class="mb-1">主播：${streamer.name}</div>` : ''}
+        <div>时间：${startTime} - ${endTime}</div>
+      </div>
+    `;
+
+    return {
       html: `
-        <div class="event-container p-2 bg-blue-50 rounded shadow-sm">
-          ${
-            customer
-              ? `
-            <div class="flex items-center gap-2 mb-1">
-              ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 rounded-full object-cover"/>` : ''}
-              <span class="text-base font-medium text-gray-800">${customer.code}</span>
-            </div>
-          `
-              : ''
-          }
-          ${
-            streamer
-              ? `
-            <div class="flex items-center gap-2 bg-blue-50 p-1 rounded mb-1">
-              <img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover"/>
-              <span class="text-sm text-gray-700">${streamer.name}</span>
-            </div>
-          `
-              : ''
-          }
-          <div class="text-xs text-gray-500">${startTime} - ${endTime}</div>
+        <div 
+          class="event-container p-2 ${bgColorClass} rounded shadow-sm overflow-hidden group relative cursor-pointer"
+          data-tooltip="${encodeURIComponent(tooltipContent)}"
+          onmouseenter="this.dispatchEvent(new CustomEvent('show-tooltip', {
+            bubbles: true,
+            detail: { content: decodeURIComponent(this.dataset.tooltip) }
+          }))"
+          onmouseleave="this.dispatchEvent(new CustomEvent('hide-tooltip', {
+            bubbles: true
+          }))"
+        >
+          <div class="min-w-0">
+            ${
+              customer
+                ? `
+                <div class="flex items-center gap-2 mb-1 truncate">
+                  ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>` : ''}
+                  <span class="text-base font-medium text-gray-800 truncate">${customer.brand}</span>
+                </div>
+                `
+                : ''
+            }
+            ${
+              streamer
+                ? `
+                <div class="flex items-center gap-2 p-1 rounded mb-1 truncate">
+                  <img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>
+                  <span class="text-sm text-gray-700 truncate">${streamer.name}</span>
+                </div>
+                `
+                : ''
+            }
+            <div class="text-xs text-gray-500 truncate">${startTime} - ${endTime}</div>
+          </div>
         </div>
       `,
     };
-
-    return a;
   }
 
   async function initCalendar() {
-    useStreamerStore().queryStreamer();
-    queryCustomers();
-    await useRoomStore().queryRoom();
     dateRange.value = [dayjs(), dayjs().add(7, 'days')];
   }
 
@@ -295,6 +359,14 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     const currentTimeslot = timeslots.value.get(timeslotId);
 
     if (!currentTimeslot) return;
+
+    // 如果customer_id和streamer_id没变化，则直接返回
+    if (
+      currentTimeslot.customer_id === selectedBrandId.value &&
+      currentTimeslot.streamer_id === selectedStreamId.value
+    ) {
+      return;
+    }
 
     // 创建更新后的时间段对象
     const updatedTimeslot: TimeslotUpdate = {
@@ -351,6 +423,17 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       start: `${rangeStartDate} ${newStartTime}`, // 用于显示
     };
 
+    // 检查时间冲突，排除当前时段
+    const hasConflict = [...timeslots.value.values()]
+      .filter((slot) => slot.id !== timeslotId)
+      .some((slot) => checkTimeConflict(updatedTimeslot));
+
+    if (hasConflict) {
+      message.error('移动后的时间段与现有时间段冲突');
+      arg.revert();
+      return;
+    }
+
     // 更新 timeslots
     timeslots.value.set(timeslotId, updatedTimeslot);
 
@@ -397,6 +480,17 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       room_id: currentTimeslot.room_id,
       start: `${rangeStartDate} ${newStartTime}`, // 用于显示
     };
+
+    // 检查时间冲突，排除当前时段
+    const hasConflict = [...timeslots.value.values()]
+      .filter((slot) => slot.id !== timeslotId)
+      .some((slot) => checkTimeConflict(updatedTimeslot));
+
+    if (hasConflict) {
+      message.error('调整后的时间段与现有时间段冲突');
+      arg.revert();
+      return;
+    }
 
     // 更新 timeslots
     timeslots.value.set(timeslotId, updatedTimeslot);
@@ -445,9 +539,36 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       newTimeslot.customer_id = Number(selectedBrandId.value);
     }
 
-    // 检查时间冲突
+    // 检查时间冲突，如果冲突了，尝试减少半小时，再冲突再减少半小时，如果最后还是冲突，则提示错误
     const hasConflict = checkTimeConflict(newTimeslot);
     if (hasConflict) {
+      newTimeslot.finish_date = dayjs(newTimeslot.finish_date)
+        .subtract(30, 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+      newTimeslot.end = dayjs(selectInfo.start)
+        .add(1.5, 'hours')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    const hasConflict2 = checkTimeConflict(newTimeslot);
+    if (hasConflict2) {
+      newTimeslot.finish_date = dayjs(newTimeslot.finish_date)
+        .subtract(30, 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+      newTimeslot.end = dayjs(selectInfo.start)
+        .add(1, 'hours')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    const hasConflict3 = checkTimeConflict(newTimeslot);
+    if (hasConflict3) {
+      newTimeslot.finish_date = dayjs(newTimeslot.finish_date)
+        .subtract(30, 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+      newTimeslot.end = dayjs(selectInfo.start)
+        .add(0.5, 'hours')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    const hasConflict4 = checkTimeConflict(newTimeslot);
+    if (hasConflict4) {
       message.error('当前时间段已被占用');
       return;
     }
@@ -469,6 +590,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   // 检查时间冲突
   function checkTimeConflict(newSlot: TimeslotUpdate): boolean {
     return [...timeslots.value.values()].some((slot) => {
+      // 排除自身
+      if (slot.id === newSlot.id) return false;
+
       if (slot.room_id !== newSlot.room_id) return false;
 
       const start1 = dayjs(newSlot.begin_date);
@@ -497,7 +621,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       if (res && res.success) {
         res.data.forEach((customer) => {
           if (customer.id) {
-            customers.value[customer.id] = customer;
+            customers.value.set(customer.id, customer);
           }
         });
       }
@@ -512,10 +636,23 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       customerUpdateLoading.value = true;
       const res = await _updateCustomer(customer);
       if (res && res.success && res.data.id) {
-        customers.value[res.data.id] = res.data;
+        customers.value.set(res.data.id, res.data);
       }
     } finally {
       customerUpdateLoading.value = false;
+    }
+  }
+
+  // 隐藏品牌方
+  async function hideCustomer(customer: CustomerUpdate) {
+    const result = await _hideCustomer(customer);
+    if (result && result.success && customer.id) {
+      // 移除customer
+      customers.value.delete(customer.id);
+      notification.success({
+        description: $t('操作成功'),
+        message: $t('操作成功'),
+      });
     }
   }
 
@@ -687,13 +824,34 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     return totalHours;
   }
 
-  // 添加对 timeslots 的监听
+  // 修改对 timeslots 的监听，加入过滤逻辑
   watch(
-    timeslots,
-    (newTimeslots) => {
-      timeslotList.value = [...newTimeslots.entries()]
-        .sort(([keyA], [keyB]) => keyB - keyA) // 按key从大到小排序
-        .map(([_, timeslot]) => ({ ...timeslot })); // 使用展开运算符创建普通对象
+    [timeslots, selectedCustomerIds, selectedStreamerIds],
+    ([newTimeslots]) => {
+      const timeslots = [...newTimeslots.entries()]
+        .sort(([keyA], [keyB]) => keyB - keyA)
+        .map(([_, timeslot]) => ({ ...timeslot }));
+
+      // 根据选中的客户和主播进行过滤
+      timeslotList.value = timeslots.filter((timeslot) => {
+        // 如果有选中的客户，检查是否匹配
+        if (selectedCustomerIds.value.length > 0) {
+          const customerId = timeslot.customer_id;
+          if (!customerId || !selectedCustomerIds.value.includes(customerId)) {
+            return false;
+          }
+        }
+
+        // 如果有选中的主播，检查是否匹配
+        if (selectedStreamerIds.value.length > 0) {
+          const streamerId = timeslot.streamer_id;
+          if (!streamerId || !selectedStreamerIds.value.includes(streamerId)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
     },
     { deep: true },
   );
@@ -703,27 +861,246 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       selectedBrandId.value === brandId ? undefined : brandId;
   }
 
+  // 添加对 selectedRoomIds 的监听
+  watch(selectedRoomIds, () => {
+    filteredResources.value =
+      selectedRoomIds.value.length > 0
+        ? resources.value.filter((resource) => {
+            const roomId = Number.parseInt(resource.id.split('_')[1]);
+            return selectedRoomIds.value.includes(roomId);
+          })
+        : resources.value;
+  });
+
+  // 查询公开时间段
+  async function queryPublicTimeslots(code: string) {
+    try {
+      timeslotQueryLoading.value = true;
+      const res = await _queryPublicTimeslots(code);
+      if (res && res.success) {
+        // 更新 streamers 数据
+        const streamerStore = useStreamerStore();
+        streamerStore.$reset();
+        const roomStore = useRoomStore();
+        roomStore.$reset();
+
+        customers.value = new Map();
+
+        // 收集所有的 streamers、rooms 和 customers 数据
+        const allStreamers: Streamer[] = [];
+        const allRooms: Room[] = [];
+        const allCustomers: Customer[] = [];
+
+        const newTimeslots = new Map(timeslots.value);
+        const agencyStore = useAgencyStore();
+        agencyStore.$reset();
+        agencyStore.setAgencies(res.data.agencies);
+        res.data.timeslots.forEach((result) => {
+          if (result.id) {
+            // 收集 streamers 数据
+            if (result.streamers) {
+              allStreamers.push(...result.streamers);
+            }
+
+            // 收集 rooms 数据
+            if (result.room) {
+              allRooms.push(result.room);
+            }
+
+            // 收集 customers 数据
+            if (result.customers) {
+              allCustomers.push(...result.customers);
+            }
+
+            const actualDate = dayjs(result.begin_date).format('YYYY-MM-DD');
+            const startTime = dayjs(result.begin_date).format('HH:mm:ss');
+            const endTime = dayjs(result.finish_date).format('HH:mm:ss');
+            const today = dayjs().format('YYYY-MM-DD');
+
+            const enrichedResult = {
+              ...result,
+              begin_date: result.begin_date,
+              customer_id: result.customers?.[0]?.id,
+              end: `${today} ${endTime}`,
+              finish_date: result.finish_date,
+              resourceId: `${actualDate}_${result.room_id}`,
+              start: `${today} ${startTime}`,
+              streamer_id: result.streamers?.[0]?.id,
+            };
+            newTimeslots.set(result.id, enrichedResult);
+          }
+        });
+
+        // 更新 stores
+        streamerStore.setStreamers(allStreamers);
+        roomStore.setRooms(allRooms);
+        // 更新 customers
+        allCustomers.forEach((customer) => {
+          if (customer.id) {
+            customers.value.set(customer.id, customer);
+          }
+        });
+
+        timeslots.value = newTimeslots;
+      }
+    } finally {
+      timeslotQueryLoading.value = false;
+    }
+  }
+
+  async function queryPublicTimeslotsStreamer(code: string) {
+    try {
+      timeslotQueryLoading.value = true;
+      const res = await _queryPublicTimeslotsStreamer(code);
+      if (res && res.success) {
+        // 更新 streamers 数据
+        const streamerStore = useStreamerStore();
+        streamerStore.$reset();
+        const roomStore = useRoomStore();
+        roomStore.$reset();
+
+        customers.value = new Map();
+
+        // 收集所有的 streamers、rooms 和 customers 数据
+        const allStreamers: Streamer[] = [];
+        const allRooms: Room[] = [];
+        const allCustomers: Customer[] = [];
+
+        const newTimeslots = new Map(timeslots.value);
+        const agencyStore = useAgencyStore();
+        agencyStore.$reset();
+        agencyStore.setAgencies(res.data.agencies);
+        res.data.timeslots.forEach((result) => {
+          if (result.id) {
+            // 收集 streamers 数据
+            if (result.streamers) {
+              allStreamers.push(...result.streamers);
+            }
+
+            // 收集 rooms 数据
+            if (result.room) {
+              allRooms.push(result.room);
+            }
+
+            // 收集 customers 数据
+            if (result.customers) {
+              allCustomers.push(...result.customers);
+            }
+
+            const actualDate = dayjs(result.begin_date).format('YYYY-MM-DD');
+            const startTime = dayjs(result.begin_date).format('HH:mm:ss');
+            const endTime = dayjs(result.finish_date).format('HH:mm:ss');
+            const today = dayjs().format('YYYY-MM-DD');
+
+            const enrichedResult = {
+              ...result,
+              begin_date: result.begin_date,
+              customer_id: result.customers?.[0]?.id,
+              end: `${today} ${endTime}`,
+              finish_date: result.finish_date,
+              resourceId: `${actualDate}_${result.room_id}`,
+              start: `${today} ${startTime}`,
+              streamer_id: result.streamers?.[0]?.id,
+            };
+            newTimeslots.set(result.id, enrichedResult);
+          }
+        });
+
+        // 更新 stores
+        streamerStore.setStreamers(allStreamers);
+        roomStore.setRooms(allRooms);
+        // 更新 customers
+        allCustomers.forEach((customer) => {
+          if (customer.id) {
+            customers.value.set(customer.id, customer);
+          }
+        });
+
+        timeslots.value = newTimeslots;
+      }
+    } finally {
+      timeslotQueryLoading.value = false;
+    }
+  }
+
+  function handleEventMouseEnter(info: any) {
+    const timeslotId = Number(info.event.id);
+    const timeslot = timeslots.value.get(timeslotId);
+    if (!timeslot) return;
+
+    // 计算时间区间
+    const startTime = dayjs(timeslot.begin_date);
+    const endTime = dayjs(timeslot.finish_date);
+    const durationHours = endTime.diff(startTime, 'hour', true);
+
+    // 只有当时间区间小于2小时时才显示tooltip
+    if (durationHours >= 2) return;
+
+    const customer =
+      timeslot.customer_id && timeslot.customer_id > 0
+        ? customers.value.get(timeslot.customer_id)
+        : null;
+    const streamer =
+      timeslot.streamer_id && timeslot.streamer_id > 0
+        ? useStreamerStore().getStreamerById(timeslot.streamer_id)
+        : null;
+
+    const startTimeStr = startTime.format('HH:mm');
+    const endTimeStr = endTime.format('HH:mm');
+
+    const tooltipContent = `
+      <div class="p-2 bg-white rounded shadow-lg text-sm">
+        ${customer ? `<div class="mb-1">品牌：${customer.brand}</div>` : ''}
+        ${streamer ? `<div class="mb-1">主播：${streamer.name}</div>` : ''}
+        <div>时间：${startTimeStr} - ${endTimeStr}</div>
+      </div>
+    `;
+
+    // 创建或更新 tooltip
+    const tooltip = document.createElement('div');
+    tooltip.innerHTML = tooltipContent;
+    tooltip.className = 'fc-tooltip absolute z-50';
+    tooltip.style.left = `${info.jsEvent.pageX + 10}px`;
+    tooltip.style.top = `${info.jsEvent.pageY + 10}px`;
+    document.body.append(tooltip);
+  }
+
+  function handleEventMouseLeave() {
+    // 移除所有 tooltip
+    const tooltips = document.querySelectorAll('.fc-tooltip');
+    tooltips.forEach((tooltip) => tooltip.remove());
+  }
+
   return {
+    $reset,
     brandList,
     brandMap,
     calendarOptions,
     changedTimeslots,
+    closeCustomerModal,
     customerList,
+    customerModalLoading,
     customerModalVisible,
     customerOptions,
     customerQueryLoading,
     customers,
     customerUpdateLoading,
     dateRange,
+    editingCustomer,
     filteredResources,
     handleBrandClick,
     handleEventChange,
     handleEventClick,
     handleEventContent,
+    handleEventMouseEnter,
+    handleEventMouseLeave,
     handleSelect,
+    hideCustomer,
     initCalendar,
     isOneDay,
     queryCustomers,
+    queryPublicTimeslots,
+    queryPublicTimeslotsStreamer,
     queryTimeslots,
     recentBrands,
     recentStreamers,
@@ -735,6 +1112,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     selectedRoomIds,
     selectedStreamerIds,
     selectedStreamId,
+    showAddCustomerModal,
+    showEditCustomerModal,
     streamerList,
     timeslotList,
     timeslotQueryLoading,

@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { DEFAULT_HOME_PATH } from '@vben/constants';
 
-import { AuthPageLayout } from '#/layouts';
+import { AuthPageLayout, PublicLayout } from '#/layouts';
 import { $t } from '#/locales';
 import Login from '#/views/_core/authentication/login.vue';
 
@@ -28,6 +28,32 @@ const coreRoutes: RouteRecordRaw[] = [
     name: 'Root',
     path: '/',
     redirect: DEFAULT_HOME_PATH,
+  },
+  {
+    component: PublicLayout,
+    meta: {
+      title: 'Public',
+    },
+    name: 'Public',
+    path: '/public',
+    children: [
+      {
+        name: 'Scheduling',
+        path: 'scheduling/:code?',
+        component: () => import('#/views/public/scheduling.vue'),
+        meta: {
+          title: $t('page.core.scheduling'),
+        },
+      },
+      {
+        name: 'SchedulingStreamer',
+        path: 'schedulingstreamer/:code?',
+        component: () => import('#/views/public/schedulingstreamer.vue'),
+        meta: {
+          title: $t('page.core.scheduling'),
+        },
+      },
+    ],
   },
   {
     component: AuthPageLayout,

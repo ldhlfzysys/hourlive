@@ -117,21 +117,6 @@ const selectedTagIds = computed({
 
         <!-- 基本信息 -->
         <Input
-          v-if="!streamerStore.isEditing"
-          v-model:value="streamerStore.streamerCreate.account"
-          :placeholder="$t('account')"
-          autocomplete="new-username"
-          class="mb-3"
-        />
-        <Input
-          v-if="!streamerStore.isEditing"
-          v-model:value="streamerStore.streamerCreate.password"
-          :placeholder="$t('password')"
-          autocomplete="new-password"
-          class="mb-3"
-          type="password"
-        />
-        <Input
           v-model:value="streamerStore.streamerCreate.name"
           :placeholder="$t('name')"
           class="mb-3"

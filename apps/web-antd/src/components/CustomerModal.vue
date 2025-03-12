@@ -1,23 +1,26 @@
 <script lang="ts" setup>
 import type { CustomerUpdate } from '#/types';
 
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { Input, message, Modal, Upload } from 'ant-design-vue';
 import { Plus } from 'lucide-vue-next';
 
 import { useOSSFileStore, useSchedulingStore } from '#/store';
 
-defineOptions({
-  name: 'CustomerModal',
-});
-
 const schedulingStore = useSchedulingStore();
 const ossFileStore = useOSSFileStore();
-
 const customerForm = ref<CustomerUpdate>({});
-
 const loading = ref(false);
+
+// 监听编辑数据变化
+watch(
+  () => schedulingStore.editingCustomer,
+  (newVal) => {
+    customerForm.value = newVal ? { ...newVal } : {};
+  },
+  { immediate: true },
+);
 
 const handleAvatarChange = async (info) => {
   const isImage = info.file.type.startsWith('image/');
@@ -53,28 +56,28 @@ const handleOk = async () => {
 
   try {
     loading.value = true;
-    await schedulingStore.updateCustomer({
-      ...customerForm.value,
-    });
-    message.success('创建成功');
-    schedulingStore.customerModalVisible = false;
-    customerForm.value = {};
+    await schedulingStore.updateCustomer(customerForm.value);
+    message.success(customerForm.value.id ? '更新成功' : '添加成功');
+    schedulingStore.closeCustomerModal();
+    await schedulingStore.queryCustomers();
+  } catch (error) {
+    message.error(customerForm.value.id ? '更新失败' : '添加失败');
+    console.error('操作失败:', error);
   } finally {
     loading.value = false;
   }
 };
 
 const handleCancel = () => {
-  schedulingStore.customerModalVisible = false;
-  customerForm.value = {};
+  schedulingStore.closeCustomerModal();
 };
 </script>
 
 <template>
   <Modal
-    v-model:open="schedulingStore.customerModalVisible"
     :confirm-loading="loading"
-    title="新增品牌"
+    :open="schedulingStore.customerModalVisible"
+    :title="schedulingStore.editingCustomer ? '编辑品牌' : '新增品牌'"
     @cancel="handleCancel"
     @ok="handleOk"
   >

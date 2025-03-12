@@ -11,6 +11,7 @@ import { $t } from '#/locales';
 enum StreamerApi {
   CreateStreamer = 'streamer/create',
   GetTags = 'streamer/gettags',
+  HideStreamer = 'streamer/hidestreamer',
   QueryStreamer = 'streamer/query',
   UpdateStreamer = 'streamer/update',
 }
@@ -40,6 +41,13 @@ function _updateStreamer(params: Streamer) {
   );
 }
 
+function _hideStreamer(params: Streamer) {
+  return requestClient.post<StanderResult<Streamer>>(
+    StreamerApi.HideStreamer,
+    params,
+  );
+}
+
 export const useStreamerStore = defineStore('streamer-store', () => {
   const streamerLoading = ref(false);
   const streamerCreateLoading = ref(false);
@@ -54,6 +62,13 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     return [...streamers.value.entries()]
       .sort(([keyA], [keyB]) => keyB - keyA)
       .map(([_, streamer]) => streamer);
+  });
+
+  const streamerOptions = computed(() => {
+    return streamerList.value.map((streamer) => ({
+      label: streamer.name,
+      value: streamer.id,
+    }));
   });
 
   const showModal = ref(false);
@@ -90,6 +105,14 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     if (streamerCreate.value.id) {
       streamerCreate.value = {};
     }
+  }
+
+  function setStreamers(ss: Streamer[]) {
+    ss.forEach((s) => {
+      if (s.id) {
+        streamers.value.set(s.id, s);
+      }
+    });
   }
 
   async function queryStreamer() {
@@ -185,19 +208,47 @@ export const useStreamerStore = defineStore('streamer-store', () => {
     }
   }
 
+  async function hideStreamer(streamer: Streamer) {
+    try {
+      streamerLoading.value = true;
+      const res = await _hideStreamer(streamer);
+      if (res && res.success && res.data.id) {
+        if (res.data.hide === 1) {
+          streamers.value.delete(res.data.id);
+        } else {
+          streamers.value.set(res.data.id, res.data);
+        }
+        notification.success({
+          description: $t('操作成功'),
+          message: $t('操作成功'),
+        });
+      } else {
+        notification.error({
+          description: res.message,
+          message: $t('操作失败'),
+        });
+      }
+    } finally {
+      streamerLoading.value = false;
+    }
+  }
+
   return {
     $reset,
     createStreamer,
     getStreamerById,
+    hideStreamer,
     isEditing,
     makeCreate,
     queryStreamer,
     queryTags,
+    setStreamers,
     showModal,
     streamerCreate,
     streamerCreateLoading,
     streamerList,
     streamerLoading,
+    streamerOptions,
     streamerQuery,
     streamers,
     tags,

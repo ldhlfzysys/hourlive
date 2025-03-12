@@ -76,6 +76,10 @@ async function handleSaveTimeslots() {
 }
 
 onMounted(async () => {
+  await useStreamerStore().queryStreamer();
+  console.log('xxxxx');
+  await schedulingStore.queryCustomers();
+  await useRoomStore().queryRoom();
   await schedulingStore.initCalendar();
 
   // 初始化时查询时间段
@@ -111,6 +115,13 @@ onMounted(async () => {
               :options="roomStore.roomOptions"
               placeholder="过滤显示的直播间"
               title="过滤直播间"
+            />
+
+            <SelectFilter
+              v-model="schedulingStore.selectedStreamerIds"
+              :options="streamerStore.streamerOptions"
+              placeholder="过滤显示的主播"
+              title="过滤主播"
             />
 
             <div class="flex items-center">
@@ -212,7 +223,7 @@ onMounted(async () => {
                     <Button
                       class="flex h-[50px] w-[50px] flex-shrink-0 items-center justify-center border-2 border-dashed hover:border-blue-500 hover:text-blue-500"
                       type="default"
-                      @click="schedulingStore.customerModalVisible = true"
+                      @click="schedulingStore.showAddCustomerModal()"
                     >
                       <PlusCircle class="text-xl" />
                     </Button>
