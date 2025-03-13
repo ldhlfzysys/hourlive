@@ -31,6 +31,7 @@ export interface TimeslotUpdate extends Timeslot {
   streamer_id?: number;
   customer_id?: number;
   create?: number;
+  remove?: number;
   // 以下内容是前端排班fullcalendar生成需要使用的必要字段
   resourceId?: string; // 前端生成，服务端不存储，是日期_直播间id
   start?: string; // Format HH:MM

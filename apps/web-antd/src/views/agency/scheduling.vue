@@ -65,6 +65,7 @@ async function handleSaveTimeslots() {
       customer_id: slot.customer_id,
       finish_date: slot.finish_date,
       id: slot.create === 1 ? undefined : Number(slot.id),
+      remove: slot.remove,
       room_id: slot.room_id,
       streamer_id: slot.streamer_id,
     }),

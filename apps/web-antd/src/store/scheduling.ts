@@ -11,7 +11,7 @@ import type {
   TimeslotUpdate,
 } from '#/types';
 
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
 import interactionPlugin from '@fullcalendar/interaction';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
@@ -309,46 +309,110 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       </div>
     `;
 
+    // 添加删除按钮的处理函数
+    const deleteHandler = `
+      (function(e) {
+        e.stopPropagation();
+        document.dispatchEvent(new CustomEvent('delete-timeslot', {
+          detail: { id: ${timeslotId} }
+        }));
+      })(event)
+    `;
+
     return {
       html: `
-        <div 
-          class="event-container p-2 ${bgColorClass} rounded shadow-sm overflow-hidden group relative cursor-pointer"
-          data-tooltip="${encodeURIComponent(tooltipContent)}"
-          onmouseenter="this.dispatchEvent(new CustomEvent('show-tooltip', {
-            bubbles: true,
-            detail: { content: decodeURIComponent(this.dataset.tooltip) }
-          }))"
-          onmouseleave="this.dispatchEvent(new CustomEvent('hide-tooltip', {
-            bubbles: true
-          }))"
-        >
-          <div class="min-w-0">
-            ${
-              customer
-                ? `
-                <div class="flex items-center gap-2 mb-1 truncate">
-                  ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>` : ''}
-                  <span class="text-base font-medium text-gray-800 truncate">${customer.brand}</span>
-                </div>
-                `
-                : ''
-            }
-            ${
-              streamer
-                ? `
-                <div class="flex items-center gap-2 p-1 rounded mb-1 truncate">
-                  <img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>
-                  <span class="text-sm text-gray-700 truncate">${streamer.name}</span>
-                </div>
-                `
-                : ''
-            }
-            <div class="text-xs text-gray-500 truncate">${startTime} - ${endTime}</div>
+        <div class="h-full">
+          <div 
+            class="event-container h-full p-2 pt-2 pb-0 ${bgColorClass} rounded shadow-sm overflow-visible group cursor-pointer relative"
+            data-tooltip="${encodeURIComponent(tooltipContent)}"
+            onmouseenter="this.dispatchEvent(new CustomEvent('show-tooltip', {
+              bubbles: true,
+              detail: { content: decodeURIComponent(this.dataset.tooltip) }
+            }))"
+            onmouseleave="this.dispatchEvent(new CustomEvent('hide-tooltip', {
+              bubbles: true
+            }))"
+          >
+            <div class="flex flex-col h-full">
+              <div class="flex-grow min-w-0 mb-1">
+                ${
+                  customer
+                    ? `
+                  <div class="flex items-center gap-2 mb-1 truncate">
+                    ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>` : ''}
+                    <span class="text-base font-medium text-gray-800 truncate">${customer.brand}</span>
+                  </div>
+                  `
+                    : ''
+                }
+                ${
+                  streamer
+                    ? `
+                  <div class="flex items-center gap-2 p-1 rounded mb-1 truncate">
+                    <img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>
+                    <span class="text-sm text-gray-700 truncate">${streamer.name}</span>
+                  </div>
+                  `
+                    : ''
+                }
+                <div class="text-xs text-gray-500 truncate">${startTime} - ${endTime}</div>
+              </div>
+              
+              <div class="flex justify-center -mb-3 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out">
+                <button
+                  class="p-1 bg-white rounded-full shadow-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  onclick="${deleteHandler}"
+                >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       `,
     };
   }
+
+  // 添加删除时间段的处理函数
+  function handleDeleteTimeslot(timeslotId: number) {
+    const timeslot = timeslots.value.get(timeslotId);
+    if (!timeslot) return;
+
+    if (timeslot.create === 1) {
+      // 如果是新创建的时间段，直接从 maps 中删除
+      timeslots.value.delete(timeslotId);
+      changedTimeslots.value.delete(timeslotId);
+    } else {
+      // 如果是已存在的时间段，标记为删除
+      const updatedTimeslot = {
+        ...timeslot,
+        remove: 1,
+      };
+      timeslots.value.set(timeslotId, updatedTimeslot);
+      changedTimeslots.value.set(timeslotId, updatedTimeslot);
+    }
+
+    // 立即从视图列表中移除
+    timeslotList.value = timeslotList.value.filter((t) => t.id !== timeslotId);
+  }
+
+  // 添加事件监听器的引用
+  // let deleteEventListener: EventListener;
+
+  // 在 store 初始化时设置事件监听
+  const deleteEventListener = ((e: CustomEvent) => {
+    handleDeleteTimeslot(e.detail.id);
+  }) as EventListener;
+
+  // 添加事件监听
+  document.addEventListener('delete-timeslot', deleteEventListener);
+
+  // 在 store 销毁时清理事件监听
+  onUnmounted(() => {
+    document.removeEventListener('delete-timeslot', deleteEventListener);
+  });
 
   async function initCalendar() {
     dateRange.value = [dayjs(), dayjs().add(7, 'days')];
@@ -824,13 +888,15 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     return totalHours;
   }
 
-  // 修改对 timeslots 的监听，加入过滤逻辑
+  // 修改对 timeslots 的监听
   watch(
     [timeslots, selectedCustomerIds, selectedStreamerIds],
     ([newTimeslots]) => {
       const timeslots = [...newTimeslots.entries()]
         .sort(([keyA], [keyB]) => keyB - keyA)
-        .map(([_, timeslot]) => ({ ...timeslot }));
+        .map(([_, timeslot]) => ({ ...timeslot }))
+        // 过滤掉标记为删除的时间段
+        .filter((timeslot) => !timeslot.remove);
 
       // 根据选中的客户和主播进行过滤
       timeslotList.value = timeslots.filter((timeslot) => {
@@ -1089,6 +1155,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     editingCustomer,
     filteredResources,
     handleBrandClick,
+    handleDeleteTimeslot,
     handleEventChange,
     handleEventClick,
     handleEventContent,
