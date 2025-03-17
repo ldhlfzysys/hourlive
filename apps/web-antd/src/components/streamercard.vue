@@ -82,14 +82,20 @@ onMounted(() => {
   >
     <!-- 主播信息区域 -->
     <div class="flex items-start space-x-3">
-      <img
-        :alt="streamer.name"
-        :src="
-          streamer.avatar ||
-          'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png'
-        "
-        class="h-12 w-12 rounded-full object-cover"
-      />
+      <div class="flex h-12 w-12 items-center justify-center">
+        <img
+          v-if="streamer.avatar && streamer.avatar.length > 0"
+          :alt="streamer.name"
+          :src="streamer.avatar"
+          class="h-12 w-12 rounded-full object-cover"
+        />
+        <div
+          v-else
+          class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-lg text-gray-500"
+        >
+          {{ streamer.name.substring(0, 1) }}
+        </div>
+      </div>
       <div class="flex-1">
         <div class="flex items-center gap-2">
           <h3 class="text-lg font-medium text-gray-900">{{ streamer.name }}</h3>

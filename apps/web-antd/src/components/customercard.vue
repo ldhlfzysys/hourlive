@@ -81,21 +81,27 @@ onMounted(() => {
 
 <template>
   <div
-    class="relative cursor-pointer rounded-lg bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+    class="relative cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
     @click="$emit('click')"
   >
     <!-- 品牌信息区域 -->
     <div class="flex items-center justify-between gap-4">
       <!-- Logo区域 -->
       <div class="w-1/2">
-        <img
-          :alt="customer.brand"
-          :src="
-            customer.avatar ||
-            'https://hourlive-image.oss-ap-southeast-1.aliyuncs.com/avatar/avatar_default.png'
-          "
-          class="h-16 w-full rounded-md object-contain"
-        />
+        <div class="flex h-16 w-full items-center justify-center">
+          <img
+            v-if="customer.avatar && customer.avatar.length > 0"
+            :alt="customer.brand"
+            :src="customer.avatar"
+            class="h-16 w-full rounded-md object-contain"
+          />
+          <div
+            v-else
+            class="flex h-16 w-full items-center justify-center rounded-md bg-gray-200 text-2xl text-gray-500"
+          >
+            {{ customer.brand.substring(0, 1) }}
+          </div>
+        </div>
       </div>
 
       <!-- 分隔线 -->

@@ -81,7 +81,7 @@ const currentAgency = computed(() => agencyStore.allAgency[0]);
           <img 
             :alt="currentAgency.name" 
             :src="currentAgency.user?.avatar"
-            class="w-10 h-10 rounded-full"
+            class="w-10 h-10"
           />
           <span class="text-lg font-medium">{{ currentAgency.name }}</span>
         </div>

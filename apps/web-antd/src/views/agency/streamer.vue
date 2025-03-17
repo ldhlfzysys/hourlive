@@ -46,7 +46,7 @@ onMounted(() => {
             </Button>
           </div>
 
-          <div class="flex flex-1 flex-col rounded-lg bg-gray-50 p-4">
+          <div class="flex flex-1 flex-col">
             <div v-if="streamerStore.streamerList.length > 0" class="scroller">
               <div class="grid grid-cols-1 gap-4">
                 <div
@@ -84,7 +84,7 @@ onMounted(() => {
             </Button>
           </div>
 
-          <div class="flex flex-1 flex-col rounded-lg bg-gray-50 p-4">
+          <div class="flex flex-1 flex-col">
             <div
               v-if="schedulingStore.customerList.length > 0"
               class="scroller"

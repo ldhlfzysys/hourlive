@@ -81,7 +81,7 @@ const currentAgency = computed(() => agencyStore.allAgency[0]);
           <img 
             :alt="currentAgency.name" 
             :src="currentAgency.user?.avatar"
-            class="w-10 h-10 rounded-full"
+            class="w-10 h-10" 
           />
           <span class="text-lg font-medium">{{ currentAgency.name }}</span>
         </div>
@@ -109,13 +109,6 @@ const currentAgency = computed(() => agencyStore.allAgency[0]);
             :options="roomStore.roomOptions"
             placeholder="过滤显示的直播间"
             title="过滤直播间"
-          />
-
-          <SelectFilter
-            v-model="schedulingStore.selectedStreamerIds"
-            :options="streamerStore.streamerOptions"
-            placeholder="过滤显示的主播"
-            title="过滤主播"
           />
         </div>
       </div>

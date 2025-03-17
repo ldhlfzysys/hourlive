@@ -42,7 +42,7 @@ const coreRoutes: RouteRecordRaw[] = [
         path: 'scheduling/:code?',
         component: () => import('#/views/public/scheduling.vue'),
         meta: {
-          title: $t('page.core.scheduling'),
+          title: $t('scheduling'),
         },
       },
       {
@@ -50,7 +50,7 @@ const coreRoutes: RouteRecordRaw[] = [
         path: 'schedulingstreamer/:code?',
         component: () => import('#/views/public/schedulingstreamer.vue'),
         meta: {
-          title: $t('page.core.scheduling'),
+          title: $t('scheduling'),
         },
       },
     ],

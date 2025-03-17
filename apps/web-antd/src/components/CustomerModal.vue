@@ -90,17 +90,19 @@ const handleCancel = () => {
           @change="handleAvatarChange"
         >
           <div
-            class="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-full border border-dashed border-gray-300 hover:border-blue-400"
+            class="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded border border-dashed border-gray-300 hover:border-blue-400"
           >
             <img
               v-if="customerForm.avatar"
-              :src="customerForm.avatar"
-              alt="avatar"
-              class="h-full w-full rounded-full object-cover"
+              :src="`${
+                customerForm.avatar
+              }?x-oss-process=image/resize,h_200,w_200,m_lfit`"
+              alt="brand logo"
+              class="max-h-full max-w-full object-contain"
             />
             <template v-else>
               <Plus class="h-6 w-6 text-gray-400" />
-              <span class="mt-1 text-sm text-gray-500">上传头像</span>
+              <span class="mt-1 text-sm text-gray-500">上传品牌Logo</span>
             </template>
           </div>
         </Upload>

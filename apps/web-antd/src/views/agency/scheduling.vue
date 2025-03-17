@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 
 import FullCalendar from '@fullcalendar/vue3';
-import { Avatar, Button, message, RangePicker, Tooltip } from 'ant-design-vue';
+import { Button, message, RangePicker, Tooltip } from 'ant-design-vue';
 import dayjs, { Dayjs } from 'dayjs';
 import { CircleHelp, PlusCircle } from 'lucide-vue-next';
 
@@ -193,7 +193,22 @@ onMounted(async () => {
                               : streamer.id
                         "
                       >
-                        <Avatar :size="40" :src="streamer.avatar" />
+                        <div
+                          class="flex h-[40px] w-[40px] items-center justify-center"
+                        >
+                          <img
+                            v-if="streamer.avatar && streamer.avatar.length > 0"
+                            :alt="streamer.name"
+                            :src="streamer.avatar"
+                            class="h-[40px] w-[40px] rounded-full object-cover"
+                          />
+                          <div
+                            v-else
+                            class="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-gray-200 text-gray-500"
+                          >
+                            {{ streamer.name.substring(0, 1) }}
+                          </div>
+                        </div>
                         <span
                           class="mt-1 w-full truncate text-center text-xs text-gray-600"
                           >{{ streamer.name }}</span
@@ -252,11 +267,22 @@ onMounted(async () => {
                             class="flex cursor-pointer flex-col items-center rounded-lg p-2 transition-all duration-200"
                             @click="handleBrandClick(brand.id)"
                           >
-                            <img
-                              :alt="brand.name"
-                              :src="brand.avatar"
-                              class="h-[30px] w-[30px] rounded object-cover"
-                            />
+                            <div
+                              class="flex h-[30px] w-[30px] items-center justify-center"
+                            >
+                              <img
+                                v-if="brand.avatar && brand.avatar.length > 0"
+                                :alt="brand.name"
+                                :src="brand.avatar"
+                                class="h-[30px] w-[30px] object-contain"
+                              />
+                              <div
+                                v-else
+                                class="flex h-[30px] w-[30px] items-center justify-center bg-gray-200 text-xs text-gray-500"
+                              >
+                                {{ brand.name.substring(0, 1) }}
+                              </div>
+                            </div>
                             <span
                               class="mt-1 max-w-[60px] truncate text-center text-xs text-gray-600"
                               >{{ brand.name }}</span

@@ -339,7 +339,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
                   customer
                     ? `
                   <div class="flex items-center gap-2 mb-1 truncate">
-                    ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>` : ''}
+                    ${customer.avatar ? `<img src="${customer.avatar}" class="w-5 h-5 object-contain flex-shrink-0"/>` : ''}
                     <span class="text-base font-medium text-gray-800 truncate">${customer.brand}</span>
                   </div>
                   `
@@ -349,7 +349,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
                   streamer
                     ? `
                   <div class="flex items-center gap-2 p-1 rounded mb-1 truncate">
-                    <img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>
+                    ${streamer.avatar ? `<img src="${streamer.avatar}" class="w-5 h-5 rounded-full object-cover flex-shrink-0"/>` : ''}
                     <span class="text-sm text-gray-700 truncate">${streamer.name}</span>
                   </div>
                   `
@@ -854,7 +854,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     const list = customerList.value.map((customer) => ({
       avatar: customer.avatar,
       id: customer.id ?? 0,
-      name: customer.code,
+      name: customer.brand,
       scheduledHours: calculateBrandScheduledHours(customer.id ?? 0),
     }));
 
