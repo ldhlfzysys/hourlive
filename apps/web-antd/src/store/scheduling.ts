@@ -79,6 +79,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   const customerModalLoading = ref(false);
   const editingCustomer = ref<CustomerUpdate | undefined>();
 
+  // 只读
+  const readonly = ref(false);
+
   // 打开新增品牌模态框
   function showAddCustomerModal() {
     editingCustomer.value = undefined;
@@ -358,6 +361,10 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
                 <div class="text-xs text-gray-500 truncate">${startTime} - ${endTime}</div>
               </div>
               
+              ${
+                readonly.value
+                  ? ''
+                  : `
               <div class="flex justify-center -mb-3 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out">
                 <button
                   class="p-1 bg-white rounded-full shadow-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
@@ -368,6 +375,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
                   </svg>
                 </button>
               </div>
+              `
+              }
             </div>
           </div>
         </div>
@@ -1137,6 +1146,16 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     tooltips.forEach((tooltip) => tooltip.remove());
   }
 
+  // 添加对 readonly 的监听，更新日历选项
+  watch(readonly, (newValue) => {
+    calendarOptions.value.editable = !newValue;
+    calendarOptions.value.selectable = !newValue;
+    calendarOptions.value.eventClick = newValue ? null : handleEventClick;
+    calendarOptions.value.eventDrop = newValue ? null : handleEventDropChange;
+    calendarOptions.value.eventResize = newValue ? null : handleEventChange;
+    calendarOptions.value.select = newValue ? null : handleSelect;
+  });
+
   return {
     $reset,
     brandList,
@@ -1169,6 +1188,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     queryPublicTimeslots,
     queryPublicTimeslotsStreamer,
     queryTimeslots,
+    readonly,
     recentBrands,
     recentStreamers,
     resourceAreaColumns,

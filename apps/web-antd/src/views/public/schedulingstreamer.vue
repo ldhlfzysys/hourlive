@@ -57,7 +57,7 @@ function handleCalendarChange(date: [Dayjs, Dayjs]) {
 
 
 onMounted(async () => {
-  console.log('Code from URL:', code.value);
+  schedulingStore.readonly = true;
   await schedulingStore.queryPublicTimeslotsStreamer(code.value);
   await schedulingStore.initCalendar();
   // await agencyStore.fetchAgency();
