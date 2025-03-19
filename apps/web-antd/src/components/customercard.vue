@@ -44,11 +44,36 @@ async function handleShare(e: Event) {
   const fullText = `${shareUrl}`;
 
   try {
+    // 尝试使用现代Clipboard API
     await navigator.clipboard.writeText(fullText);
     message.success('分享链接已复制到剪贴板');
   } catch (error) {
-    message.error('复制失败，请手动复制');
-    console.error('复制失败:', error);
+    // 如果现代API失败，使用备用方法
+    try {
+      // 创建临时文本区域元素
+      const textArea = document.createElement('textarea');
+      textArea.value = fullText;
+      // 确保元素不可见
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.append(textArea);
+      // 选择文本并复制
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      textArea.remove();
+
+      if (successful) {
+        message.success('分享链接已复制到剪贴板');
+      } else {
+        message.error('复制失败，请手动复制');
+        console.error('复制失败:', error);
+      }
+    } catch (fallbackError) {
+      message.error('复制失败，请手动复制');
+      console.error('复制失败:', fallbackError);
+    }
   }
 }
 
