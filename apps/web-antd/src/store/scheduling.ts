@@ -223,7 +223,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       return {
         html: `
           <div class="flex flex-col p-2" onclick="event.stopPropagation();">
-            ${isOneDay.value ? '' : `<div class="text-sm text-gray-600 mb-1">${dateStr}</div>`}
+            
             <div class="flex items-center gap-2">
               
               <span class="font-medium">${room?.name || ''}</span>
