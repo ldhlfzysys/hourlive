@@ -3,7 +3,9 @@ import type { Customer } from '#/types';
 
 import { createVNode, onMounted, ref } from 'vue';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { $t } from '@vben/locales';
+
+import { Button, Modal } from 'ant-design-vue';
 import { AlertCircle, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 
 import { useSchedulingStore } from '#/store';
@@ -38,43 +40,33 @@ function toggleDescription() {
 }
 
 // 修改分享功能
-async function handleShare(e: Event) {
+function handleShare(e: Event) {
   e.stopPropagation();
   const shareUrl = `${window.location.origin}/#/public/scheduling/${props.customer.code}`;
-  const fullText = `${shareUrl}`;
 
-  try {
-    // 尝试使用现代Clipboard API
-    await navigator.clipboard.writeText(fullText);
-    message.success('分享链接已复制到剪贴板');
-  } catch (error) {
-    // 如果现代API失败，使用备用方法
-    try {
-      // 创建临时文本区域元素
-      const textArea = document.createElement('textarea');
-      textArea.value = fullText;
-      // 确保元素不可见
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.append(textArea);
-      // 选择文本并复制
-      textArea.focus();
-      textArea.select();
-      const successful = document.execCommand('copy');
-      textArea.remove();
-
-      if (successful) {
-        message.success('分享链接已复制到剪贴板');
-      } else {
-        message.error('复制失败，请手动复制');
-        console.error('复制失败:', error);
-      }
-    } catch (fallbackError) {
-      message.error('复制失败，请手动复制');
-      console.error('复制失败:', fallbackError);
-    }
-  }
+  // 显示分享弹窗
+  Modal.info({
+    content: createVNode('div', {}, [
+      createVNode('p', {}, '点击下方链接可在新窗口打开：'),
+      createVNode(
+        'a',
+        {
+          href: shareUrl,
+          style: 'word-break: break-all; color: #1890ff;',
+          target: '_blank',
+        },
+        shareUrl,
+      ),
+      createVNode(
+        'p',
+        { style: 'margin-top: 12px; color: #666;' },
+        '该链接无需登录可直接打开查看名下排期',
+      ),
+    ]),
+    okText: $t('close'),
+    title: $t('shareSchedule'),
+    width: 500,
+  });
 }
 
 const handleDelete = (e: Event) => {

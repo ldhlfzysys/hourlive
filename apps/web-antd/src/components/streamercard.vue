@@ -5,7 +5,7 @@ import { computed, createVNode, onMounted, ref } from 'vue';
 
 import { $t } from '@vben/locales';
 
-import { Button, message, Modal, Tag } from 'ant-design-vue';
+import { Button, Modal, Tag } from 'ant-design-vue';
 import { AlertCircle, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 
 import { useStreamerStore } from '#/store';
@@ -55,14 +55,33 @@ function toggleDescription() {
   isExpanded.value = !isExpanded.value;
 }
 
-async function handleShare() {
+async function handleShare(e: Event) {
+  e.stopPropagation();
   const shareUrl = `${window.location.origin}/#/public/schedulingstreamer/${props.streamer.code}`;
-  try {
-    await navigator.clipboard.writeText(shareUrl);
-    message.success($t('copySuccess'));
-  } catch {
-    message.error($t('copyFailed'));
-  }
+
+  // 显示分享弹窗
+  Modal.info({
+    content: createVNode('div', {}, [
+      createVNode('p', {}, $t('share_schedule')),
+      createVNode(
+        'a',
+        {
+          href: shareUrl,
+          style: 'word-break: break-all; color: #1890ff;',
+          target: '_blank',
+        },
+        shareUrl,
+      ),
+      createVNode(
+        'p',
+        { style: 'margin-top: 12px; color: #666;' },
+        $t('share_schedule_desc'),
+      ),
+    ]),
+    okText: $t('close') || '关闭',
+    title: $t('shareSchedule'),
+    width: 500,
+  });
 }
 
 onMounted(() => {

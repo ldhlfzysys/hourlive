@@ -414,5 +414,7 @@
   "filter_room": "过滤显示的直播间",
   "room_title": "过滤直播间",
   "filter_streamer": "过滤显示的主播",
-  "streamer_title": "过滤主播"
+  "streamer_title": "过滤主播",
+  "share_schedule": "点击下方链接可在新窗口打开：",
+  "share_schedule_desc": "该链接无需登录可直接打开查看名下排期"
 }
