@@ -127,6 +127,14 @@ onMounted(async () => {
 
             <div class="flex items-center">
               <Button
+                :disabled="schedulingStore.operationHistory.length === 0"
+                :loading="schedulingStore.timeslotSaveLoading"
+                class="mr-2"
+                @click="schedulingStore.undo"
+              >
+                {{ $t('undo') }}
+              </Button>
+              <Button
                 :disabled="schedulingStore.changedTimeslots.size === 0"
                 :loading="schedulingStore.timeslotSaveLoading"
                 type="primary"

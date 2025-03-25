@@ -416,5 +416,6 @@
   "filter_streamer": "Filter Displayed Streamers",
   "streamer_title": "Filter Streamer",
   "share_schedule": "Click the link below to open in a new window:",
-  "share_schedule_desc": "This link can be opened directly without login to view the schedule"
+  "share_schedule_desc": "This link can be opened directly without login to view the schedule",
+  "undo": "Undo Operation"
 }

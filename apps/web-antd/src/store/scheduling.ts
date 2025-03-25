@@ -348,6 +348,75 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     },
   );
 
+  // 添加操作历史记录
+  const operationHistory = ref<
+    Array<{
+      changedData: Map<number, TimeslotUpdate>;
+      data: Map<number, TimeslotUpdate>;
+      type: 'add' | 'copy' | 'delete' | 'update';
+    }>
+  >([]);
+
+  // 最大历史记录数量
+  const MAX_HISTORY_SIZE = 20;
+
+  // 记录操作到历史
+  function recordOperation(type: 'add' | 'copy' | 'delete' | 'update') {
+    // 深拷贝当前状态
+    const timeslotsClone = new Map(
+      [...timeslots.value.entries()].map(([key, value]) => [key, { ...value }]),
+    );
+    const changedTimeslotsClone = new Map(
+      [...changedTimeslots.value.entries()].map(([key, value]) => [
+        key,
+        { ...value },
+      ]),
+    );
+
+    // 添加到历史记录
+    operationHistory.value.push({
+      changedData: changedTimeslotsClone,
+      data: timeslotsClone,
+      type,
+    });
+
+    // 限制历史记录大小
+    if (operationHistory.value.length > MAX_HISTORY_SIZE) {
+      operationHistory.value.shift();
+    }
+  }
+
+  // 撤销上一次操作
+  function undo() {
+    if (operationHistory.value.length === 0) {
+      message.info('没有可撤销的操作');
+      return;
+    }
+
+    // 获取上一次操作记录
+    const lastOperation = operationHistory.value.pop();
+    if (!lastOperation) return;
+
+    // 恢复到上一次操作前的状态
+    timeslots.value = lastOperation.data;
+    changedTimeslots.value = lastOperation.changedData;
+
+    message.success(`已撤销${getOperationTypeName(lastOperation.type)}操作`);
+  }
+
+  // 获取操作类型的中文名称
+  function getOperationTypeName(
+    type: 'add' | 'copy' | 'delete' | 'update',
+  ): string {
+    const typeMap = {
+      add: '新增',
+      copy: '复制',
+      delete: '删除',
+      update: '修改',
+    };
+    return typeMap[type];
+  }
+
   function handleEventContent(arg: any) {
     const timeslotId = Number(arg.event.id);
     const timeslot = timeslots.value.get(timeslotId);
@@ -461,6 +530,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     const timeslot = timeslots.value.get(timeslotId);
     if (!timeslot) return;
 
+    // 记录当前状态
+    recordOperation('delete');
+
     if (timeslot.create === 1) {
       // 如果是新创建的时间段，直接从 maps 中删除
       timeslots.value.delete(timeslotId);
@@ -535,6 +607,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       return;
     }
 
+    // 记录当前状态
+    recordOperation('update');
+
     // 创建更新后的时间段对象
     const updatedTimeslot: TimeslotUpdate = {
       ...currentTimeslot,
@@ -554,6 +629,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     const currentTimeslot = timeslots.value.get(timeslotId);
 
     if (!currentTimeslot) return;
+
+    // 记录当前状态
+    recordOperation('update');
 
     // 计算新的开始和结束时间
     const originalStart = dayjs(currentTimeslot.begin_date);
@@ -614,6 +692,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     if (!currentTimeslot) return;
 
+    // 记录当前状态
+    recordOperation('update');
+
     // 计算新的开始和结束时间
     const originalStart = dayjs(currentTimeslot.begin_date);
     const originalEnd = dayjs(currentTimeslot.finish_date);
@@ -667,6 +748,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   }
 
   function handleSelect(selectInfo: any) {
+    // 记录当前状态
+    recordOperation('add');
+
     // 从 resource 获取实际日期和房间ID
     const resourceId = selectInfo.resource.id;
     const [dateStr, roomId] = resourceId.split('_');
@@ -760,6 +844,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   ) {
     // 使用当前的copyingResourceId作为源
     if (!copyingResourceId.value) return;
+
+    // 记录当前状态
+    recordOperation('copy');
 
     // 解析源和目标的日期和房间ID
     const [sourceDate, sourceRoomId] = copyingResourceId.value.split('_');
@@ -1643,6 +1730,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     initCalendar,
     isCopying,
     isOneDay,
+    operationHistory,
     queryCustomers,
     queryPublicTimeslots,
     queryPublicTimeslotsStreamer,
@@ -1666,6 +1754,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     timeslotQueryLoading,
     timeslots,
     timeslotSaveLoading,
+    undo,
     updateCustomer,
   };
 });
