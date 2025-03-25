@@ -566,7 +566,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     e.stopPropagation();
     const { mode, targetResourceId } = e.detail;
     handleCopy(targetResourceId, mode);
-    cancelCopy();
+    // cancelCopy();
   }) as EventListener;
 
   const cancelCopyEventListener = ((e: Event) => {
@@ -926,8 +926,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     }
 
     // 复制完成后重置状态
-    isCopying.value = false;
-    copyingResourceId.value = '';
+    // isCopying.value = false;
+    // copyingResourceId.value = '';
 
     console.log('copy', timeslots.value);
     console.log('copyend', timeslotList.value);
