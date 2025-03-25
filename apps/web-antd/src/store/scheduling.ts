@@ -929,9 +929,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     // isCopying.value = false;
     // copyingResourceId.value = '';
 
-    console.log('copy', timeslots.value);
-    console.log('copyend', timeslotList.value);
-
     // 强制更新 calendar options
     calendarOptions.value.resourceLabelContent = (arg: any) => {
       const [dateStr, roomId] = arg.resource.id.split('_');
@@ -1264,9 +1261,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
         .map(([_, timeslot]) => ({ ...timeslot }))
         // 过滤掉标记为删除的时间段
         .filter((timeslot) => !timeslot.remove);
-
-      console.log('timeslots changed by watch', timeslots);
-      console.log('timeslotList changed by watch', timeslotList.value);
 
       // 根据选中的客户和主播进行过滤
       timeslotList.value = timeslots.filter((timeslot) => {

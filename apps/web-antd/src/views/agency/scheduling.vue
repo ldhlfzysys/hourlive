@@ -70,7 +70,6 @@ async function handleSaveTimeslots() {
       streamer_id: slot.streamer_id,
     }),
   );
-  console.log(timeslotSaves);
 
   await schedulingStore.saveTimeslots(timeslotSaves);
   message.success('保存成功');
@@ -78,7 +77,6 @@ async function handleSaveTimeslots() {
 
 onMounted(async () => {
   await useStreamerStore().queryStreamer();
-  console.log('xxxxx');
   await schedulingStore.queryCustomers();
   await useRoomStore().queryRoom();
   await schedulingStore.initCalendar();
