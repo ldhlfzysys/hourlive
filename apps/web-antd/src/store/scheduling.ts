@@ -216,6 +216,100 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     plugins: [resourceTimelinePlugin, interactionPlugin],
     resourceAreaColumns: resourceAreaColumns.value,
     resourceAreaWidth: '20%',
+    resourceGroupLabelContent: (arg: any) => {
+      const dateStr = arg.groupValue;
+
+      // 获取当天品牌统计数据
+      const brandStats = brandStatsByDate.value.get(dateStr) || new Map();
+      // 获取当天主播统计数据
+      const streamerStats = streamerStatsByDate.value.get(dateStr) || new Map();
+
+      // 生成品牌详情HTML
+      let brandsHtml = '';
+      let totalBrandHours = 0;
+
+      // 将Map转为数组并按时长排序
+      const sortedBrands = [...brandStats.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3); // 最多显示前3个
+
+      for (const [brandId, hours] of sortedBrands) {
+        const brand = customers.value.get(brandId);
+        if (brand) {
+          totalBrandHours += hours;
+          brandsHtml += `
+            <div class="flex items-center gap-1 mb-1">
+              ${
+                brand.avatar
+                  ? `<img src="${brand.avatar}" class="w-4 h-4 rounded-full object-cover flex-shrink-0"/>`
+                  : '<span class="w-4 h-4 bg-blue-100 rounded-full flex-shrink-0"></span>'
+              }
+              <span class="truncate max-w-[80px]">${brand.brand}</span>
+              <span class="text-blue-600 font-medium">${hours.toFixed(1)}h</span>
+            </div>
+          `;
+        }
+      }
+
+      // 如果有更多品牌，显示"更多"提示
+      if (brandStats.size > 3) {
+        brandsHtml += `<div class="text-xs text-gray-500">+${brandStats.size - 3}个品牌</div>`;
+      }
+
+      // 生成主播详情HTML
+      let streamersHtml = '';
+      let totalStreamerHours = 0;
+
+      // 将Map转为数组并按时长排序
+      const sortedStreamers = [...streamerStats.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3); // 最多显示前3个
+
+      for (const [streamerId, hours] of sortedStreamers) {
+        const streamer = useStreamerStore().getStreamerById(streamerId);
+        if (streamer) {
+          totalStreamerHours += hours;
+          streamersHtml += `
+            <div class="flex items-center gap-1 mb-1">
+              ${
+                streamer.avatar
+                  ? `<img src="${streamer.avatar}" class="w-4 h-4 rounded-full object-cover flex-shrink-0"/>`
+                  : '<span class="w-4 h-4 bg-green-100 rounded-full flex-shrink-0"></span>'
+              }
+              <span class="truncate max-w-[80px]">${streamer.name}</span>
+              <span class="text-green-600 font-medium">${hours.toFixed(1)}h</span>
+            </div>
+          `;
+        }
+      }
+
+      // 如果有更多主播，显示"更多"提示
+      if (streamerStats.size > 3) {
+        streamersHtml += `<div class="text-xs text-gray-500">+${streamerStats.size - 3}个主播</div>`;
+      }
+
+      return {
+        html: `
+          <div class="flex flex-col p-2 w-full">
+            <div class="flex items-center mb-2">
+              <span class="font-bold">${dateStr}</span>
+            </div>
+            
+            <div class="flex flex-col">
+              <div class="mb-1 font-medium text-sm">品牌 (${totalBrandHours.toFixed(1)}h)</div>
+              <div class="flex flex-col text-xs mb-2">
+                ${brandsHtml || '<div class="text-gray-400">暂无排班</div>'}
+              </div>
+              
+              <div class="mb-1 font-medium text-sm">主播 (${totalStreamerHours.toFixed(1)}h)</div>
+              <div class="flex flex-col text-xs">
+                ${streamersHtml || '<div class="text-gray-400">暂无排班</div>'}
+              </div>
+            </div>
+          </div>
+        `,
+      };
+    },
     resourceLabelContent: (arg: any) => {
       const [dateStr, roomId] = arg.resource.id.split('_');
       const room = useRoomStore().getRoomById(Number(roomId));
@@ -924,95 +1018,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
       timeslots.value.set(tempId, newSlot);
       changedTimeslots.value.set(tempId, newSlot);
     }
-
-    // 复制完成后重置状态
-    // isCopying.value = false;
-    // copyingResourceId.value = '';
-
-    // 强制更新 calendar options
-    calendarOptions.value.resourceLabelContent = (arg: any) => {
-      const [dateStr, roomId] = arg.resource.id.split('_');
-      const room = useRoomStore().getRoomById(Number(roomId));
-
-      return {
-        html: `
-            <div class="flex flex-col p-2" onclick="event.stopPropagation();">
-              ${isOneDay.value ? '' : `<div class="text-sm text-gray-600 mb-1">${dateStr}</div>`}
-              <div class="flex items-center gap-2">
-                
-                <span class="font-medium">${room?.name || ''}</span>
-              </div>
-              <div class="flex gap-2 mt-2">
-                ${
-                  isCopying.value
-                    ? arg.resource.id === copyingResourceId.value
-                      ? `<button
-                          class="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('cancel-copy', {
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >取消</button>`
-                      : `<button
-                          class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'insert'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >插入</button>
-                        <button
-                          class="text-xs px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'override'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >覆盖</button>`
-                    : `<button 
-                          class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('start-copy', {
-                              detail: { resourceId: '${arg.resource.id}' },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >复制</button>`
-                }
-              </div>
-            </div>
-          `,
-      };
-    };
   }
 
   // 检查时间冲突
@@ -1515,89 +1520,9 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   function startCopy(resourceId: string) {
     isCopying.value = true;
     copyingResourceId.value = resourceId;
-    // 强制更新 calendar options
-    calendarOptions.value.resourceLabelContent = (arg: any) => {
-      const [dateStr, roomId] = arg.resource.id.split('_');
-      const room = useRoomStore().getRoomById(Number(roomId));
 
-      return {
-        html: `
-            <div class="flex flex-col p-2" onclick="event.stopPropagation();">
-              ${isOneDay.value ? '' : `<div class="text-sm text-gray-600 mb-1">${dateStr}</div>`}
-              <div class="flex items-center gap-2">
-                
-                <span class="font-medium">${room?.name || ''}</span>
-              </div>
-              <div class="flex gap-2 mt-2">
-                ${
-                  isCopying.value
-                    ? arg.resource.id === copyingResourceId.value
-                      ? `<button
-                          class="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('cancel-copy', {
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >取消</button>`
-                      : `<button
-                          class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'insert'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >插入</button>
-                        <button
-                          class="text-xs px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'override'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >覆盖</button>`
-                    : `<button 
-                          class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('start-copy', {
-                              detail: { resourceId: '${arg.resource.id}' },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >复制</button>`
-                }
-              </div>
-            </div>
-          `,
-      };
+    calendarOptions.value.resourceLabelContent = (arg: any) => {
+      return { html: '' };
     };
   }
 
@@ -1607,95 +1532,87 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     copyingResourceId.value = '';
 
     // 强制更新 calendar options
-    calendarOptions.value.resourceLabelContent = (arg: any) => {
-      const [dateStr, roomId] = arg.resource.id.split('_');
-      const room = useRoomStore().getRoomById(Number(roomId));
 
-      return {
-        html: `
-            <div class="flex flex-col p-2" onclick="event.stopPropagation();">
-              ${isOneDay.value ? '' : `<div class="text-sm text-gray-600 mb-1">${dateStr}</div>`}
-              <div class="flex items-center gap-2">
-                
-                <span class="font-medium">${room?.name || ''}</span>
-              </div>
-              <div class="flex gap-2 mt-2">
-                ${
-                  isCopying.value
-                    ? arg.resource.id === copyingResourceId.value
-                      ? `<button
-                          class="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('cancel-copy', {
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >取消</button>`
-                      : `<button
-                          class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'insert'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >插入</button>
-                        <button
-                          class="text-xs px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('handle-copy', {
-                              detail: { 
-                                targetResourceId: '${arg.resource.id}',
-                                mode: 'override'
-                              },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >覆盖</button>`
-                    : `<button 
-                          class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                          onclick="(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            const evt = new CustomEvent('start-copy', {
-                              detail: { resourceId: '${arg.resource.id}' },
-                              bubbles: false
-                            });
-                            document.dispatchEvent(evt);
-                            return false;
-                          })(event)"
-                        >复制</button>`
-                }
-              </div>
-            </div>
-          `,
-      };
+    calendarOptions.value.resourceLabelContent = (arg: any) => {
+      return { html: '' };
     };
   }
+
+  // 添加响应式统计结果
+  const brandStatsByDate = ref(new Map<string, Map<number, number>>()); // 日期 -> 品牌ID -> 小时数
+  const streamerStatsByDate = ref(new Map<string, Map<number, number>>()); // 日期 -> 主播ID -> 小时数
+
+  // 更新统计数据的函数
+  function updateStatsByDate() {
+    // 初始化新的结果对象
+    const newBrandStats = new Map<string, Map<number, number>>();
+    const newStreamerStats = new Map<string, Map<number, number>>();
+
+    // 遍历所有时间段
+    for (const timeslot of timeslots.value.values()) {
+      // 跳过标记为删除的时间段
+      if (timeslot.remove) continue;
+
+      // 从resourceId中提取日期
+      const dateStr = timeslot.resourceId?.split('_')[0];
+      if (!dateStr) continue;
+
+      // 计算时长（小时）
+      const startTime = dayjs(timeslot.begin_date);
+      const endTime = dayjs(timeslot.finish_date);
+      const durationHours = endTime.diff(startTime, 'hour', true);
+
+      // 统计品牌时长
+      if (timeslot.customer_id) {
+        // 如果该日期还没有统计数据，初始化一个新Map
+        if (!newBrandStats.has(dateStr)) {
+          newBrandStats.set(dateStr, new Map<number, number>());
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const brandMap = newBrandStats.get(dateStr)!;
+        const currentHours = brandMap.get(timeslot.customer_id) || 0;
+        brandMap.set(timeslot.customer_id, currentHours + durationHours);
+      }
+
+      // 统计主播时长
+      if (timeslot.streamer_id) {
+        // 如果该日期还没有统计数据，初始化一个新Map
+        if (!newStreamerStats.has(dateStr)) {
+          newStreamerStats.set(dateStr, new Map<number, number>());
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const streamerMap = newStreamerStats.get(dateStr)!;
+        const currentHours = streamerMap.get(timeslot.streamer_id) || 0;
+        streamerMap.set(timeslot.streamer_id, currentHours + durationHours);
+      }
+    }
+
+    // 更新响应式结果
+    brandStatsByDate.value = newBrandStats;
+    streamerStatsByDate.value = newStreamerStats;
+  }
+
+  // 监听timeslots变化，自动更新统计数据
+  watch(
+    timeslots,
+    () => {
+      updateStatsByDate();
+    },
+    { deep: true },
+  );
+
+  // 初始化时也更新一次统计数据
+  onMounted(() => {
+    updateStatsByDate();
+  });
 
   return {
     $reset,
     brandList,
     brandMap,
+    brandStatsByDate, // 导出响应式统计结果
     calendarOptions,
     cancelCopy,
     changedTimeslots,
@@ -1744,11 +1661,13 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     showEditCustomerModal,
     startCopy,
     streamerList,
+    streamerStatsByDate, // 导出响应式统计结果
     timeslotList,
     timeslotQueryLoading,
     timeslots,
     timeslotSaveLoading,
     undo,
     updateCustomer,
+    updateStatsByDate, // 导出更新函数
   };
 });
