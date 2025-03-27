@@ -44,7 +44,7 @@ function handleBrandClick(brandId: number) {
 function handleCalendarChange(date: [Dayjs, Dayjs]) {
   // const calendarApi = calendarRef.value.getApi();
   // calendarApi.gotoDate(date[0].format('YYYY-MM-DD'));
-
+  schedulingStore.cancelCopy();
   // 查询新时间范围内的时间段
   schedulingStore.queryTimeslots({
     begin_date: date[0].format('YYYY-MM-DD'),

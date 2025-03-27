@@ -313,9 +313,18 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     resourceLabelContent: (arg: any) => {
       const [dateStr, roomId] = arg.resource.id.split('_');
       const room = useRoomStore().getRoomById(Number(roomId));
-
-      return {
-        html: `
+      // eslint-disable-next-line unicorn/prefer-ternary
+      if (readonly.value) {
+        return {
+          html: `
+          <div class="flex flex-col p-2">
+            <span class="font-medium">${room?.name || ''}</span>
+          </div>
+          `,
+        };
+      } else {
+        return {
+          html: `
           <div class="flex flex-col p-2" onclick="event.stopPropagation();">
             
             <div class="flex items-center gap-2">
@@ -391,7 +400,8 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
             </div>
           </div>
         `,
-      };
+        };
+      }
     },
     resources: resources.value,
     select: handleSelect,
@@ -1520,22 +1530,16 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   function startCopy(resourceId: string) {
     isCopying.value = true;
     copyingResourceId.value = resourceId;
-
-    calendarOptions.value.resourceLabelContent = (arg: any) => {
-      return { html: '' };
-    };
+    // 创建一个新的数组引用来触发更新
+    resources.value = [...resources.value];
   }
 
   // 修改取消复制的函数
   function cancelCopy() {
     isCopying.value = false;
     copyingResourceId.value = '';
-
-    // 强制更新 calendar options
-
-    calendarOptions.value.resourceLabelContent = (arg: any) => {
-      return { html: '' };
-    };
+    // 创建一个新的数组引用来触发更新
+    resources.value = [...resources.value];
   }
 
   // 添加响应式统计结果
