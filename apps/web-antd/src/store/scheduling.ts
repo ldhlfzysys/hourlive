@@ -680,6 +680,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   // 修改事件绑定的方式
   onMounted(() => {
+    console.log('onMounted');
     document.addEventListener('delete-timeslot', deleteEventListener, true);
     document.addEventListener('start-copy', copyEventListener, true);
     document.addEventListener('handle-copy', handleCopyEventListener, true);
@@ -687,10 +688,11 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   });
 
   onUnmounted(() => {
-    document.removeEventListener('delete-timeslot', deleteEventListener, true);
-    document.removeEventListener('start-copy', copyEventListener, true);
-    document.removeEventListener('handle-copy', handleCopyEventListener, true);
-    document.removeEventListener('cancel-copy', cancelCopyEventListener, true);
+    // console.log('onUnmounted');
+    // document.removeEventListener('delete-timeslot', deleteEventListener, true);
+    // document.removeEventListener('start-copy', copyEventListener, true);
+    // document.removeEventListener('handle-copy', handleCopyEventListener, true);
+    // document.removeEventListener('cancel-copy', cancelCopyEventListener, true);
   });
 
   async function initCalendar() {
@@ -1528,6 +1530,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   // 修改开始复制的函数
   function startCopy(resourceId: string) {
+    console.log('startCopy', resourceId);
     isCopying.value = true;
     copyingResourceId.value = resourceId;
     // 创建一个新的数组引用来触发更新

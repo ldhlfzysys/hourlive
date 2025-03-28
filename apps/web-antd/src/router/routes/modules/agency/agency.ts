@@ -107,7 +107,7 @@ const routes: RouteRecordRaw[] = [
       authority: ['agency'],
       hideChildrenInMenu: true,
       icon: 'lucide:video',
-      order: 3,
+      order: 2,
       title: $t('room'),
     },
     name: 'AgencyRoom',
