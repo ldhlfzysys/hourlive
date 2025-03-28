@@ -217,6 +217,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     resourceAreaColumns: resourceAreaColumns.value,
     resourceAreaWidth: '20%',
     resourceGroupLabelContent: (arg: any) => {
+      // 只有一个直播间时，没有形成group，此时读取filedValue，有多个直播间时，才有groupValue
       const dateStr = arg.groupValue || arg.fieldValue;
 
       // 获取当天品牌统计数据
