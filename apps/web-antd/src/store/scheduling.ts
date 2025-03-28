@@ -742,10 +742,25 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     // 计算新的开始和结束时间
     const originalStart = dayjs(currentTimeslot.begin_date);
     const originalEnd = dayjs(currentTimeslot.finish_date);
+
+    // 最大值和最小值
+    const minDate = dayjs(`${originalStart.format('YYYY-MM-DD')} 00:00:00`);
+    const maxDate = dayjs(`${originalEnd.format('YYYY-MM-DD')} 23:59:59`);
+
     const deltaMs = arg.delta?.milliseconds || 0;
 
-    const newStart = originalStart.add(deltaMs, 'millisecond');
-    const newEnd = originalEnd.add(deltaMs, 'millisecond');
+    let newStart = originalStart.add(deltaMs, 'millisecond');
+    let newEnd = originalEnd.add(deltaMs, 'millisecond');
+
+    // 如果newStart小于minDate，则设置为minDate
+    if (newStart.isBefore(minDate)) {
+      newStart = minDate;
+    }
+
+    // 如果newEnd大于maxDate，则设置为maxDate
+    if (newEnd.isAfter(maxDate)) {
+      newEnd = maxDate;
+    }
 
     // 如果resource没有改变，使用当前timeslot的resourceId
     const resourceId = arg.newResource
@@ -755,10 +770,21 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     // 使用新的日期和时间
     const newStartTime = newStart.format('HH:mm:ss');
-    const newEndTime = newEnd.format('HH:mm:ss');
+    let newEndTime = newEnd.format('HH:mm:ss');
 
     const newStartDate = `${dateStr} ${newStartTime}`;
-    const newEndDate = `${dateStr} ${newEndTime}`;
+    let newEndDate = `${dateStr} ${newEndTime}`;
+
+    // 如果重新调整后，出现xx:59:59，这个xx不为23，则加1秒，保证整数
+    if (newEndTime.endsWith(':59')) {
+      const newEndDateObj = dayjs(newEndDate);
+      if (newEndDateObj.hour() !== 23 || newEndDateObj.minute() !== 59) {
+        newEndDate = newEndDateObj
+          .add(1, 'second')
+          .format('YYYY-MM-DD HH:mm:ss');
+        newEndTime = newEndDateObj.format('HH:mm:ss');
+      }
+    }
 
     // 使用日期范围的开始日期（用于显示）
     const rangeStartDate = dateRange.value[0].format('YYYY-MM-DD');
@@ -793,6 +819,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   }
 
   function handleEventChange(arg: any) {
+    // 拖动事件左右，不会改变resource。因此日期不会改变，只会改变HH:MM
     const timeslotId = Number(arg.event.id);
     const currentTimeslot = timeslots.value.get(timeslotId);
 
@@ -800,6 +827,10 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     // 记录当前状态
     recordOperation('update');
+
+    // 可调整的最大值和最小值
+    // const minDate = dayjs(`${currentTimeslot.begin_date} 00:00:00`);
+    // const maxDate = dayjs(`${currentTimeslot.begin_date} 23:59:59`);
 
     // 计算新的开始和结束时间
     const originalStart = dayjs(currentTimeslot.begin_date);
@@ -814,11 +845,36 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     // 保持原始日期，只更新时间部分
     const originalDate = originalStart.format('YYYY-MM-DD');
-    const newStartTime = newStart.format('HH:mm:ss');
-    const newEndTime = newEnd.format('HH:mm:ss');
+    let newStartTime = newStart.format('HH:mm:ss');
+    let newEndTime = newEnd.format('HH:mm:ss');
 
-    const newStartDate = `${originalDate} ${newStartTime}`;
-    const newEndDate = `${originalDate} ${newEndTime}`;
+    let newStartDate = `${originalDate} ${newStartTime}`;
+    let newEndDate = `${originalDate} ${newEndTime}`;
+
+    // newEndDate如果超过当天23:59:59，则设置为当天23:59:59
+    const endOfDay = dayjs(`${originalDate} 23:59:59`);
+    if (newEnd.isAfter(endOfDay)) {
+      newEndDate = endOfDay.format('YYYY-MM-DD HH:mm:ss');
+      newEndTime = endOfDay.format('HH:mm:ss');
+    }
+
+    // newStartDate如果小于当天00:00:00，则设置为当天00:00:00
+    const startOfDay = dayjs(`${originalDate} 00:00:00`);
+    if (newStart.isBefore(startOfDay)) {
+      newStartDate = startOfDay.format('YYYY-MM-DD HH:mm:ss');
+      newStartTime = startOfDay.format('HH:mm:ss');
+    }
+
+    // 如果重新调整后，出现xx:59:59，这个xx不为23，则加1秒，保证整数
+    if (newEndTime.endsWith(':59')) {
+      const newEndDateObj = dayjs(newEndDate);
+      if (newEndDateObj.hour() !== 23 || newEndDateObj.minute() !== 59) {
+        newEndDate = newEndDateObj
+          .add(1, 'second')
+          .format('YYYY-MM-DD HH:mm:ss');
+        newEndTime = newEndDateObj.format('HH:mm:ss');
+      }
+    }
 
     // 使用日期范围的开始日期（用于显示）
     const rangeStartDate = dateRange.value[0].format('YYYY-MM-DD');
@@ -856,6 +912,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
   function handleSelect(selectInfo: any) {
     // 记录当前状态
     recordOperation('add');
+    console.log(selectInfo);
 
     // 从 resource 获取实际日期和房间ID
     const resourceId = selectInfo.resource.id;
@@ -869,7 +926,13 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
     // 使用 dateStr（实际日期）构建完整的日期时间
     const actualStartDate = dayjs(`${dateStr} ${viewStartTime}`);
-    const actualEndDate = actualStartDate.add(2, 'hours');
+    let actualEndDate = actualStartDate.add(2, 'hours');
+
+    // actualEndDate如果超过当天23:59:59，则设置为当天23:59:59
+    const endOfDay = dayjs(`${dateStr} 23:59:59`);
+    if (actualEndDate.isAfter(endOfDay)) {
+      actualEndDate = endOfDay;
+    }
 
     // 创建新的时间段
     const newTimeslot: TimeslotUpdate = {
