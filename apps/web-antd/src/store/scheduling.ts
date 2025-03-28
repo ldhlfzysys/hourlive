@@ -217,7 +217,7 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
     resourceAreaColumns: resourceAreaColumns.value,
     resourceAreaWidth: '20%',
     resourceGroupLabelContent: (arg: any) => {
-      const dateStr = arg.groupValue;
+      const dateStr = arg.groupValue || arg.fieldValue;
 
       // 获取当天品牌统计数据
       const brandStats = brandStatsByDate.value.get(dateStr) || new Map();
@@ -680,7 +680,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   // 修改事件绑定的方式
   onMounted(() => {
-    console.log('onMounted');
     document.addEventListener('delete-timeslot', deleteEventListener, true);
     document.addEventListener('start-copy', copyEventListener, true);
     document.addEventListener('handle-copy', handleCopyEventListener, true);
@@ -1056,6 +1055,20 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   function $reset() {
     brandMap.value = {};
+    timeslots.value = new Map();
+    changedTimeslots.value = new Map();
+    customers.value = new Map();
+    isCopying.value = false;
+    copyingResourceId.value = '';
+    selectedBrandId.value = undefined;
+    selectedStreamId.value = undefined;
+    selectedRoomIds.value = [];
+    selectedCustomerIds.value = [];
+    selectedStreamerIds.value = [];
+    timeslotQueryLoading.value = false;
+    timeslotSaveLoading.value = false;
+    customerQueryLoading.value = false;
+    customerUpdateLoading.value = false;
   }
 
   // 查询品牌方列表
@@ -1318,7 +1331,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
           })
         : resources.value;
   });
-
   // 查询公开时间段
   async function queryPublicTimeslots(code: string) {
     try {
@@ -1530,7 +1542,6 @@ export const useSchedulingStore = defineStore('scheduling-store', () => {
 
   // 修改开始复制的函数
   function startCopy(resourceId: string) {
-    console.log('startCopy', resourceId);
     isCopying.value = true;
     copyingResourceId.value = resourceId;
     // 创建一个新的数组引用来触发更新
