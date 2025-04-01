@@ -11,9 +11,10 @@ import {
   Modal,
   Select,
   SelectOption,
+  Upload,
 } from 'ant-design-vue';
 
-import { useSampleStore } from '#/store';
+import { useOSSFileStore, useSampleStore } from '#/store';
 
 import '@wangeditor/editor/dist/css/style.css';
 
@@ -22,6 +23,7 @@ defineOptions({
 });
 
 const sampleStore = useSampleStore();
+const ossFileStore = useOSSFileStore();
 
 const editorRef = ref();
 const mode = ref('simple');
@@ -44,6 +46,26 @@ function handleOk() {
     sampleStore.createSample();
   }
 }
+
+// 处理图片上传
+const handleImageUpload = async (info: any) => {
+  const file = info.file;
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const productId = sampleStore.sampleUpdate.product_id || '0';
+
+    const result = await ossFileStore.uploadProductImage({
+      fileData: formData,
+      product_id: Number.parseInt(productId),
+    });
+
+    if (result) {
+      sampleStore.sampleUpdate.product_image = result;
+    }
+  }
+};
 </script>
 
 <template>
@@ -83,6 +105,21 @@ function handleOk() {
               alt="商品图片"
               class="rounded-lg"
             />
+            <!-- 添加更换图片按钮 -->
+            <Upload
+              :custom-request="handleImageUpload"
+              :show-upload-list="false"
+              accept="image/*"
+            >
+              <Button
+                :loading="ossFileStore.uploading"
+                class="image-upload-btn"
+                size="small"
+                type="primary"
+              >
+                {{ $t('change') }}
+              </Button>
+            </Upload>
           </div>
 
           <!-- 商品信息区域 -->
@@ -216,5 +253,12 @@ function handleOk() {
   background-color: #c8c8c8;
   border-radius: 10px;
   box-shadow: inset 0 0 6px rgb(0 0 0 / 10%);
+}
+
+.image-upload-btn {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  z-index: 10;
 }
 </style>

@@ -125,6 +125,30 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    component: BasicLayout,
+    meta: {
+      authority: ['super'],
+      hideChildrenInMenu: true,
+      icon: 'lucide:settings',
+      order: 4,
+      title: $t('settings'),
+    },
+    name: 'SuperSettings',
+    path: '/superSettings',
+    children: [
+      {
+        component: () => import('#/views/super/settings.vue'),
+        meta: {
+          affixTab: false,
+          icon: 'lucide:settings',
+          title: $t('settings'),
+        },
+        name: 'SuperSettingsIndex',
+        path: '/superSettings/index',
+      },
+    ],
+  },
 ];
 
 export default routes;

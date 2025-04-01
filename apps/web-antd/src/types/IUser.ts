@@ -123,6 +123,10 @@ export interface SuperHomeInfo {
   today_content: number;
 }
 
+export interface TikTokCookie {
+  cookie: string;
+}
+
 export interface AgencyUpdate {
   id: number;
   name: string;

@@ -35,6 +35,18 @@ function _uploadFile(params: OSSFileUpload) {
   );
 }
 
+function _uploadProductImage(params: OSSFileUpload) {
+  return requestClient.post<StanderResult<string>>(
+    `oss/uploadproductimage/${params.product_id}`,
+    params.fileData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+}
+
 function _deleteFile(params: OSSFileDelete) {
   return requestClient.post<StanderResult<string>>('oss/deletefile', params);
 }
@@ -164,6 +176,18 @@ export const useOSSFileStore = defineStore('file-store', () => {
     uploading.value = false;
   }
 
+  async function uploadProductImage(file: OSSFileUpload) {
+    uploading.value = true;
+    const result = await _uploadProductImage(file);
+    if (result && result.success) {
+      message.success($t('success'));
+    } else {
+      message.error($t('upload_faild'));
+    }
+    uploading.value = false;
+    return result.data;
+  }
+
   async function fetchFile() {
     fetching.value = true;
     const result = await _fetchFile(currentProductId.value);
@@ -234,5 +258,6 @@ export const useOSSFileStore = defineStore('file-store', () => {
     uploadFile,
     uploadHardware,
     uploading,
+    uploadProductImage,
   };
 });

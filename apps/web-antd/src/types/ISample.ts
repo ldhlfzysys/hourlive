@@ -36,3 +36,7 @@ export interface Sample {
   sample_mark?: string; // 样品标记
   isInAgency?: number; // 0没有， 1在途， 2有
 }
+
+export interface Samples {
+  samples: Sample[];
+}

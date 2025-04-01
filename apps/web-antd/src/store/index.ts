@@ -14,5 +14,6 @@ export * from './sampleshipping';
 export * from './scheduling';
 export * from './shippingaddress';
 export * from './streamer';
+export * from './super';
 // export * from './timeslotOrder';
 export * from './timeslotsorder';
